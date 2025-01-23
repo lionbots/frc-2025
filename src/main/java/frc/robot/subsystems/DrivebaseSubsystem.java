@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -25,12 +26,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private SparkMax blMotor = new SparkMax(0, MotorType.kBrushless);
     // DifferentialDrive with front left and front right motor.
     private DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
+    private RelativeEncoder frEncoder = frMotor.getEncoder();
+    private RelativeEncoder flEncoder = flMotor.getEncoder();
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
         setFollow();
         setMotorIdleModes();
         setCurrentLimit();
+    }
+
+    public double getLeftPosition() {
+        return flEncoder.getPosition();
+    }
+
+    public double getRightPosition() {
+        return frEncoder.getPosition();
     }
 
     /**
