@@ -11,6 +11,8 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,12 +30,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private RelativeEncoder frEncoder = frMotor.getEncoder();
     private RelativeEncoder flEncoder = flMotor.getEncoder();
+    private AHRS ahrs = new AHRS(NavXComType.kMXP_SPI);
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
         setFollow();
         setMotorIdleModes();
         setCurrentLimit();
+    }
+
+    public double getAngle() {
+        return ahrs.getAngle();
     }
 
     public double getLeftPosition() {
