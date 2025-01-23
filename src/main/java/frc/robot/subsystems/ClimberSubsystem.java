@@ -4,12 +4,19 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.revrobotics.spark.SparkMax;
 
 public class ClimberSubsystem extends SubsystemBase {
+
+  private SparkMax climberMotor;
+
   /** Creates a new ClimberSubsystem. */
-  public ClimberSubsystem() {}
+  public ClimberSubsystem() {
+
+  }
 
   /**
    * Example command factory method.
