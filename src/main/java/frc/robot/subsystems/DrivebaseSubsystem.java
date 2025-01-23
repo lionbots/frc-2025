@@ -31,7 +31,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private RelativeEncoder frEncoder = frMotor.getEncoder();
     private RelativeEncoder flEncoder = flMotor.getEncoder();
-    private AHRS ahrs = new AHRS(NavXComType.kMXP_SPI);
+    private AHRS navx2 = new AHRS(NavXComType.kMXP_SPI);
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
@@ -40,14 +40,26 @@ public class DrivebaseSubsystem extends SubsystemBase {
         setCurrentLimit();
     }
 
+    /**
+     * Get robot rotation
+     * @return Z axis rotation in degrees, possibly above 360, from gyro
+     */
     public double getAngle() {
-        return ahrs.getAngle();
+        return navx2.getAngle();
     }
 
+    /**
+     * Get front left wheel position
+     * @return Number of rotations according to left encoder
+     */
     public double getLeftPosition() {
         return flEncoder.getPosition();
     }
 
+    /**
+     * Get front right wheel position
+     * @return Number of rotations according to right encoder
+     */
     public double getRightPosition() {
         return frEncoder.getPosition();
     }
