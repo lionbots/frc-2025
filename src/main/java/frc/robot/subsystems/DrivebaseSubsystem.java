@@ -16,16 +16,17 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 
 public class DrivebaseSubsystem extends SubsystemBase {
-    // front right motor with the id 0 for now, the type is brushless
-    private SparkMax frMotor = new SparkMax(0, MotorType.kBrushless);
-    // front left motor with the id 0 for now, the type is brushless
-    private SparkMax flMotor = new SparkMax(0, MotorType.kBrushless);
-    // back right motor with the id 0 for now, the type is brushless
-    private SparkMax brMotor = new SparkMax(0, MotorType.kBrushless);
-    // back left motor with the id 0 for now, the type is brushless
-    private SparkMax blMotor = new SparkMax(0, MotorType.kBrushless);
+    // front right motor, the type is brushless
+    private SparkMax frMotor = new SparkMax(DriveConstants.frDeviceId, MotorType.kBrushless);
+    // front left motor, the type is brushless
+    private SparkMax flMotor = new SparkMax(DriveConstants.flDeviceId, MotorType.kBrushless);
+    // back right motor, the type is brushless
+    private SparkMax brMotor = new SparkMax(DriveConstants.brDeviceId, MotorType.kBrushless);
+    // back left motor, the type is brushless
+    private SparkMax blMotor = new SparkMax(DriveConstants.blDeviceId, MotorType.kBrushless);
     // DifferentialDrive with front left and front right motor.
     private DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private RelativeEncoder frEncoder = frMotor.getEncoder();

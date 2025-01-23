@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -19,10 +15,11 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-    final SparkMax frMotor = new SparkMax(0, MotorType.kBrushless);
-    final SparkMax flMotor = new SparkMax(0, MotorType.kBrushless);
-    final SparkMax brMotor = new SparkMax(0, MotorType.kBrushless);
-    final SparkMax blMotor = new SparkMax(0, MotorType.kBrushless);
-    final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
+  }
+  public static class DriveConstants {
+    public static final int frDeviceId = 0;
+    public static final int flDeviceId = 0;
+    public static final int brDeviceId = 0;
+    public static final int blDeviceId = 0;
   }
 }
