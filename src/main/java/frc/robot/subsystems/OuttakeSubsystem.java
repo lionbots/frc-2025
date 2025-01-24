@@ -6,14 +6,19 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class OuttakeSubsystem extends SubsystemBase {
+  //left motor on launcher
+  private final SparkMax leftLauncherMotor = new SparkMax(0, MotorType.kBrushless); 
+  //right motor on launcher
+  private final SparkMax rightLauncherMotor = new SparkMax(0, MotorType.kBrushless);
+  //motor for pivot
+  private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless);
+
     public OuttakeSubsystem () {
 
     }
