@@ -26,10 +26,12 @@ public class IntakeSubsystem extends SubsystemBase {
   private RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
   private RelativeEncoder intakeEncoder = intakeMotor.getEncoder();
 
+  // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();
   }
 
+  // Method for brake mode
   public void setMotorIdleModes() {
     SparkMaxConfig idleMode = new SparkMaxConfig();
     idleMode.idleMode(IdleMode.kBrake);
