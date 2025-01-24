@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.servohub.ServoHub.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -18,9 +19,12 @@ import com.revrobotics.spark.*;
 
 
 public class IntakeSubsystem extends SubsystemBase {
-  /** Create instance variables for the motors*/
+  //Create instance variables for the motors
   private final SparkMax pivotMotor = new SparkMax(0, MotorType.kBrushless);
   private final SparkMax intakeMotor = new SparkMax(1, MotorType.kBrushless);
+  //Create instance variables for the encoders
+  private RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
+  private RelativeEncoder intakeEncoder = intakeMotor.getEncoder();
 
   public IntakeSubsystem() {
     setMotorIdleModes();
