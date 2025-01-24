@@ -40,6 +40,25 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+  //Method for setting intake speed
+  public void setIntakeSpeed(double intakeSpeed) {
+    intakeMotor.set(intakeSpeed);
+  }
+
+  //Method for setting pivot speed
+  public void setPivotSpeed(double pivotSpeed) {
+    pivotMotor.set(pivotSpeed);
+  }
+
+  //Method to get position of intake
+  public double getIntakePosition() {
+    return intakeEncoder.getPosition();
+  }
+  
+  //Method to get position of pivot
+  public double getPivotPosition() {
+    return pivotEncoder.getPosition();
+  }
 
   /**
    * Example command factory method.
