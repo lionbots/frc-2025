@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -15,12 +16,18 @@ public class OuttakeSubsystem extends SubsystemBase {
   //right motor on launcher
   private final SparkMax rightLauncherMotor = new SparkMax(0, MotorType.kBrushless);
   //motor for pivot
-  private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless);
+  private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless); 
+  //encoder for the left motor on launcher
+  private final RelativeEncoder leftlauncherEncoder = leftLauncherMotor.getEncoder();
+  //encoder for the right motor on launcher
+  private final RelativeEncoder rightlauncherEncoder = rightLauncherMotor.getEncoder();
+  //encoder for the pivot motor
+  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder(); 
 
-    public OuttakeSubsystem () {
+    public OuttakeSubsystem() {
       
     }
-
+    //set all the motors to brake mode
     public void idleMotor() {
       SparkMaxConfig idleMode = new SparkMaxConfig();
       idleMode.idleMode(IdleMode.kBrake);
