@@ -37,6 +37,15 @@ public class ClimberSubsystem extends SubsystemBase {
     return cEncoder.getPosition();
   }
 
+  /*
+   * Sets the speed of the motor. 
+   * @param the desired speed for the motor
+   */
+
+  public void setSpeed(double speed){
+    climberMotor.set(speed);
+  }
+
   /**
    * Example command factory method.
    *
