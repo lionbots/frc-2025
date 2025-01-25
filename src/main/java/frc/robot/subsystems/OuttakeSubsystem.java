@@ -25,7 +25,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder(); 
 
     public OuttakeSubsystem() {
-      
+      idleMotor();
     }
     //set all the motors to brake mode
     public void idleMotor() {
@@ -34,6 +34,24 @@ public class OuttakeSubsystem extends SubsystemBase {
       leftLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       rightLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void setOuttakeSpeed(double outtakeSpeed) {
+      leftLauncherMotor.set(outtakeSpeed);
+      rightLauncherMotor.set(outtakeSpeed);
+    }
+
+    public void setPivotSpeed(double pivotSpeed){
+      pivotMotor.set(pivotSpeed);
+    }
+    public double leftLauncherMotorPosition() {
+      return leftlauncherEncoder.getPosition();
+    }
+    public double rightLauncherMotorPosition() {
+      return rightlauncherEncoder.getPosition();
+    }
+    public double pivotMotorPosition() {
+      return pivotEncoder.getPosition();
     }
 
     public Command outtakeMethodCommand() {
