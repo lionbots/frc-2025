@@ -33,7 +33,13 @@ public class FieldCentricDriveCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    // joystick atan2 is positive = counterclockwise radians, 0 radians = +x axis
+    // convert to positive = clockwise degrees, 0 degree = +y axis
+    double joystickRotation = Math.toDegrees(Math.atan2(this.xFunction.get(), this.yFunction.get()));
+    joystickRotation += joystickRotation < 0 ? 360 : 0;
+    double robotRotation = drivebase.getAngle();
+  }
 
   // Called once the command ends or is interrupted.
   @Override

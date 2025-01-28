@@ -45,7 +45,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
      * @return Z axis rotation in degrees, possibly above 360, from gyro
      */
     public double getAngle() {
-        return navx2.getAngle();
+        return navx2.getYaw();
     }
 
     /**
