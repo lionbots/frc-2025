@@ -5,20 +5,24 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.DrivebaseSubsystem;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final DrivebaseSubsystem m_subsystem;
+import java.util.function.Supplier;
 
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   */
-  public ExampleCommand(DrivebaseSubsystem subsystem) {
-    m_subsystem = subsystem;
+/** An example command that uses an example subsystem. */
+public class FieldCentricDriveCommand extends Command {
+
+  private final Supplier<Double> speedSupplier, xFunction, yFunction;
+  private final DrivebaseSubsystem drivebase;
+  private final PIDController pid = new PIDController(0, 0, 0);
+
+  public FieldCentricDriveCommand(DrivebaseSubsystem subsystem, Supplier<Double> xFunction, Supplier<Double> yFunction, Supplier<Double> speedSupplier) {
+    drivebase = subsystem;
+    this.speedSupplier = speedSupplier;
+    this.xFunction = xFunction;
+    this.yFunction = yFunction;
+
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
