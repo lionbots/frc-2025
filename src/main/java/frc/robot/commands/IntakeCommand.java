@@ -6,18 +6,18 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.*;
+import java.util.function.Supplier;
 
-/** An example command that uses an example subsystem. */
+// An Intake command that uses an Intake subsystem.
 public class IntakeCommand extends Command {
+    private final IntakeSubsystem intake;
+    private final Supplier<Double> intakeSpeed;
 
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   */
-  public IntakeCommand(IntakeSubsystem subsystem) {
+  public IntakeCommand(IntakeSubsystem intake, Supplier<Double> intakeSpeed) {
+    this.intake = intake;
+    this.intakeSpeed = intakeSpeed;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
