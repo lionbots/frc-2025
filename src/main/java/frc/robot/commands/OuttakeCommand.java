@@ -10,10 +10,14 @@ import java.util.function.Supplier;
 
 // An Outtake command that uses an Outtake subsystem. */
 public class OuttakeCommand extends Command {
-    
+  private final OuttakeSubsystem outtake;
+  private final Supplier<Double> actualSpeed;
 
   public OuttakeCommand (OuttakeSubsystem outtake, Supplier<Double> actualSpeed) {
-    
+    this.outtake = outtake;
+    this.actualSpeed = actualSpeed;
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(outtake);
   }
 
   // Called when the command is initially scheduled.
