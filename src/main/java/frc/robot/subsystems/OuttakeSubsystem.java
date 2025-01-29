@@ -51,7 +51,7 @@ public class OuttakeSubsystem extends SubsystemBase {
       return rightlauncherEncoder.getPosition();
     }
     public double pivotMotorPosition() {
-      return pivotEncoder.getPosition();
+      return pivotEncoder.getPosition();  
     }
 
     public Command outtakeMethodCommand() {

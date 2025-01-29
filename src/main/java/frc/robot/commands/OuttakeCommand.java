@@ -11,22 +11,23 @@ import java.util.function.Supplier;
 // An Outtake command that uses an Outtake subsystem. */
 public class OuttakeCommand extends Command {
   private final OuttakeSubsystem outtake;
-  private final Supplier<Double> actualSpeed;
+  private final Supplier<Double> speedFunction;
 
-  public OuttakeCommand (OuttakeSubsystem outtake, Supplier<Double> actualSpeed) {
+  public OuttakeCommand (OuttakeSubsystem outtake, Supplier<Double> speedFunction) {
     this.outtake = outtake;
-    this.actualSpeed = actualSpeed;
+    this.speedFunction = speedFunction;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(outtake);
+  }
+    // Called every time the scheduler runs while the command is scheduled.
+
+  public void execute(){
+    outtake.setOuttakeSpeed(speedFunction.get());
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
