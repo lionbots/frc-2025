@@ -14,9 +14,11 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.PIDConstants;
 
 public class DrivebaseSubsystem extends SubsystemBase {
     // front right motor, the type is brushless
@@ -32,12 +34,21 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private RelativeEncoder frEncoder = frMotor.getEncoder();
     private RelativeEncoder flEncoder = flMotor.getEncoder();
     private AHRS navx2 = new AHRS(NavXComType.kMXP_SPI);
+    private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
+
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
         setFollow();
         setMotorIdleModes();
         setCurrentLimit();
+        configurePID();
+    }
+
+    // Makes the PID continuous at 0/360 and sets the tolerance to 2
+    private void configurePID() {
+        PID.enableContinuousInput(-180, 180);
+        PID.setTolerance(PIDConstants.tolerance);
     }
 
     /**
@@ -111,5 +122,29 @@ public class DrivebaseSubsystem extends SubsystemBase {
      */
     public void setDifferentialDrive(double speed, double rotation) {
         d_drive.arcadeDrive(speed, rotation);
+    }
+
+    // Returns the robot heading (0 - 180/-180) from the gyroscope and gets the mirror value if the robot is driving backwards
+    public double getAngle(boolean backwards) {
+    double gyroscopeAngle = navx2.getAngle() * -1;
+    if(backwards) {
+        gyroscopeAngle = (gyroscopeAngle + 180) % 360;
+    }
+    if(gyroscopeAngle % 360  > 180) {
+            return (gyroscopeAngle % 360) - 360;
+        } else if (gyroscopeAngle % 360 < -180) {
+            return (gyroscopeAngle % 360) + 360;
+        } else {
+            return gyroscopeAngle % 360;
+        }
+    }
+
+    public double getRawAngle() {
+        return navx2.getAngle();
+    }
+
+    // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
+    public double angleToRotation(double target, boolean backwards) {
+        return PID.calculate(getAngle(backwards), target);
     }
 }
