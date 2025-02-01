@@ -17,7 +17,8 @@ public class ClimberCommand extends Command {
   /**
    * Creates a new ClimberCommand.
    *
-   * @param climber The subsystem used by this command.
+   * @param climber - The subsystem used by this command.
+   * @param speed - The function for the climber's speed. 
    */
   public ClimberCommand(ClimberSubsystem climber, Supplier<Double> speed) {
     this.climber = climber;
@@ -31,6 +32,7 @@ public class ClimberCommand extends Command {
   public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
+  // Sets the speed of the climber. 
   @Override
   public void execute() {
     climber.setSpeed(speed.get());
