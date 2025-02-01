@@ -33,7 +33,7 @@ public class ClimberCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    climber.setSpeed(speed.get());
   }
 
   // Called once the command ends or is interrupted.
