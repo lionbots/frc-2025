@@ -11,19 +11,19 @@ import java.util.function.Supplier;
 /** An example command that uses an example subsystem. */
 public class ClimberCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ClimberSubsystem m_subsystem;
+  private final ClimberSubsystem climber;
   private final Supplier<Double> speed;
 
   /**
    * Creates a new ClimberCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param climber The subsystem used by this command.
    */
-  public ClimberCommand(ClimberSubsystem subsystem, Supplier<Double> speed) {
-    m_subsystem = subsystem;
+  public ClimberCommand(ClimberSubsystem climber, Supplier<Double> speed) {
+    this.climber = climber;
     this.speed = speed;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(climber);
   }
 
   // Called when the command is initially scheduled.
@@ -32,7 +32,9 @@ public class ClimberCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+
+  }
 
   // Called once the command ends or is interrupted.
   @Override
