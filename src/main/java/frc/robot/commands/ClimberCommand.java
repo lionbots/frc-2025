@@ -19,8 +19,9 @@ public class ClimberCommand extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ClimberCommand(ClimberSubsystem subsystem) {
+  public ClimberCommand(ClimberSubsystem subsystem, Supplier<Double> speed) {
     m_subsystem = subsystem;
+    this.speed = speed;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
