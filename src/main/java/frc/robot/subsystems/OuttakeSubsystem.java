@@ -11,16 +11,24 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class OuttakeSubsystem extends SubsystemBase {
-  //left motor on launcher
-  private final SparkMax leftLauncherMotor = new SparkMax(0, MotorType.kBrushless); 
-  //right motor on launcher
-  private final SparkMax rightLauncherMotor = new SparkMax(0, MotorType.kBrushless);
+  //outer left motor on launcher
+  private final SparkMax outerLeftLauncherMotor = new SparkMax(0, MotorType.kBrushless); 
+  //outer right motor on launcher
+  private final SparkMax outerRightLauncherMotor = new SparkMax(0, MotorType.kBrushless);
+  //inner left motor on launcher
+  private final SparkMax innerLeftLauncherMotor = new SparkMax (0, MotorType.kBrushless);
+  //inner right motor on launcher
+  private final SparkMax innerRightLauncherMotor = new SparkMax (0, MotorType.kBrushless);
   //motor for pivot
   private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless); 
-  //encoder for the left motor on launcher
-  private final RelativeEncoder leftlauncherEncoder = leftLauncherMotor.getEncoder();
-  //encoder for the right motor on launcher
-  private final RelativeEncoder rightlauncherEncoder = rightLauncherMotor.getEncoder();
+  //encoder for the outer left motor on launcher
+  private final RelativeEncoder outerLeftlauncherEncoder = outerLeftLauncherMotor.getEncoder();
+  //encoder for the outer right motor on launcher
+  private final RelativeEncoder outerRightlauncherEncoder = outerRightLauncherMotor.getEncoder();
+  //encoder for the inner left motor on launcher
+  private final RelativeEncoder innerLeftlauncherEncoder = innerLeftLauncherMotor.getEncoder();
+  //encoder for the inner right motor on launcher
+  private final RelativeEncoder innerRightlauncherEncoder = innerRightLauncherMotor.getEncoder();
   //encoder for the pivot motor
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder(); 
 
@@ -31,24 +39,35 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void idleMotor() {
       SparkMaxConfig idleMode = new SparkMaxConfig();
       idleMode.idleMode(IdleMode.kBrake);
-      leftLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      rightLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      outerLeftLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      outerRightLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerLeftLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerRightLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
-
+    //set the speed to the motors
     public void setOuttakeSpeed(double outtakeSpeed) {
-      leftLauncherMotor.set(outtakeSpeed);
-      rightLauncherMotor.set(outtakeSpeed);
+      outerLeftLauncherMotor.set(outtakeSpeed);
+      outerRightLauncherMotor.set(outtakeSpeed);
+      innerLeftLauncherMotor.set(outtakeSpeed);
+      innerRightLauncherMotor.set(outtakeSpeed);
     }
 
     public void setPivotSpeed(double pivotSpeed){
       pivotMotor.set(pivotSpeed);
     }
-    public double leftLauncherMotorPosition() {
-      return leftlauncherEncoder.getPosition();
+    //get the position of the launcher
+    public double outerLeftLauncherMotorPosition() {
+      return outerLeftlauncherEncoder.getPosition();
     }
-    public double rightLauncherMotorPosition() {
-      return rightlauncherEncoder.getPosition();
+    public double outerRightLauncherMotorPosition() {
+      return outerRightlauncherEncoder.getPosition();
+    }
+    public double innerLeftLauncherMotorPosition() {
+      return innerLeftlauncherEncoder.getPosition();
+    }
+    public double innerRightLauncherMotorPosition() {
+      return innerRightlauncherEncoder.getPosition();
     }
     public double pivotMotorPosition() {
       return pivotEncoder.getPosition();  
