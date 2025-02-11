@@ -56,7 +56,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void setPivotSpeed(double pivotSpeed){
       pivotMotor.set(pivotSpeed);
     }
-    //get the position of the launcher
+    //get the position of the encoder values on the launcher
     public double outerLeftLauncherMotorPosition() {
       return outerLeftlauncherEncoder.getPosition();
     }
