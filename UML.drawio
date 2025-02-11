@@ -1,9 +1,41 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36" version="26.0.11">
   <diagram name="Page-1" id="x4qxqg5CchwhM-2SvNXv">
-    <mxGraphModel>
+    <mxGraphModel dx="352" dy="184" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="STWimZxatHsaztO55RK--3" value="Robot" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="390" y="50" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="STWimZxatHsaztO55RK--7" value="" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;exitX=0.623;exitY=1.002;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="STWimZxatHsaztO55RK--3">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="420" y="160" as="sourcePoint" />
+            <mxPoint x="650" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="440" y="140" />
+              <mxPoint x="650" y="140" />
+              <mxPoint x="650" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="STWimZxatHsaztO55RK--9" value="" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;exitX=0.338;exitY=0.975;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="STWimZxatHsaztO55RK--3">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="311.67999999999995" y="109.99999999999999" as="sourcePoint" />
+            <mxPoint x="220" y="168.92" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="417" y="110" />
+              <mxPoint x="420" y="110" />
+              <mxPoint x="420" y="139" />
+              <mxPoint x="220" y="139" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="STWimZxatHsaztO55RK--10" value="Subsystems" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="170" y="160" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="STWimZxatHsaztO55RK--11" value="Commands" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="600" y="160" width="80" height="60" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
