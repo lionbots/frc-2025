@@ -25,10 +25,6 @@ public class OuttakeSubsystem extends SubsystemBase {
   private final RelativeEncoder outerLEncoder = outerLMotor.getEncoder();
   //encoder for the outer right motor on launcher
   private final RelativeEncoder outerREncoder = outerRMotor.getEncoder();
-  //encoder for the inner left motor on launcher
-  private final RelativeEncoder innerLEncoder = innerLMotor.getEncoder();
-  //encoder for the inner right motor on launcher
-  private final RelativeEncoder innerREncoder = innerRMotor.getEncoder();
   //encoder for the pivot motor
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder(); 
 
@@ -62,12 +58,6 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
     public double outerRightLauncherMotorPosition() {
       return outerREncoder.getVelocity();
-    }
-    public double innerLeftLauncherMotorPosition() {
-      return innerLEncoder.getVelocity();
-    }
-    public double innerRightLauncherMotorPosition() {
-      return innerREncoder.getVelocity();
     }
     public double pivotMotorPosition() {
       return pivotEncoder.getPosition();  
