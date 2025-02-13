@@ -24,9 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax intakeRMotor = new SparkMax(1, MotorType.kBrushless);
   private final SparkMax intakeLMotor = new SparkMax(2, null);
   //Create instance variables for the encoders
-  private RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
-  private RelativeEncoder intakeLMotorEncoder = intakeRMotor.getEncoder();
-  private RelativeEncoder intakeRMotEncoder = intakeLMotor.getEncoder();
+  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
@@ -52,17 +50,6 @@ public class IntakeSubsystem extends SubsystemBase {
   //Method for setting pivot speed
   public void setPivotSpeed(double pivotSpeed) {
     pivotMotor.set(pivotSpeed);
-  }
-
-  //Method to get position of left intake motor
-  public double getLIntakePosition() {
-    return intakeLMotorEncoder.getPosition();
-
-  }
-
-  //Method to get position of right intake motor
-  public double getRIntakePosition() {
-    return intakeRMotEncoder.getPosition();
   }
   
   //Method to get position of pivot
