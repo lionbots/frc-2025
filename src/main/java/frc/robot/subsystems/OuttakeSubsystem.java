@@ -58,16 +58,16 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
     //get the position of the encoder values on the launcher
     public double outerLeftLauncherMotorPosition() {
-      return outerLEncoder.getPosition();
+      return outerLEncoder.getVelocity();
     }
     public double outerRightLauncherMotorPosition() {
-      return outerREncoder.getPosition();
+      return outerREncoder.getVelocity();
     }
     public double innerLeftLauncherMotorPosition() {
-      return innerLEncoder.getPosition();
+      return innerLEncoder.getVelocity();
     }
     public double innerRightLauncherMotorPosition() {
-      return innerREncoder.getPosition();
+      return innerREncoder.getVelocity();
     }
     public double pivotMotorPosition() {
       return pivotEncoder.getPosition();  
