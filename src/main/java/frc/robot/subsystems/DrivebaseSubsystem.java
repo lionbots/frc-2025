@@ -22,18 +22,18 @@ import frc.robot.Constants.PIDConstants;
 
 public class DrivebaseSubsystem extends SubsystemBase {
     // front right motor, the type is brushless
-    private SparkMax frMotor = new SparkMax(DriveConstants.frDeviceId, MotorType.kBrushless);
+    private final SparkMax frMotor = new SparkMax(DriveConstants.frDeviceId, MotorType.kBrushless);
     // front left motor, the type is brushless
-    private SparkMax flMotor = new SparkMax(DriveConstants.flDeviceId, MotorType.kBrushless);
+    private final SparkMax flMotor = new SparkMax(DriveConstants.flDeviceId, MotorType.kBrushless);
     // back right motor, the type is brushless
-    private SparkMax brMotor = new SparkMax(DriveConstants.brDeviceId, MotorType.kBrushless);
+    private final SparkMax brMotor = new SparkMax(DriveConstants.brDeviceId, MotorType.kBrushless);
     // back left motor, the type is brushless
-    private SparkMax blMotor = new SparkMax(DriveConstants.blDeviceId, MotorType.kBrushless);
+    private final SparkMax blMotor = new SparkMax(DriveConstants.blDeviceId, MotorType.kBrushless);
     // DifferentialDrive with front left and front right motor.
-    private DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
-    private RelativeEncoder frEncoder = frMotor.getEncoder();
-    private RelativeEncoder flEncoder = flMotor.getEncoder();
-    private AHRS navx2 = new AHRS(NavXComType.kMXP_SPI);
+    private final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
+    private final RelativeEncoder frEncoder = frMotor.getEncoder();
+    private final RelativeEncoder flEncoder = flMotor.getEncoder();
+    private final AHRS navx2 = new AHRS(NavXComType.kMXP_SPI);
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
 
