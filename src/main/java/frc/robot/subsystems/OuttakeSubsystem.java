@@ -30,9 +30,10 @@ public class OuttakeSubsystem extends SubsystemBase {
     //set all the motors to brake mode
     public void idleMotor() {
       SparkMaxConfig idleMode = new SparkMaxConfig();
-      idleMode.idleMode(IdleMode.kBrake);
+      idleMode.idleMode(IdleMode.kCoast);
       leftLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       rightLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      idleMode.idleMode(IdleMode.kBrake);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
