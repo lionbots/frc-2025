@@ -63,33 +63,4 @@ public class OuttakeSubsystem extends SubsystemBase {
     public double pivotMotorPosition() {
       return pivotEncoder.getPosition();  
     }
-
-    public Command outtakeMethodCommand() {
-        // Inline construction of command goes here.
-        // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return runOnce(
-            () -> {
-              /* one-time action goes here */
-            });
-      }
-    
-      /**
-       * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-       *
-       * @return value of some boolean subsystem state, such as a digital sensor.
-       */
-      public boolean outtakeCondition() {
-        // Query some boolean state, such as a digital sensor.
-        return false;
-      }
-    
-      @Override
-      public void periodic() {
-        // This method will be called once per scheduler run
-      }
-    
-      @Override
-      public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
-      }
 }
