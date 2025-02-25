@@ -11,16 +11,20 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class OuttakeSubsystem extends SubsystemBase {
-  //left motor on launcher
-  private final SparkMax leftLauncherMotor = new SparkMax(0, MotorType.kBrushless); 
-  //right motor on launcher
-  private final SparkMax rightLauncherMotor = new SparkMax(0, MotorType.kBrushless);
+  //outer left motor on launcher
+  private final SparkMax outerLMotor = new SparkMax(0, MotorType.kBrushless); 
+  //outer right motor on launcher
+  private final SparkMax outerRMotor = new SparkMax(0, MotorType.kBrushless);
+  //inner left motor on launcher
+  private final SparkMax innerLMotor = new SparkMax (0, MotorType.kBrushless);
+  //inner right motor on launcher
+  private final SparkMax innerRMotor = new SparkMax (0, MotorType.kBrushless);
   //motor for pivot
   private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless); 
-  //encoder for the left motor on launcher
-  private final RelativeEncoder leftlauncherEncoder = leftLauncherMotor.getEncoder();
-  //encoder for the right motor on launcher
-  private final RelativeEncoder rightlauncherEncoder = rightLauncherMotor.getEncoder();
+  //encoder for the outer left motor on launcher
+  private final RelativeEncoder outerLEncoder = outerLMotor.getEncoder();
+  //encoder for the outer right motor on launcher
+  private final RelativeEncoder outerREncoder = outerRMotor.getEncoder();
   //encoder for the pivot motor
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder(); 
 
@@ -31,28 +35,33 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void idleMotor() {
       SparkMaxConfig idleMode = new SparkMaxConfig();
       idleMode.idleMode(IdleMode.kCoast);
-      leftLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      rightLauncherMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      outerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      outerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       idleMode.idleMode(IdleMode.kBrake);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
-
+    //set the speed to the motors
     public void setOuttakeSpeed(double outtakeSpeed) {
-      leftLauncherMotor.set(outtakeSpeed);
-      rightLauncherMotor.set(outtakeSpeed);
+      outerLMotor.set(outtakeSpeed);
+      outerRMotor.set(outtakeSpeed);
+      innerLMotor.set(outtakeSpeed);
+      innerRMotor.set(outtakeSpeed);
     }
 
     public void setPivotSpeed(double pivotSpeed){
       pivotMotor.set(pivotSpeed);
     }
-    public double leftLauncherMotorPosition() {
-      return leftlauncherEncoder.getPosition();
+    //get the position of the encoder values on the launcher
+    public double outerLeftLauncherMotorPosition() {
+      return outerLEncoder.getVelocity();
     }
-    public double rightLauncherMotorPosition() {
-      return rightlauncherEncoder.getPosition();
+    public double outerRightLauncherMotorPosition() {
+      return outerREncoder.getVelocity();
     }
     public double pivotMotorPosition() {
-      return pivotEncoder.getPosition();
+      return pivotEncoder.getPosition();  
     }
 
     public Command outtakeMethodCommand() {
