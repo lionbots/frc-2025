@@ -41,10 +41,12 @@ public class OuttakeSubsystem extends SubsystemBase {
       idleMode.idleMode(IdleMode.kCoast);
       outerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       outerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      innerFLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      innerFRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       idleMode.idleMode(IdleMode.kBrake);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerFLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerFRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerBLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerBRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
     //set the speed to the motors
     public void setOuttakeSpeed(double outtakeSpeed) {
