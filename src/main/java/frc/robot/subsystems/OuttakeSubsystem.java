@@ -15,10 +15,14 @@ public class OuttakeSubsystem extends SubsystemBase {
   private final SparkMax outerLMotor = new SparkMax(0, MotorType.kBrushless); 
   //outer right motor on launcher
   private final SparkMax outerRMotor = new SparkMax(0, MotorType.kBrushless);
-  //inner left motor on launcher
-  private final SparkMax innerLMotor = new SparkMax (0, MotorType.kBrushless);
-  //inner right motor on launcher
-  private final SparkMax innerRMotor = new SparkMax (0, MotorType.kBrushless);
+  //inner front left motor on launcher
+  private final SparkMax innerFLMotor = new SparkMax (0, MotorType.kBrushless);
+  //inner front right motor on launcher
+  private final SparkMax innerFRMotor = new SparkMax (0, MotorType.kBrushless);
+  //inner back left motor on launcher
+  private final SparkMax innerBLMotor = new SparkMax (0, MotorType.kBrushless);
+  //inner back right motor on launcher
+  private final SparkMax innerBRMotor = new SparkMax (0, MotorType.kBrushless);
   //motor for pivot
   private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless); 
   //encoder for the outer left motor on launcher
@@ -37,8 +41,8 @@ public class OuttakeSubsystem extends SubsystemBase {
       idleMode.idleMode(IdleMode.kCoast);
       outerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       outerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      innerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      innerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerFLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      innerFRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       idleMode.idleMode(IdleMode.kBrake);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
@@ -46,8 +50,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void setOuttakeSpeed(double outtakeSpeed) {
       outerLMotor.set(outtakeSpeed);
       outerRMotor.set(outtakeSpeed);
-      innerLMotor.set(outtakeSpeed);
-      innerRMotor.set(outtakeSpeed);
+      innerFLMotor.set(outtakeSpeed);
+      innerFRMotor.set(outtakeSpeed);
     }
 
     public void setPivotSpeed(double pivotSpeed){
