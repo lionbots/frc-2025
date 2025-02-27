@@ -48,12 +48,19 @@ public class OuttakeSubsystem extends SubsystemBase {
       innerBLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       innerBRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
-    //set the speed to the motors
-    public void setOuttakeSpeed(double outtakeSpeed) {
-      outerLMotor.set(outtakeSpeed);
-      outerRMotor.set(outtakeSpeed);
-      innerFLMotor.set(outtakeSpeed);
-      innerFRMotor.set(outtakeSpeed);
+
+    //set the speed to the outer motors
+    public void setOuterSpeed(double outerSpeed) {
+      outerLMotor.set(outerSpeed);
+      outerRMotor.set(outerSpeed);
+    }
+
+    //set the speed to the inner motors
+    public void setInnerSpeed(double innerSpeed) {
+      innerFLMotor.set(innerSpeed);
+      innerFRMotor.set(innerSpeed);
+      innerBLMotor.set(innerSpeed);
+      innerBRMotor.set(innerSpeed);
     }
 
     public void setPivotSpeed(double pivotSpeed){
