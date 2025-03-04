@@ -4,6 +4,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -29,7 +31,9 @@ public class OuttakeSubsystem extends SubsystemBase {
   //encoder for the outer right motor on launcher
   private final RelativeEncoder outerREncoder = outerRMotor.getEncoder();
   //encoder for the pivot motor
-  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder(); 
+  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
+  //beambreak for algea detection 
+  private final DigitalInput beamBreak = new DigitalInput(9);
 
     public OuttakeSubsystem() {
       idleMotor();
