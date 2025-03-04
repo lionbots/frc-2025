@@ -4,11 +4,11 @@ import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
-public class PivotCommand extends Command{
-private final IntakeSubsystem pivot;
-private final Supplier<Double> speedFunction;
-
-    public PivotCommand (IntakeSubsystem pivot, Supplier<Double> speedFunction) {
+public class IntakePivotCommand extends Command {
+    private final IntakeSubsystem pivot;
+    private final Supplier<Double> speedFunction;
+        
+    public IntakePivotCommand (IntakeSubsystem pivot, Supplier<Double> speedFunction) {
         this.pivot = pivot;
         this.speedFunction = speedFunction;
         //Use addRequirements() here to declare subsystem dependencies
@@ -25,7 +25,6 @@ private final Supplier<Double> speedFunction;
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-    return false;
+        return false;
+    }
 }
-}
-    
