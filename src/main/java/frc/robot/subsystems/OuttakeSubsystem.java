@@ -35,6 +35,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   //beambreak for algea detection 
   private final DigitalInput beamBreak = new DigitalInput(9);
 
+
     public OuttakeSubsystem() {
       idleMotor();
     }
@@ -78,5 +79,9 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
     public double pivotMotorPosition() {
       return pivotEncoder.getPosition();  
+    }
+    //get the state of the beambreak - detected = true and not detected = false
+    public boolean getBeamBreak() {
+      return beamBreak.get();
     }
 }
