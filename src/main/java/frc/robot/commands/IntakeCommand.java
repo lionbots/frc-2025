@@ -31,8 +31,8 @@ public class IntakeCommand extends Command {
   @Override
   public void execute() {
     intake.setIntakeSpeed(intakeSpeed.get());
-    launcher.setOuterSpeed(intakeSpeed.get());
-    launcher.setInnerSpeed(intakeSpeed.get());
+    launcher.setOuterSpeed(intakeSpeed.get()*-1);
+    launcher.setInnerSpeed(intakeSpeed.get()*-1);
   }
 
   // Called once the command ends or is interrupted.

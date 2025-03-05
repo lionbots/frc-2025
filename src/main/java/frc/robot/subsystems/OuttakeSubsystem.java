@@ -82,6 +82,6 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
     //get the state of the beambreak - detected = true and not detected = false
     public boolean getBeamBreak() {
-      return beamBreak.get();
+      return !beamBreak.get();
     }
 }
