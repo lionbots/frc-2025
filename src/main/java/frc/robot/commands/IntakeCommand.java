@@ -30,9 +30,11 @@ public class IntakeCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setIntakeSpeed(intakeSpeed.get());
-    launcher.setOuterSpeed(intakeSpeed.get()*-1);
-    launcher.setInnerSpeed(intakeSpeed.get()*-1);
+    if(!launcher.getBeamBreak()){
+      intake.setIntakeSpeed(intakeSpeed.get());
+      launcher.setOuterSpeed(intakeSpeed.get()*-1);
+      launcher.setInnerSpeed(intakeSpeed.get()*-1);
+    }
   }
 
   // Called once the command ends or is interrupted.
