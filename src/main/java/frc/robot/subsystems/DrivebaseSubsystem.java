@@ -33,7 +33,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private final RelativeEncoder frEncoder = frMotor.getEncoder();
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
-    private final AHRS navx2 = new AHRS(NavXComType.kMXP_SPI);
+    private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
 
