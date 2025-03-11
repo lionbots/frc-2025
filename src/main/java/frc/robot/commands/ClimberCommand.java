@@ -35,7 +35,7 @@ public class ClimberCommand extends Command {
   // Sets the speed of the climber. 
   @Override
   public void execute() {
-    climber.setSpeed(speed.get());
+    climber.setServo(speed.get());
   }
 
   // Called once the command ends or is interrupted.

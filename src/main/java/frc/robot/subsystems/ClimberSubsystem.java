@@ -14,9 +14,11 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.wpilibj.Servo;
 
 public class ClimberSubsystem extends SubsystemBase {
 
+  private final Servo climbServo = new Servo(0);
   private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
   private final RelativeEncoder cEncoder = climberMotor.getEncoder();
 
@@ -43,6 +45,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void setSpeed(double speed){
     climberMotor.set(speed);
+  }
+
+  public void setServo(double speed) {
+    climbServo.setSpeed(speed);
   }
 
   /**
