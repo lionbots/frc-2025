@@ -17,9 +17,16 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
   public static class DriveConstants {
-    public static final int frDeviceId = 0;
-    public static final int flDeviceId = 0;
-    public static final int brDeviceId = 0;
-    public static final int blDeviceId = 0;
+    public static final int frDeviceId = 1;
+    public static final int flDeviceId = 17;
+    public static final int brDeviceId = 7;
+    public static final int blDeviceId = 12;
+  }
+  public static class PIDConstants {
+    public static final double kP = 0.008;
+    public static final double kI = 0.001;
+    public static final double kD = 0;
+
+    public static final double tolerance = 2;
   }
 }
