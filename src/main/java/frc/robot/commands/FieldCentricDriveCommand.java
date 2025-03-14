@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -45,8 +46,8 @@ public class FieldCentricDriveCommand extends Command {
     double forwardSpeed = forwardSpeedFunction.get();
     double backwardSpeed = backwardSpeedFunction.get();
     if (slowMode.get() == true) {
-      forwardSpeed *= 0.3;
-      backwardSpeed *= 0.3;
+      forwardSpeed *= DriveConstants.slowSpeed;
+      backwardSpeed *= DriveConstants.slowSpeed;
     }
 
     // double rotation = rotationFunction.get();
