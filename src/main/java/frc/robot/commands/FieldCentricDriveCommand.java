@@ -18,15 +18,17 @@ public class FieldCentricDriveCommand extends Command {
   private final Supplier<Double> forwardSpeedFunction, backwardSpeedFunction;
   // The drive base subsystem
   private final DrivebaseSubsystem drivebase;
+  private final Supplier<Boolean> slowMode;
 
 
   // Creates a new ArcadeDriveCommand
-  public FieldCentricDriveCommand(DrivebaseSubsystem drivebase, Supplier<Double> forwardSpeedFunction, Supplier<Double> backwardSpeedFunction, Supplier<Double> xAxisFunction, Supplier<Double> yAxisFunction) {
+  public FieldCentricDriveCommand(DrivebaseSubsystem drivebase, Supplier<Double> forwardSpeedFunction, Supplier<Double> backwardSpeedFunction, Supplier<Double> xAxisFunction, Supplier<Double> yAxisFunction, Supplier<Boolean> slowMode) {
     this.drivebase = drivebase;
     this.forwardSpeedFunction = forwardSpeedFunction;
     this.backwardSpeedFunction = backwardSpeedFunction;
     this.xAxisFunction = xAxisFunction;
     this.yAxisFunction = yAxisFunction;
+    this.slowMode = slowMode;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivebase);
   }
@@ -42,6 +44,10 @@ public class FieldCentricDriveCommand extends Command {
     // Gets the forward speed backwards speed from the suppliers
     double forwardSpeed = forwardSpeedFunction.get();
     double backwardSpeed = backwardSpeedFunction.get();
+    if (slowMode.get() == true) {
+      forwardSpeed *= 0.3;
+      backwardSpeed *= 0.3;
+    }
 
     // double rotation = rotationFunction.get();
     // joystick atan2 is positive = counterclockwise radians, 0 radians = +x axis
