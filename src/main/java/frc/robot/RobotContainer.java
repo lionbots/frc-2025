@@ -9,6 +9,9 @@ import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -27,16 +30,14 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.driverControllerPort);
-  private final CommandXboxController operater = new CommandXboxController(OperatorConstants.operatorControllerPort);
+  private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.operatorControllerPort);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    intake.setDefaultCommand(new IntakeCommand(intake, outtake, null));
-    intakePivot.setDefaultCommand(new IntakePivotCommand(intakePivot, null));
-    outtake.setDefaultCommand(new OuttakeCommand(intake, outtake, null));
-    outtakePivot.setDefaultCommand(new OuttakePivotCommand(outtakePivot, null));
-    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, null, null, null, null));
+    intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
+    outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
+    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1));
 
     // Configure the trigger bindings
     configureBindings();
@@ -52,13 +53,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::outtakeCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.outtakeMethodCommand());
+    operatorController.leftTrigger(0.1).onTrue(new IntakeCommand(intake, outtake, () -> operatorController.getLeftTriggerAxis()));
+    operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
   }
 
   /**
