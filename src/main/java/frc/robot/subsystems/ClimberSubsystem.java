@@ -19,14 +19,15 @@ import edu.wpi.first.wpilibj.Servo;
 public class ClimberSubsystem extends SubsystemBase {
 
   private final Servo climbServo = new Servo(0);
-  private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
-  private final RelativeEncoder cEncoder = climberMotor.getEncoder();
+  // private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
+  // private final RelativeEncoder cEncoder = climberMotor.getEncoder();
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
-    SparkMaxConfig idleMode = new SparkMaxConfig();
-    idleMode.idleMode(IdleMode.kBrake);
-    climberMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // SparkMaxConfig idleMode = new SparkMaxConfig();
+    // idleMode.idleMode(IdleMode.kBrake);
+    // climberMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    climbServo.setBoundsMicroseconds(5000, 2550,2500, 2450, 0);
   }
 
   /*
@@ -34,18 +35,18 @@ public class ClimberSubsystem extends SubsystemBase {
    * @return the position of the climber motor according to the encoder
    */
 
-  public double getPosition(){
-    return cEncoder.getPosition();
-  }
+  // public double getPosition(){
+  //   return cEncoder.getPosition();
+  // }
 
   /*
    * Sets the speed of the motor. 
    * @param the desired speed for the motor
    */
 
-  public void setSpeed(double speed){
-    climberMotor.set(speed);
-  }
+  // public void setSpeed(double speed){
+  //   climberMotor.set(speed);
+  // }
 
   public void setServo(double speed) {
     climbServo.setSpeed(speed);

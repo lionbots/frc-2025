@@ -31,7 +31,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    climber.setDefaultCommand(new ClimberCommand(climber, () -> m_driverController.getLeftY()));
+    climber.setDefaultCommand(new ClimberCommand(climber, () -> m_driverController.getLeftY() * -1 > 0 ? m_driverController.getLeftY() * -1 : 0));
     // Configure the trigger bindings
     configureBindings();
   }
