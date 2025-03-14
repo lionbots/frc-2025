@@ -33,7 +33,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   //encoder for the pivot motor
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
   //beambreak for algea detection 
-  private final DigitalInput beamBreak = new DigitalInput(9);
+  private final DigitalInput beamBreak = new DigitalInput(0);
 
 
     public OuttakeSubsystem() {
