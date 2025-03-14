@@ -126,7 +126,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // Returns the robot heading (0 - 180/-180) from the gyroscope and gets the mirror value if the robot is driving backwards
     public double getAngle(boolean backwards) {
-        double gyroscopeAngle = navx2.getAngle() * -1;
+        double gyroscopeAngle = (navx2.getAngle() * -1) - 90;
         if(backwards) {
             gyroscopeAngle = (gyroscopeAngle + 180) % 360;
         }
