@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -22,6 +28,8 @@ public final class Constants {
     public static final int flDeviceId = 17;
     public static final int brDeviceId = 7;
     public static final int blDeviceId = 12;
+
+    public static final int currentLimit = 40;
   }
   public static class PIDConstants {
     public static final double kP = 0.008;
@@ -29,5 +37,21 @@ public final class Constants {
     public static final double kD = 0;
 
     public static final double tolerance = 2;
+  }
+
+  public static class IntakeConstants {
+    public static int pivotMotorPort = 0;
+    public static int intakeMotorPort = 0;
+  }
+
+  public static class OuttakeConstants {
+    public static int outerLMotorPort = 0;
+    public static int outerRMotorPort = 0;
+    public static int innerFLMotorPort= 0;
+    public static int innerFRMotorPort= 0;
+    public static int innerBLMotorPort= 0;
+    public static int innerBRMotorPort= 0;
+    public static int pivotMotorPort= 0;
+    public static int beamBreakPort= 0;
   }
 }

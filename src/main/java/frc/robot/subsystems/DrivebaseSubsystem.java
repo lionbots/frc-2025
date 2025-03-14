@@ -107,7 +107,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
      */
     public void setCurrentLimit() {
         SparkMaxConfig motorSpeed = new SparkMaxConfig();
-        motorSpeed.smartCurrentLimit(40);
+        motorSpeed.smartCurrentLimit(DriveConstants.currentLimit);
 
         frMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         flMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
