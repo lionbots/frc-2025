@@ -37,7 +37,7 @@ public class RobotContainer {
   public RobotContainer() {
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
     outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
-    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1));
+    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
 
     // Configure the trigger bindings
     configureBindings();
