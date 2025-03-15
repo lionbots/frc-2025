@@ -55,6 +55,7 @@ public class RobotContainer {
   private void configureBindings() {
     operatorController.leftTrigger(0.1).onTrue(new IntakeCommand(intake, outtake, () -> operatorController.getLeftTriggerAxis()));
     operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
+    operatorController.rightBumper().onTrue(new EjectCommand(intake));
   }
 
   /**
