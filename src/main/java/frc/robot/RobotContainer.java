@@ -5,12 +5,8 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
-
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -65,6 +61,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null; //Autos.exampleAuto(m_exampleSubsystem);
+    return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(3);
   }
 }
