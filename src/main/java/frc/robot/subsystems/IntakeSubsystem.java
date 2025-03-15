@@ -15,7 +15,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public class IntakeSubsystem extends SubsystemBase {
   //Create instance variables for the motors
   private final SparkMax pivotMotor = new SparkMax(0, MotorType.kBrushless);
-  private final SparkMax intakeMotor = new SparkMax(1, MotorType.kBrushless);
+  //private final SparkMax intakeMotor = new SparkMax(1, MotorType.kBrushless);
   //Create instance variables for the encoders
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
 
@@ -30,13 +30,13 @@ public class IntakeSubsystem extends SubsystemBase {
     idleMode.idleMode(IdleMode.kBrake);
 
     pivotMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   //Method for setting intake speed
   public void setIntakeSpeed(double intakeSpeed) {
-    intakeMotor.set(intakeSpeed);
-    intakeMotor.set(intakeSpeed);
+    // intakeMotor.set(intakeSpeed);
+    // intakeMotor.set(intakeSpeed);
   }
 
   //Method for setting pivot speed

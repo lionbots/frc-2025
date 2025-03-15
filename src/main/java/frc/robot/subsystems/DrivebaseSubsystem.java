@@ -43,6 +43,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         setMotorIdleModes();
         setCurrentLimit();
         configurePID();
+        setInverted();
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
@@ -89,12 +90,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
         brMotor.configure(rightFollow, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    public void setInverted() {
+        SparkMaxConfig inverted = new SparkMaxConfig();
+        inverted.inverted(true);
+        frMotor.configure(inverted, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(inverted, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
     /**
      * All the motor's idleModes would be set to brake
      */
     public void setMotorIdleModes() {
         SparkMaxConfig idleMode = new SparkMaxConfig();
-        idleMode.idleMode(IdleMode.kBrake);
+        idleMode.idleMode(IdleMode.kCoast);
 
         frMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         flMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -126,7 +134,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // Returns the robot heading (0 - 180/-180) from the gyroscope and gets the mirror value if the robot is driving backwards
     public double getAngle(boolean backwards) {
-        double gyroscopeAngle = (navx2.getAngle() * -1);
+        double gyroscopeAngle = (navx2.getAngle() * -1) + 180;
         if(backwards) {
             gyroscopeAngle = (gyroscopeAngle + 180) % 360;
         }

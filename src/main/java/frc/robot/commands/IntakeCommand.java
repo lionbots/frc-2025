@@ -12,13 +12,13 @@ import java.util.function.Supplier;
 // An Intake command that uses an Intake subsystem.
 public class IntakeCommand extends Command {
     private final IntakeSubsystem intake;
-    private final OuttakeSubsystem launcher;
+    // private final OuttakeSubsystem launcher;
     private final Supplier<Double> intakeSpeed;
 
-  public IntakeCommand(IntakeSubsystem intake, OuttakeSubsystem launcher, Supplier<Double> intakeSpeed) {
+  public IntakeCommand(IntakeSubsystem intake, /*OuttakeSubsystem launcher,*/ Supplier<Double> intakeSpeed) {
     this.intake = intake;
     this.intakeSpeed = intakeSpeed;
-    this.launcher = launcher;
+    // this.launcher = launcher;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(intake);
   }
@@ -30,11 +30,11 @@ public class IntakeCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(!launcher.getBeamBreak()){
+    //if(!launcher.getBeamBreak()){
       intake.setIntakeSpeed(intakeSpeed.get());
-      launcher.setOuterSpeed(intakeSpeed.get()*-1);
-      launcher.setInnerSpeed(intakeSpeed.get()*-1);
-    }
+    //   launcher.setOuterSpeed(intakeSpeed.get()*-1);
+    //   launcher.setInnerSpeed(intakeSpeed.get()*-1);
+    // }
   }
 
   // Called once the command ends or is interrupted.

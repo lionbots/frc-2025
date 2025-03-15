@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final OuttakeSubsystem outtake = new OuttakeSubsystem();
+  // private final OuttakeSubsystem outtake = new OuttakeSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
 
@@ -32,7 +32,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
-    outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
+    // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
     drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
 
     // Configure the trigger bindings
@@ -49,8 +49,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    operatorController.leftTrigger(0.1).onTrue(new IntakeCommand(intake, outtake, () -> operatorController.getLeftTriggerAxis()));
-    operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
+    operatorController.leftTrigger(0.1).onTrue(new IntakeCommand(intake, () -> operatorController.getLeftTriggerAxis()));
+    // operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
     operatorController.rightBumper().onTrue(new EjectCommand(intake));
   }
 
@@ -61,6 +61,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(3);
+    return new FieldCentricDriveCommand(drivebase, () -> 0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2
+    );
   }
 }

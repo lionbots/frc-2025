@@ -18,10 +18,10 @@ public final class Constants {
     public static final int operatorControllerPort = 5;
   }
   public static class DriveConstants {
-    public static final int frDeviceId = 1;
-    public static final int flDeviceId = 17;
-    public static final int brDeviceId = 7;
-    public static final int blDeviceId = 12;
+    public static final int frDeviceId = 2;
+    public static final int flDeviceId = 4;
+    public static final int brDeviceId = 6;
+    public static final int blDeviceId = 5;
 
     public static final int currentLimit = 40;
     public static final double slowSpeed = 0.3;
@@ -35,7 +35,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static int pivotMotorPort = 0;
+    public static int pivotMotorPort = 1;
     public static int intakeMotorPort = 0;
     public static double outtakeSpeed = -1;
   }
