@@ -34,7 +34,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final RelativeEncoder frEncoder = frMotor.getEncoder();
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
-    private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
+    private final PIDController PID = new PIDController(PIDConstants.kDriveP, PIDConstants.kDriveI, PIDConstants.kDriveD);
 
 
     public DrivebaseSubsystem() {

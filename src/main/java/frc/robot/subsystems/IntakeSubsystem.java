@@ -4,12 +4,12 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.PIDConstants;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -22,15 +22,13 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
   private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
   //Create instance variables for the encoders
-  private final AbsoluteEncoder pivotEncoder = pivotMotor.getAbsoluteEncoder();
+  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
+  // PID for the pivot
+  private final PIDController pivotPID = new PIDController(PIDConstants.kIntakeP, PIDConstants.kIntakeI, PIDConstants.kIntakeP);
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();
-  }
-
-  public double getEncoder() {
-    return pivotEncoder.getPosition();
   }
 
   // Method for brake mode
@@ -47,6 +45,10 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.set(intakeSpeed);
   }
 
+  public void setIntakePosition() {
+    setPivotSpeed(pivotPID.calculate(getPivotPosition(), IntakeConstants.pivotSetPoint));
+  }
+
   //Method for setting pivot speed
   public void setPivotSpeed(double pivotSpeed) {
     pivotMotor.set(pivotSpeed);
@@ -58,6 +60,6 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    SmartDashboard.putNumber("Encoder", getEncoder());
+    SmartDashboard.putNumber("Encoder", getPivotPosition());
   }
 }

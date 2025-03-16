@@ -30,7 +30,7 @@ public class IntakeCommand extends Command {
   @Override
   public void execute() {
     //if(!launcher.getBeamBreak()){
-      intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
+    intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
     //   launcher.setOuterSpeed(intakeSpeed.get()*-1);
     //   launcher.setInnerSpeed(intakeSpeed.get()*-1);
     // }
@@ -38,7 +38,10 @@ public class IntakeCommand extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intake.setIntakeSpeed(0);
+    intake.setPivotSpeed(0);
+  }
 
   // Returns true when the command should end.
   @Override
