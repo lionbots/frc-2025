@@ -24,7 +24,7 @@ public final class Constants {
     public static final int blDeviceId = 5;
 
     public static final int currentLimit = 40;
-    public static final double slowSpeed = 0.3;
+    public static final double slowSpeed = 0.5;
   }
   public static class PIDConstants {
     public static final double kP = 0.008;
@@ -36,7 +36,7 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static int pivotMotorPort = 1;
-    public static int intakeMotorPort = 0;
+    public static int intakeMotorPort = 3;
     public static double outtakeSpeed = -1;
   }
 

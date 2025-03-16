@@ -49,9 +49,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    operatorController.leftTrigger(0.1).onTrue(new IntakeCommand(intake, () -> operatorController.getLeftTriggerAxis()));
+    operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, () -> operatorController.getLeftTriggerAxis())));
     // operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
-    operatorController.rightBumper().onTrue(new EjectCommand(intake));
+    operatorController.rightBumper().whileTrue(new EjectCommand(intake));
   }
 
   /**
@@ -61,7 +61,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new FieldCentricDriveCommand(drivebase, () -> 0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2
+    return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2
     );
   }
 }

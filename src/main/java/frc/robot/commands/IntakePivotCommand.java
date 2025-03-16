@@ -15,7 +15,7 @@ public class IntakePivotCommand extends Command {
         addRequirements(pivot);
     }
     public void execute() {
-        pivot.setPivotSpeed(speedFunction.get());
+        pivot.setPivotSpeed(speedFunction.get()*.1);
     }
 
     // Called once the command ends or is interrupted.

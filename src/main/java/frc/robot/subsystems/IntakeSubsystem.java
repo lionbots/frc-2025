@@ -4,7 +4,12 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IntakeConstants;
+
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -14,14 +19,18 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class IntakeSubsystem extends SubsystemBase {
   //Create instance variables for the motors
-  private final SparkMax pivotMotor = new SparkMax(0, MotorType.kBrushless);
-  //private final SparkMax intakeMotor = new SparkMax(1, MotorType.kBrushless);
+  private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
+  private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
   //Create instance variables for the encoders
-  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
+  private final AbsoluteEncoder pivotEncoder = pivotMotor.getAbsoluteEncoder();
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();
+  }
+
+  public double getEncoder() {
+    return pivotEncoder.getPosition();
   }
 
   // Method for brake mode
@@ -30,13 +39,12 @@ public class IntakeSubsystem extends SubsystemBase {
     idleMode.idleMode(IdleMode.kBrake);
 
     pivotMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    //intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   //Method for setting intake speed
   public void setIntakeSpeed(double intakeSpeed) {
-    // intakeMotor.set(intakeSpeed);
-    // intakeMotor.set(intakeSpeed);
+    intakeMotor.set(intakeSpeed);
   }
 
   //Method for setting pivot speed
@@ -47,5 +55,9 @@ public class IntakeSubsystem extends SubsystemBase {
   //Method to get position of pivot
   public double getPivotPosition() {
     return pivotEncoder.getPosition();
+  }
+
+  public void periodic() {
+    SmartDashboard.putNumber("Encoder", getEncoder());
   }
 }

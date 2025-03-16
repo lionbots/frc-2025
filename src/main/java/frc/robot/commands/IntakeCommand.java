@@ -20,7 +20,6 @@ public class IntakeCommand extends Command {
     this.intakeSpeed = intakeSpeed;
     // this.launcher = launcher;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
@@ -31,7 +30,7 @@ public class IntakeCommand extends Command {
   @Override
   public void execute() {
     //if(!launcher.getBeamBreak()){
-      intake.setIntakeSpeed(intakeSpeed.get());
+      intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
     //   launcher.setOuterSpeed(intakeSpeed.get()*-1);
     //   launcher.setInnerSpeed(intakeSpeed.get()*-1);
     // }

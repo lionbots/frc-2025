@@ -102,7 +102,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
      */
     public void setMotorIdleModes() {
         SparkMaxConfig idleMode = new SparkMaxConfig();
-        idleMode.idleMode(IdleMode.kCoast);
+        idleMode.idleMode(IdleMode.kBrake);
 
         frMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         flMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
