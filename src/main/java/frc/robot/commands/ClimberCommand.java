@@ -32,6 +32,11 @@ public class ClimberCommand extends Command {
   public void initialize() {}
 
 
+  @Override
+  public void execute() {
+    this.climber.setSpeed(this.speed.get());
+  }
+
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {}
