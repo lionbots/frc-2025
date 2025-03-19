@@ -31,12 +31,6 @@ public class ClimberCommand extends Command {
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
-  // Sets the speed of the climber. 
-  @Override
-  public void execute() {
-    climber.setServo(speed.get());
-  }
 
   // Called once the command ends or is interrupted.
   @Override

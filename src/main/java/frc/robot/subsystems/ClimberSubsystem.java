@@ -14,20 +14,28 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.wpilibj.Servo;
+
 
 public class ClimberSubsystem extends SubsystemBase {
 
-  private final Servo climbServo = new Servo(0);
-  // private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
-  // private final RelativeEncoder cEncoder = climberMotor.getEncoder();
+  private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
+  private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
-    // SparkMaxConfig idleMode = new SparkMaxConfig();
-    // idleMode.idleMode(IdleMode.kBrake);
-    // climberMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    climbServo.setBoundsMicroseconds(5000, 2550,2500, 2450, 0);
+    setMotorIdleModes();
+    setCurrentLimit();
+  }
+
+  public void setMotorIdleModes() {
+    SparkMaxConfig idleMode = new SparkMaxConfig();
+    idleMode.idleMode(IdleMode.kBrake);
+    climberMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  public void setCurrentLimit() {
+    SparkMaxConfig motorSpeed = new SparkMaxConfig();
+    motorSpeed.smartCurrentLimit(40);
   }
 
   /*
@@ -35,21 +43,17 @@ public class ClimberSubsystem extends SubsystemBase {
    * @return the position of the climber motor according to the encoder
    */
 
-  // public double getPosition(){
-  //   return cEncoder.getPosition();
-  // }
+  public double getPosition(){
+    return climberEncoder.getPosition();
+  }
 
   /*
    * Sets the speed of the motor. 
    * @param the desired speed for the motor
    */
 
-  // public void setSpeed(double speed){
-  //   climberMotor.set(speed);
-  // }
-
-  public void setServo(double speed) {
-    climbServo.setSpeed(speed);
+  public void setSpeed(double speed){
+    climberMotor.set(speed);
   }
 
   /**
