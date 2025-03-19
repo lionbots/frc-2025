@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -26,9 +27,10 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public class ClimberSubsystem extends SubsystemBase {
 
   private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
-  private final SparkMaxSim climberMotorSim = new SparkMaxSim(climberMotor, DCMotor.getNEO(1));
+  private final DCMotor dcmotor = DCMotor.getNEO(1);
+  private final SparkMaxSim climberMotorSim = new SparkMaxSim(climberMotor, dcmotor);
   // made up values, me need cad to be done
-  private final SingleJointedArmSim armSim = new SingleJointedArmSim(DCMotor.getNEO(1), 1, 0.1, 0.254, 0, Math.PI / 2, false, Math.PI / 2, 0, 0);
+  private final SingleJointedArmSim armSim = new SingleJointedArmSim(dcmotor, 1, 1, 0.254, 0, Math.PI / 2, false, Math.PI / 2, 0, 0);
   private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
   private final SparkRelativeEncoderSim climberEncoderSim = climberMotorSim.getRelativeEncoderSim();
   /** Creates a new ClimberSubsystem. */
@@ -41,7 +43,14 @@ public class ClimberSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     this.armSim.setInput(climberMotorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
     this.armSim.update(0.02);
-    this.climberMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.armSim.getVelocityRadPerSec()), RoboRioSim.getVInVoltage(), 0.02);
+    // simulated motor has velocity without getAppliedOutput()
+    // thats for a good reason probably and there are proper ways to deal with it but for now i find it annoying
+    if (climberMotorSim.getAppliedOutput() == 0) {
+      this.armSim.setState(this.armSim.getAngleRads(), 0);
+      this.climberMotorSim.iterate(0, RoboRioSim.getVInVoltage(), 0.02);
+    } else {
+      this.climberMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.armSim.getVelocityRadPerSec()), RoboRioSim.getVInVoltage(), 0.02);
+    }
     RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(this.armSim.getCurrentDrawAmps()));
   }
 
@@ -62,7 +71,7 @@ public class ClimberSubsystem extends SubsystemBase {
    */
 
   public double getPosition(){
-    return climberEncoder.getPosition();
+    return RobotBase.isSimulation() ? climberEncoderSim.getPosition() : climberEncoder.getPosition();
   }
 
   /*
