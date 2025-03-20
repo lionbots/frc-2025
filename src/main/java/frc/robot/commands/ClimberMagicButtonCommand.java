@@ -5,31 +5,28 @@ import frc.robot.subsystems.ClimberSubsystem;
 
 public class ClimberMagicButtonCommand extends Command {
     private final ClimberSubsystem climber;
-    private double startRot;
-    private final double magicThreshold = 0.0069;
-    private final double halfRotation = -0.125;
+    private double targetRot;
+    private final double startPos = 0;
+    private final double endPos = 0.25;
+    private final double halfRotation = startPos + (endPos - startPos) / 2;
 
     public ClimberMagicButtonCommand(ClimberSubsystem climber) {
         this.climber = climber;
-        this.startRot = this.climber.getPosition();
         addRequirements(climber);
     }
 
     @Override
     public void initialize() {
-        this.startRot = this.climber.getPosition();
+        this.targetRot = this.climber.getPosition() < halfRotation ? endPos : startPos;
     }
 
     @Override
     public void execute() {
-        // this damn thing could start in the middle so move toward closest or whatever
-        this.climber.setSpeed(startRot < halfRotation ? 1 : -1);
+        this.climber.setSpeed(this.climber.toRot(this.targetRot));
     }
 
     @Override
     public boolean isFinished() {
-        // return false;
-        double encoderPos = this.climber.getPosition();
-        return (startRot >= halfRotation && Math.abs(-0.25 - encoderPos) < magicThreshold) || (startRot < halfRotation && Math.abs(encoderPos) < magicThreshold);
+        return this.climber.atSetPoint();
     }
 }

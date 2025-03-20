@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -30,13 +31,16 @@ public class ClimberSubsystem extends SubsystemBase {
   private final DCMotor dcmotor = DCMotor.getNEO(1);
   private final SparkMaxSim climberMotorSim = new SparkMaxSim(climberMotor, dcmotor);
   // made up values, me need cad to be done
-  private final SingleJointedArmSim armSim = new SingleJointedArmSim(dcmotor, 1, 1, 0.254, 0, Math.PI / 2, false, Math.PI / 2, 0, 0);
+  private final SingleJointedArmSim armSim = new SingleJointedArmSim(dcmotor, 1, 1, 0.254, 0, Math.PI, false, 0);
   private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
   private final SparkRelativeEncoderSim climberEncoderSim = climberMotorSim.getRelativeEncoderSim();
+  // cant get them coefficients until i get them singlejointedarmsim things working
+  private final PIDController pid = new PIDController(2, 0, 0);
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
     setMotorIdleModes();
     setCurrentLimit();
+    this.pid.setTolerance(0.01);
   }
 
   @Override
@@ -72,6 +76,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public double getPosition(){
     return RobotBase.isSimulation() ? climberEncoderSim.getPosition() : climberEncoder.getPosition();
+  }
+
+  public double toRot(double target) {
+    return this.pid.calculate(this.getPosition(), target);
+  }
+
+  public boolean atSetPoint() {
+    return this.pid.atSetpoint();
   }
 
   /*
