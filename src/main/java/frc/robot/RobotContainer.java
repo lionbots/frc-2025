@@ -33,7 +33,13 @@ public class RobotContainer {
   public RobotContainer() {
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
     // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
-    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
+    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
+      // different controls for forward and backward for some reason, if backward axis is moved forward then robot moves backward or something
+      // backward overrides forward perhaps
+      double forwardSpeed = driverController.getRightTriggerAxis();
+      double backwardSpeed = driverController.getLeftTriggerAxis();
+      return backwardSpeed > 0 ? forwardSpeed : -backwardSpeed;
+    }, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
 
     climber.setDefaultCommand(new ClimberCommand(climber, driverController::getLeftY));
     // Configure the trigger bindings
@@ -63,7 +69,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2
+    return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> false).withTimeout(2
     );
   }
 }
