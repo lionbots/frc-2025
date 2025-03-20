@@ -7,7 +7,6 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -19,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  ClimberSubsystem climber = new ClimberSubsystem();
   // The robot's subsystems and commands are defined here...
   // private final OuttakeSubsystem outtake = new OuttakeSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
@@ -35,6 +35,7 @@ public class RobotContainer {
     // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
     drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
 
+    climber.setDefaultCommand(new ClimberCommand(climber, driverController::getLeftY));
     // Configure the trigger bindings
     configureBindings();
   }
@@ -52,6 +53,7 @@ public class RobotContainer {
     operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, () -> operatorController.getLeftTriggerAxis())));
     // operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
+    driverController.b().onTrue(new ClimberMagicButtonCommand(climber));
   }
 
   /**
