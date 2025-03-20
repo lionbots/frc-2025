@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem;
 import edu.wpi.first.wpilibj2.command.*;
 import java.util.function.Supplier;
 
