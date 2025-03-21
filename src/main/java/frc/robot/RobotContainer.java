@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  ClimberSubsystem climber = new ClimberSubsystem();
   // The robot's subsystems and commands are defined here...
+  private final ClimberSubsystem climber = new ClimberSubsystem();
   // private final OuttakeSubsystem outtake = new OuttakeSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
@@ -31,6 +31,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // left trigger axis is definitely not the climber axis i just need a placeholder
+    climber.setDefaultCommand(new ClimberCommand(climber, operatorController::getLeftTriggerAxis));
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
     // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
     drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
@@ -39,9 +41,8 @@ public class RobotContainer {
       double forwardSpeed = driverController.getRightTriggerAxis();
       double backwardSpeed = driverController.getLeftTriggerAxis();
       return backwardSpeed > 0 ? forwardSpeed : -backwardSpeed;
-    }, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
+    }, driverController::getLeftX, () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
 
-    climber.setDefaultCommand(new ClimberCommand(climber, driverController::getLeftY));
     // Configure the trigger bindings
     configureBindings();
   }
@@ -56,10 +57,10 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, () -> operatorController.getLeftTriggerAxis())));
+    operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, operatorController::getLeftTriggerAxis)));
     // operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-    driverController.b().onTrue(new ClimberMagicButtonCommand(climber));
+    operatorController.b().onTrue(new ClimberMagicButtonCommand(climber));
   }
 
   /**

@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimberConstants;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -27,7 +28,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-  private final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
+  private final SparkMax climberMotor = new SparkMax(ClimberConstants.climberMotorPort, MotorType.kBrushless);
   private final DCMotor dcmotor = DCMotor.getNEO(1);
   private final SparkMaxSim climberMotorSim = new SparkMaxSim(climberMotor, dcmotor);
   // made up values, me need cad to be done
