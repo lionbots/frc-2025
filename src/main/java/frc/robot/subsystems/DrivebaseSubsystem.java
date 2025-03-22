@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -14,8 +16,14 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PIDConstants;
@@ -29,11 +37,21 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final SparkMax brMotor = new SparkMax(DriveConstants.brDeviceId, MotorType.kBrushless);
     // back left motor, the type is brushless
     private final SparkMax blMotor = new SparkMax(DriveConstants.blDeviceId, MotorType.kBrushless);
+    private final SparkMaxSim frMotorSim = new SparkMaxSim(frMotor, DCMotor.getNEO(1));
+    private final SparkMaxSim flMotorSim = new SparkMaxSim(flMotor, DCMotor.getNEO(1));
+
     // DifferentialDrive with front left and front right motor.
     private final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private final RelativeEncoder frEncoder = frMotor.getEncoder();
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
+    // private final SparkRelativeEncoderSim frEncoderSim = new SparkRelativeEncoderSim(frMotor);
+    // private final SparkRelativeEncoderSim flEncoderSim = new SparkRelativeEncoderSim(flMotor);
+    private final SparkRelativeEncoderSim frEncoderSim = frMotorSim.getRelativeEncoderSim();
+    private final SparkRelativeEncoderSim flEncoderSim = flMotorSim.getRelativeEncoderSim();
+    private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DriveConstants.numMotors), DriveConstants.gearing, DriveConstants.momentIntertia, DriveConstants.massKg, DriveConstants.wheelRadiusMeters, DriveConstants.trackWidthMeters, DriveConstants.measurementStdDevs);
+
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
+    private final int navx2SimHandle = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]");
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
 
@@ -44,6 +62,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
         setCurrentLimit();
         configurePID();
         setInverted();
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        driveSim.setInputs(flMotor.get() * RobotController.getInputVoltage(), frMotor.get() * RobotController.getInputVoltage());
+        driveSim.update(0.02);
+
+        double conversionFactor = 2 * Math.PI * DriveConstants.wheelRadiusMeters / 60;
+        frMotorSim.iterate(driveSim.getRightVelocityMetersPerSecond() / conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
+        flMotorSim.iterate(driveSim.getLeftVelocityMetersPerSecond() / conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
+
+        // frEncoderSim.setPosition(driveSim.);
+        SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(navx2SimHandle, "Yaw"));
+        angle.set(-driveSim.getHeading().getDegrees());
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2

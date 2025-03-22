@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N7;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -25,6 +29,14 @@ public final class Constants {
 
     public static final int currentLimit = 40;
     public static final double slowSpeed = 0.5;
+
+    public static final int numMotors = 2;
+    public static final int gearing = 8;
+    public static final int momentIntertia = 3;
+    public static final double massKg = 22.67;
+    public static final double wheelRadiusMeters = 0.065;
+    public static final double trackWidthMeters = 0.555;
+    public static final Matrix<N7,N1> measurementStdDevs = null;
   }
   public static class PIDConstants {
     public static final double kP = 0.008;
