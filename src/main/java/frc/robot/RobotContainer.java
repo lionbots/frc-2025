@@ -7,7 +7,9 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -61,6 +63,10 @@ public class RobotContainer {
     // operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
     operatorController.b().onTrue(new ClimberMagicButtonCommand(climber));
+
+    if (RobotBase.isSimulation()) {
+      operatorController.a().onTrue(new InstantCommand(drivebase::resetSimPos));
+    }
   }
 
   /**

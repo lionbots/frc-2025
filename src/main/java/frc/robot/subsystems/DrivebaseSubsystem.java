@@ -21,6 +21,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -82,6 +83,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
         field.setRobotPose(odometry.getPoseMeters());
     }
 
+    public void resetSimPos() {
+        if (RobotBase.isSimulation()) {
+            odometry.resetPose(DriveConstants.simDefaultPose);
+        }
+    }
+
     @Override
     public void simulationPeriodic() {
         driveSim.setInputs(flMotor.get() * RobotController.getInputVoltage(), frMotor.get() * RobotController.getInputVoltage());
@@ -94,6 +101,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(navx2SimHandle, "Yaw"));
         double heading = driveSim.getHeading().getDegrees();
         angle.set(-heading);
+        SmartDashboard.putNumber("drive getAngle()", this.getAngle(false));
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
