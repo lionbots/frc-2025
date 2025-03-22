@@ -50,4 +50,10 @@ public final class Constants {
     public static int pivotMotorPort= 0;
     public static int beamBreakPort= 0;
   }
+
+  public final class LimelightConstants {
+    public static final double defaultTx = 0.0;
+    public static final long defaultTv = 0;
+    public static final double[] defaultRobotPose = new double[6];
+  }
 }

@@ -6,7 +6,11 @@ package frc.robot.commands;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -22,6 +26,22 @@ public class FieldCentricDriveCommand extends Command {
   // The drive base subsystem
   private final DrivebaseSubsystem drivebase;
   private final Supplier<Boolean> slowMode;
+  // Encoders
+  private final DrivebaseSubsystem frEncoder;
+  private final DrivebaseSubsystem flEncoder;
+  // Track Width Meters
+  private final DifferentialDriveKinematics trackWidthMeters = new DifferentialDriveKinematics(null);
+  // Get gyro angle
+  private final double degree = new Rotation2d().getDegrees();
+  private final Rotation2d gyroAngle = new Rotation2d().fromDegrees(degree);
+  // Pose Estimator
+  private final DifferentialDrivePoseEstimator poseEstimator = new DifferentialDrivePoseEstimator(
+    trackWidthMeters, 
+    gyroAngle, 
+    flEncoder.getPosition(), 
+    frEncoder.getPosition(), 
+    new Pose2d()
+    );
 
 
   // Creates a new ArcadeDriveCommand
