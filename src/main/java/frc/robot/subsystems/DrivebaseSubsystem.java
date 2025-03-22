@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -19,11 +18,16 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PIDConstants;
@@ -46,14 +50,21 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
     // private final SparkRelativeEncoderSim frEncoderSim = new SparkRelativeEncoderSim(frMotor);
     // private final SparkRelativeEncoderSim flEncoderSim = new SparkRelativeEncoderSim(flMotor);
-    private final SparkRelativeEncoderSim frEncoderSim = frMotorSim.getRelativeEncoderSim();
-    private final SparkRelativeEncoderSim flEncoderSim = flMotorSim.getRelativeEncoderSim();
+    // private final SparkRelativeEncoderSim frEncoderSim = frMotorSim.getRelativeEncoderSim();
+    // private final SparkRelativeEncoderSim flEncoderSim = flMotorSim.getRelativeEncoderSim();
     private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DriveConstants.numMotors), DriveConstants.gearing, DriveConstants.momentIntertia, DriveConstants.massKg, DriveConstants.wheelRadiusMeters, DriveConstants.trackWidthMeters, DriveConstants.measurementStdDevs);
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
     private final int navx2SimHandle = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]");
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
+    private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
+        new Rotation2d(Math.toRadians(this.getAngle())),
+        this.getLeftPosition(),
+        this.getRightPosition(),
+        new Pose2d(8.775, 4.025, new Rotation2d())
+    );
+    private Field2d field = new Field2d();
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
@@ -62,6 +73,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
         setCurrentLimit();
         configurePID();
         setInverted();
+        SmartDashboard.putData("Field", field);
+    }
+
+    @Override
+    public void periodic() {
+        odometry.update(new Rotation2d(Math.toRadians(this.getAngle())), this.getLeftPosition(), this.getRightPosition());
+        field.setRobotPose(odometry.getPoseMeters());
     }
 
     @Override
