@@ -6,13 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.*;
-import edu.wpi.first.units.measure.Distance;
-
-import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.Supplier;
 
@@ -26,22 +20,6 @@ public class FieldCentricDriveCommand extends Command {
   // The drive base subsystem
   private final DrivebaseSubsystem drivebase;
   private final Supplier<Boolean> slowMode;
-  // Encoders
-  private final DrivebaseSubsystem frEncoder;
-  private final DrivebaseSubsystem flEncoder;
-  // Track Width Meters
-  private final DifferentialDriveKinematics trackWidthMeters = new DifferentialDriveKinematics(null);
-  // Get gyro angle
-  private final double degree = new Rotation2d().getDegrees();
-  private final Rotation2d gyroAngle = new Rotation2d().fromDegrees(degree);
-  // Pose Estimator
-  private final DifferentialDrivePoseEstimator poseEstimator = new DifferentialDrivePoseEstimator(
-    trackWidthMeters, 
-    gyroAngle, 
-    flEncoder.getPosition(), 
-    frEncoder.getPosition(), 
-    new Pose2d()
-    );
 
 
   // Creates a new ArcadeDriveCommand
@@ -55,7 +33,6 @@ public class FieldCentricDriveCommand extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivebase);
   }
-
 
   // Called when the command is initially scheduled.
   @Override
@@ -72,7 +49,6 @@ public class FieldCentricDriveCommand extends Command {
       backwardSpeed *= DriveConstants.slowSpeed;
     }
 
-    // double rotation = rotationFunction.get();
     // joystick atan2 is positive = counterclockwise radians, 0 radians = +x axis
     // convert to positive = clockwise degrees, 0 degree = +y axis
     double xAxis = xAxisFunction.get();

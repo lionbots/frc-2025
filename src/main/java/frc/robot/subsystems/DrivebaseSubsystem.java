@@ -15,7 +15,11 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PIDConstants;
@@ -31,10 +35,21 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final SparkMax blMotor = new SparkMax(DriveConstants.blDeviceId, MotorType.kBrushless);
     // DifferentialDrive with front left and front right motor.
     private final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
+    // Drive encoders
     private final RelativeEncoder frEncoder = frMotor.getEncoder();
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
+    // NavX2 gyroscope
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
+    // PID For fieldcentric driving
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
+    // Pose estimator
+    private final DifferentialDrivePoseEstimator poseEstimator = new DifferentialDrivePoseEstimator(
+        DriveConstants.kinematics,
+        Rotation2d.fromDegrees(getAngle(false)),
+        flEncoder.getPosition() * DriveConstants.rotationToMeters,
+        frEncoder.getPosition() * DriveConstants.rotationToMeters,
+        new Pose2d()
+    );
 
 
     public DrivebaseSubsystem() {
@@ -147,12 +162,30 @@ public class DrivebaseSubsystem extends SubsystemBase {
         }
     }
 
-    public double getRawAngle() {
-        return navx2.getAngle();
-    }
-
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
     public double angleToRotation(double target, boolean backwards) {
         return PID.calculate(getAngle(backwards), target);
+    }
+
+    // Returns the position of the robot in meters
+    public Pose2d getRobotPose() {
+        return poseEstimator.getEstimatedPosition();
+    }
+
+    // Periodically updates the pose estimator with odometry
+    @Override
+    public void periodic() {
+        poseEstimator.update(
+            Rotation2d.fromDegrees(getAngle(false)),
+            flEncoder.getPosition(),
+            frEncoder.getPosition()
+        );
+
+        SmartDashboard.putNumber("X", poseEstimator.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("Y", poseEstimator.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Rotation", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
+
+        SmartDashboard.putNumber("Left Encoder Rotations", flEncoder.getPosition());
+        SmartDashboard.putNumber("Right Encoder Position", frEncoder.getPosition());
     }
 }
