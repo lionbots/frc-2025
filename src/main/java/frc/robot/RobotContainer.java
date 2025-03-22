@@ -8,7 +8,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -36,18 +35,13 @@ public class RobotContainer {
     climber.setDefaultCommand(new ClimberCommand(climber, operatorController::getLeftTriggerAxis));
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
     // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
-    // drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
-    //   // different controls for forward and backward for some reason, if backward axis is moved forward then robot moves backward or something
-    //   // backward overrides forward perhaps
-    //   double forwardSpeed = driverController.getRightTriggerAxis();
-    //   double backwardSpeed = driverController.getLeftTriggerAxis();
-    //   return backwardSpeed > 0 ? forwardSpeed : -backwardSpeed;
-    // }, driverController::getLeftX, () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
-    drivebase.setDefaultCommand(new RunCommand(() -> {
-      double speed = driverController.getRightTriggerAxis();
-      double angle = Math.toDegrees(Math.atan2(driverController.getLeftY(), driverController.getLeftX()));
-      drivebase.setDifferentialDrive(speed, angle / 180);
-    }, drivebase));
+    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
+      // different controls for forward and backward for some reason, if backward axis is moved forward then robot moves backward or something
+      // backward overrides forward perhaps
+      double forwardSpeed = driverController.getRightTriggerAxis();
+      double backwardSpeed = driverController.getLeftTriggerAxis();
+      return backwardSpeed > 0 ? -backwardSpeed : forwardSpeed;
+    }, driverController::getLeftX, driverController::getLeftY, () -> driverController.rightBumper().getAsBoolean()));
 
     // Configure the trigger bindings
     configureBindings();

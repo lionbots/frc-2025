@@ -45,17 +45,14 @@ public class FieldCentricDriveCommand extends Command {
     if (slowMode.get() == true) {
       forwardSpeed *= DriveConstants.slowSpeed;
     }
-
-    // double rotation = rotationFunction.get();
-    // joystick atan2 is positive = counterclockwise radians, 0 radians = +x axis
-    // convert to positive = clockwise degrees, 0 degree = +y axis
+  
     double xAxis = xAxisFunction.get();
-    double yAxis = yAxisFunction.get() * -1;
-    double joystickAngle = Math.toDegrees(Math.atan2(xAxis, yAxis));
+    double yAxis = yAxisFunction.get();
+    double joystickAngle = Math.toDegrees(Math.atan2(yAxis, xAxis));
     
     // Gets the rotation speed based on the the joystick heading and whether or not the robot is driving backwards
     double rotationSpeed = 0;
-    if(xAxis > 0 || xAxis < 0 || yAxis > 0 || yAxis < 0) {
+    if (xAxis != 0 || yAxis != 0) {
       rotationSpeed = drivebase.angleToRotation(joystickAngle, forwardSpeed < 0);
     }
 

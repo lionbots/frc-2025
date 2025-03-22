@@ -18,7 +18,6 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -59,10 +58,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
-        new Rotation2d(Math.toRadians(this.getAngle())),
+        new Rotation2d(Math.toRadians(navx2.getYaw())),
         this.getLeftPosition(),
         this.getRightPosition(),
-        new Pose2d(8.775, 4.025, new Rotation2d())
+        DriveConstants.simDefaultPose
     );
     private Field2d field = new Field2d();
 
@@ -74,11 +73,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
         configurePID();
         setInverted();
         SmartDashboard.putData("Field", field);
+        SmartDashboard.putData("Drive PID", this.PID);
     }
 
     @Override
     public void periodic() {
-        odometry.update(new Rotation2d(Math.toRadians(this.getAngle())), this.getLeftPosition(), this.getRightPosition());
+        odometry.update(new Rotation2d(Math.toRadians(this.getAngle(false))), this.getLeftPosition(), this.getRightPosition());
         field.setRobotPose(odometry.getPoseMeters());
     }
 
@@ -91,23 +91,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
         frMotorSim.iterate(driveSim.getRightVelocityMetersPerSecond() / conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
         flMotorSim.iterate(driveSim.getLeftVelocityMetersPerSecond() / conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
 
-        // frEncoderSim.setPosition(driveSim.);
         SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(navx2SimHandle, "Yaw"));
-        angle.set(-driveSim.getHeading().getDegrees());
+        double heading = driveSim.getHeading().getDegrees();
+        angle.set(-heading);
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
     private void configurePID() {
         PID.enableContinuousInput(-180, 180);
         PID.setTolerance(PIDConstants.tolerance);
-    }
-
-    /**
-     * Get robot rotation
-     * @return Z axis rotation in degrees, possibly above 360, from gyro
-     */
-    public double getAngle() {
-        return navx2.getYaw();
     }
 
     /**
@@ -129,7 +121,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     /**
      * Make right and left back motors follow corresponding front motors
      */
-    public void setFollow() {
+    private void setFollow() {
         SparkMaxConfig leftFollow = new SparkMaxConfig();
         SparkMaxConfig rightFollow = new SparkMaxConfig();
 
@@ -140,7 +132,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         brMotor.configure(rightFollow, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public void setInverted() {
+    private void setInverted() {
         SparkMaxConfig inverted = new SparkMaxConfig();
         inverted.inverted(true);
         frMotor.configure(inverted, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -150,7 +142,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     /**
      * All the motor's idleModes would be set to brake
      */
-    public void setMotorIdleModes() {
+    private void setMotorIdleModes() {
         SparkMaxConfig idleMode = new SparkMaxConfig();
         idleMode.idleMode(IdleMode.kBrake);
 
@@ -163,7 +155,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     /**
      * Set to all motor's speed to 40 AMP max
      */
-    public void setCurrentLimit() {
+    private void setCurrentLimit() {
         SparkMaxConfig motorSpeed = new SparkMaxConfig();
         motorSpeed.smartCurrentLimit(DriveConstants.currentLimit);
 
@@ -182,23 +174,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
         d_drive.arcadeDrive(speed, rotation);
     }
 
-    // Returns the robot heading (0 - 180/-180) from the gyroscope and gets the mirror value if the robot is driving backwards
-    public double getAngle(boolean backwards) {
-        double gyroscopeAngle = navx2.getAngle() * -1;
-        if(backwards) {
-            gyroscopeAngle = (gyroscopeAngle + 180) % 360;
-        }
-        if(gyroscopeAngle % 360  > 180) {
-            return (gyroscopeAngle % 360) - 360;
-        } else if (gyroscopeAngle % 360 < -180) {
-            return (gyroscopeAngle % 360) + 360;
-        } else {
-            return gyroscopeAngle % 360;
-        }
+    /**
+     * Yaw according to navx2. -180 to 180 degrees, positive is clockwise
+     * @return Yaw in degrees
+     */
+    public double getAngle() {
+        return navx2.getYaw();
     }
 
-    public double getRawAngle() {
-        return navx2.getAngle();
+    /**
+     * Get yaw according to navx2.getAngle(), flip (add 180 degrees) if backward, normalize to 0 to 360, convert to -180 to 180
+     * @param backwards
+     * @return Normalized yaw
+     */
+    public double getAngle(boolean backwards) {
+        double gyroscopeAngle = -navx2.getAngle();
+        gyroscopeAngle = ((gyroscopeAngle % 360) + 360) % 360;
+        return gyroscopeAngle > 180 ? gyroscopeAngle - 360 : gyroscopeAngle;
     }
 
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID

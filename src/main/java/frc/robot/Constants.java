@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N7;
 
@@ -30,13 +32,15 @@ public final class Constants {
     public static final int currentLimit = 40;
     public static final double slowSpeed = 0.5;
 
+    // all these values are placeholders
     public static final int numMotors = 2;
     public static final int gearing = 8;
     public static final int momentIntertia = 3;
-    public static final double massKg = 22.67;
+    public static final double massKg = 50;
     public static final double wheelRadiusMeters = 0.065;
     public static final double trackWidthMeters = 0.555;
     public static final Matrix<N7,N1> measurementStdDevs = null;
+    public static final Pose2d simDefaultPose = new Pose2d(8.775, 4.025, new Rotation2d());
   }
   public static class PIDConstants {
     public static final double kP = 0.008;
