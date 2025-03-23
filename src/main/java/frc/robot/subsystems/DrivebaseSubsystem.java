@@ -18,12 +18,14 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -56,21 +58,38 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
         new Rotation2d(Math.toRadians(navx2.getYaw())),
-        this.getLeftPosition(),
-        this.getRightPosition(),
+        0,
+        0,
         DriveConstants.simDefaultPose
     );
-    private Field2d field = new Field2d();
+    public Field2d field = new Field2d();
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
+        // order of these functions matter apparently cuz ResetMode.kResetSafeParameters or something
         setFollow();
         setMotorIdleModes();
-        setCurrentLimit();
         configurePID();
         setInverted();
+        setCurrentLimit();
         SmartDashboard.putData("Field", field);
         SmartDashboard.putData("Drive PID", this.PID);
+    }
+
+    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+        double wheelCircumference = 2 * Math.PI * DriveConstants.wheelRadiusMeters;
+        return new DifferentialDriveWheelSpeeds(flEncoder.getVelocity() / 60 * wheelCircumference, frEncoder.getVelocity() / 60 * wheelCircumference);
+    }
+
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
+
+    public void voltageDrive(double leftVolts, double rightVolts) {
+        // System.out.println(leftVolts + " " + rightVolts);
+        flMotor.setVoltage(leftVolts);
+        frMotor.setVoltage(rightVolts);
+        d_drive.feed();
     }
 
     @Override
@@ -90,7 +109,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        driveSim.setInputs(flMotor.get() * RobotController.getInputVoltage(), frMotor.get() * RobotController.getInputVoltage());
+        driveSim.setInputs(flMotor.getAppliedOutput() * RoboRioSim.getVInVoltage(), frMotor.getAppliedOutput() * RoboRioSim.getVInVoltage());
         driveSim.update(0.02);
 
         // meters per second to revolutions per minute
@@ -101,7 +120,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
         SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(navx2SimHandle, "Yaw"));
         double heading = driveSim.getHeading().getDegrees();
         angle.set(-heading);
-        SmartDashboard.putNumber("drive getAngle()", this.getNormalizedAngle(false));
+        SmartDashboard.putNumber("getNormalizedAngle(false)", this.getNormalizedAngle(false));
+        SmartDashboard.putNumber("gyro angle", ((this.getGyroAngle() % 360) + 360) % 360);
+
+        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(driveSim.getCurrentDrawAmps()));
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2

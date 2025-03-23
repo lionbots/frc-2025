@@ -4,12 +4,28 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
+
+import java.util.List;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -75,8 +91,47 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> false).withTimeout(2
+    // return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> false).withTimeout(2);
+    DifferentialDriveVoltageConstraint constraint = new DifferentialDriveVoltageConstraint(
+      new SimpleMotorFeedforward(
+        DriveConstants.ksVolts,
+        DriveConstants.kvVoltsSecsPerMeter,
+        DriveConstants.kaVoltSecsSquaredPerMeter
+      ),
+      DriveConstants.kDriveKinematics,
+      10
     );
+
+    TrajectoryConfig config = new TrajectoryConfig(
+      DriveConstants.kMaxSpeedMetersPerSecond,
+      DriveConstants.kMaxAccelerationMetersPerSecondSquared
+    ).setKinematics(DriveConstants.kDriveKinematics).addConstraint(constraint);
+
+    Trajectory testTraj = TrajectoryGenerator.generateTrajectory(
+      DriveConstants.simDefaultPose,
+      List.of(new Translation2d(DriveConstants.simDefaultPose.getX() + 1, DriveConstants.simDefaultPose.getY() + 1), new Translation2d(DriveConstants.simDefaultPose.getX() + 2, DriveConstants.simDefaultPose.getY() - 1)),
+      new Pose2d(DriveConstants.simDefaultPose.getX() + 3, DriveConstants.simDefaultPose.getY(), new Rotation2d()),
+      config
+    );
+  
+    RamseteCommand ramseteCommand = new RamseteCommand(
+      testTraj,
+      drivebase::getPose,
+      new RamseteController(),
+      new SimpleMotorFeedforward(
+        DriveConstants.ksVolts,
+        DriveConstants.kvVoltsSecsPerMeter,
+        DriveConstants.kaVoltSecsSquaredPerMeter
+      ),
+      DriveConstants.kDriveKinematics,
+      drivebase::getWheelSpeeds,
+      new PIDController(DriveConstants.kPDriveVel, 0, 0),
+      new PIDController(DriveConstants.kPDriveVel, 0, 0),
+      drivebase::voltageDrive,
+      drivebase
+    );
+    
+    drivebase.field.getObject("Trajectory").setTrajectory(testTraj);
+    return ramseteCommand.andThen(Commands.runOnce(() -> drivebase.voltageDrive(0, 0), drivebase));
   }
 }

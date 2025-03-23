@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N7;
 
@@ -41,6 +42,15 @@ public final class Constants {
     public static final double trackWidthMeters = 0.58;
     public static final Matrix<N7,N1> measurementStdDevs = null;
     public static final Pose2d simDefaultPose = new Pose2d(8.775, 4.025, new Rotation2d());
+
+    // more placeholders cuz i couldnt get a robot to characterize
+    public static final double ksVolts = 0.22;
+    public static final double kvVoltsSecsPerMeter = 1.98;
+    public static final double kaVoltSecsSquaredPerMeter = 0.2;
+    public static final double kPDriveVel = 8.5;
+    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(trackWidthMeters);
   }
   public static class PIDConstants {
     public static final double kP = 0.008;
