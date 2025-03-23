@@ -37,7 +37,7 @@ public final class Constants {
   public static class IntakeConstants {
     public static int pivotMotorPort = 1;
     public static int intakeMotorPort = 3;
-    public static double outtakeSpeed = -1;
+    public static double outtakeSpeed = -0.7;
   }
 
   public static class OuttakeConstants {
