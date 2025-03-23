@@ -48,10 +48,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private final RelativeEncoder frEncoder = frMotor.getEncoder();
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
-    // private final SparkRelativeEncoderSim frEncoderSim = new SparkRelativeEncoderSim(frMotor);
-    // private final SparkRelativeEncoderSim flEncoderSim = new SparkRelativeEncoderSim(flMotor);
-    // private final SparkRelativeEncoderSim frEncoderSim = frMotorSim.getRelativeEncoderSim();
-    // private final SparkRelativeEncoderSim flEncoderSim = flMotorSim.getRelativeEncoderSim();
     private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DriveConstants.numMotors), DriveConstants.gearing, DriveConstants.momentIntertia, DriveConstants.massKg, DriveConstants.wheelRadiusMeters, DriveConstants.trackWidthMeters, DriveConstants.measurementStdDevs);
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
@@ -79,8 +75,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        odometry.update(new Rotation2d(Math.toRadians(this.getAngle(false))), this.getLeftPosition(), this.getRightPosition());
-        field.setRobotPose(odometry.getPoseMeters());
+        // RelativeEncoder supposed to return revolutions, need convert to meters
+        // couldve used EncoderConfig.setPositionConversionFactor or something but im sure someones going to forget it exists
+        double wheelCircumference = 2 * Math.PI * DriveConstants.wheelRadiusMeters;
+        odometry.update(new Rotation2d(Math.toRadians(this.getNormalizedAngle())), this.getLeftPosition() * wheelCircumference, this.getRightPosition() * wheelCircumference);
+        field.setRobotPose(getPose());
     }
 
     public void resetSimPos() {
@@ -94,14 +93,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
         driveSim.setInputs(flMotor.get() * RobotController.getInputVoltage(), frMotor.get() * RobotController.getInputVoltage());
         driveSim.update(0.02);
 
-        double conversionFactor = 2 * Math.PI * DriveConstants.wheelRadiusMeters / 60;
-        frMotorSim.iterate(driveSim.getRightVelocityMetersPerSecond() / conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
-        flMotorSim.iterate(driveSim.getLeftVelocityMetersPerSecond() / conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
+        // meters per second to revolutions per minute
+        double conversionFactor = 60.0 / 2.0 / Math.PI / DriveConstants.wheelRadiusMeters;
+        flMotorSim.iterate(driveSim.getLeftVelocityMetersPerSecond() * conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
+        frMotorSim.iterate(driveSim.getRightVelocityMetersPerSecond() * conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
 
         SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(navx2SimHandle, "Yaw"));
         double heading = driveSim.getHeading().getDegrees();
         angle.set(-heading);
-        SmartDashboard.putNumber("drive getAngle()", this.getAngle(false));
+        SmartDashboard.putNumber("drive getAngle()", this.getNormalizedAngle(false));
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
@@ -186,8 +186,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
      * Yaw according to navx2. -180 to 180 degrees, positive is clockwise
      * @return Yaw in degrees
      */
-    public double getAngle() {
+    public double getGyroAngle() {
         return navx2.getYaw();
+    }
+
+    public double getNormalizedAngle() {
+        return getNormalizedAngle(false);
     }
 
     /**
@@ -195,7 +199,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
      * @param backwards
      * @return Normalized yaw
      */
-    public double getAngle(boolean backwards) {
+    public double getNormalizedAngle(boolean backwards) {
         double gyroscopeAngle = -navx2.getAngle();
         gyroscopeAngle = ((gyroscopeAngle % 360) + 360) % 360;
         return gyroscopeAngle > 180 ? gyroscopeAngle - 360 : gyroscopeAngle;
@@ -203,6 +207,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
     public double angleToRotation(double target, boolean backwards) {
-        return PID.calculate(getAngle(backwards), target);
+        return PID.calculate(getNormalizedAngle(backwards), target);
     }
 }

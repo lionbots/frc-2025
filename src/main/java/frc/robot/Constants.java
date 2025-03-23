@@ -37,8 +37,8 @@ public final class Constants {
     public static final int gearing = 8;
     public static final int momentIntertia = 3;
     public static final double massKg = 50;
-    public static final double wheelRadiusMeters = 0.065;
-    public static final double trackWidthMeters = 0.555;
+    public static final double wheelRadiusMeters = 0.076;
+    public static final double trackWidthMeters = 0.58;
     public static final Matrix<N7,N1> measurementStdDevs = null;
     public static final Pose2d simDefaultPose = new Pose2d(8.775, 4.025, new Rotation2d());
   }
