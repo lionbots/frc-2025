@@ -136,7 +136,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     public double getAngle(boolean backwards) {
         double gyroscopeAngle = (navx2.getAngle() * -1) + 180;
         if(backwards) {
-            gyroscopeAngle = (gyroscopeAngle + 180) % 360;
+            gyroscopeAngle = (gyroscopeAngle) % 360;
         }
         if(gyroscopeAngle % 360  > 180) {
             return (gyroscopeAngle % 360) - 360;
