@@ -67,14 +67,15 @@ public final class Constants {
   }
 
   public static class OuttakeConstants {
-    public static int outerLMotorPort = 0;
-    public static int outerRMotorPort = 0;
-    public static int innerFLMotorPort = 0;
-    public static int innerFRMotorPort = 0;
-    public static int innerBLMotorPort = 0;
-    public static int innerBRMotorPort = 0;
-    public static int pivotMotorPort = 0;
-    public static int beamBreakPort = 0;
+    // placeholder values so simulation won't crash
+    public static int outerLMotorPort = 8;
+    public static int outerRMotorPort = 9;
+    public static int innerFLMotorPort = 10;
+    public static int innerFRMotorPort = 11;
+    public static int innerBLMotorPort = 12;
+    public static int innerBRMotorPort = 13;
+    public static int pivotMotorPort = 14;
+    public static int beamBreakPort = 15;
   }
 
   public static class ClimberConstants {

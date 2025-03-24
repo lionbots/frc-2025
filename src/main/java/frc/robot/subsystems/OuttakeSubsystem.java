@@ -7,25 +7,26 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.OuttakeConstants;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class OuttakeSubsystem extends SubsystemBase {
   //outer left motor on launcher
-  private final SparkMax outerLMotor = new SparkMax(0, MotorType.kBrushless); 
+  private final SparkMax outerLMotor = new SparkMax(OuttakeConstants.outerLMotorPort, MotorType.kBrushless); 
   //outer right motor on launcher
-  private final SparkMax outerRMotor = new SparkMax(0, MotorType.kBrushless);
+  private final SparkMax outerRMotor = new SparkMax(OuttakeConstants.outerRMotorPort, MotorType.kBrushless);
   //inner front left motor on launcher
-  private final SparkMax innerFLMotor = new SparkMax (0, MotorType.kBrushless);
+  private final SparkMax innerFLMotor = new SparkMax(OuttakeConstants.innerFLMotorPort, MotorType.kBrushless);
   //inner front right motor on launcher
-  private final SparkMax innerFRMotor = new SparkMax (0, MotorType.kBrushless);
+  private final SparkMax innerFRMotor = new SparkMax(OuttakeConstants.innerFRMotorPort, MotorType.kBrushless);
   //inner back left motor on launcher
-  private final SparkMax innerBLMotor = new SparkMax (0, MotorType.kBrushless);
+  private final SparkMax innerBLMotor = new SparkMax(OuttakeConstants.innerBLMotorPort, MotorType.kBrushless);
   //inner back right motor on launcher
-  private final SparkMax innerBRMotor = new SparkMax (0, MotorType.kBrushless);
+  private final SparkMax innerBRMotor = new SparkMax(OuttakeConstants.innerBRMotorPort, MotorType.kBrushless);
   //motor for pivot
-  private final SparkMax pivotMotor = new SparkMax(0,MotorType.kBrushless); 
+  private final SparkMax pivotMotor = new SparkMax(OuttakeConstants.pivotMotorPort, MotorType.kBrushless); 
   //encoder for the outer left motor on launcher
   private final RelativeEncoder outerLEncoder = outerLMotor.getEncoder();
   //encoder for the outer right motor on launcher
@@ -33,7 +34,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   //encoder for the pivot motor
   private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
   //beambreak for algea detection 
-  private final DigitalInput beamBreak = new DigitalInput(0);
+  private final DigitalInput beamBreak = new DigitalInput(OuttakeConstants.beamBreakPort);
 
 
     public OuttakeSubsystem() {
