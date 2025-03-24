@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
@@ -23,6 +26,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -53,7 +58,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DriveConstants.numMotors), DriveConstants.gearing, DriveConstants.momentIntertia, DriveConstants.massKg, DriveConstants.wheelRadiusMeters, DriveConstants.trackWidthMeters, DriveConstants.measurementStdDevs);
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
-    private final int navx2SimHandle = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]");
+    private final SimDouble yawSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]"), "Yaw"));
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
@@ -72,8 +77,21 @@ public class DrivebaseSubsystem extends SubsystemBase {
         configurePID();
         setInverted();
         setCurrentLimit();
-        SmartDashboard.putData("Field", field);
-        SmartDashboard.putData("Drive PID", this.PID);
+        if (RobotBase.isSimulation()) {
+            SmartDashboard.putData("Field", field);
+            SmartDashboard.putData("Drive PID", this.PID);
+            SmartDashboard.putData("navx2", navx2);
+            // get reference to getNormalizedAngle() here cuz "this" has a different value inside the anonymous class
+            DoubleSupplier bruh = this::getNormalizedAngle;
+            // create a Sendable() with type "Gyro" to get that fancy gyro widget in simulation UI
+            SmartDashboard.putData("Normalized angle", new Sendable() {
+                @Override
+                public void initSendable(SendableBuilder builder) {
+                    builder.setSmartDashboardType("Gyro");
+                    builder.addDoubleProperty("Value", bruh, null);
+                }
+            });
+        }
     }
 
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
@@ -102,6 +120,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
     }
 
     public void resetSimPos() {
+        // for now wont reset angle or velocity or driveSim or encoder positions
+        // those always cause problems like "mirroring" actions across simDefaultPose
         if (RobotBase.isSimulation()) {
             odometry.resetPose(DriveConstants.simDefaultPose);
         }
@@ -117,11 +137,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
         flMotorSim.iterate(driveSim.getLeftVelocityMetersPerSecond() * conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
         frMotorSim.iterate(driveSim.getRightVelocityMetersPerSecond() * conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
 
-        SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(navx2SimHandle, "Yaw"));
         double heading = driveSim.getHeading().getDegrees();
-        angle.set(-heading);
-        SmartDashboard.putNumber("getNormalizedAngle(false)", this.getNormalizedAngle(false));
-        SmartDashboard.putNumber("gyro angle", ((this.getGyroAngle() % 360) + 360) % 360);
+        yawSim.set(-heading);
 
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(driveSim.getCurrentDrawAmps()));
     }
