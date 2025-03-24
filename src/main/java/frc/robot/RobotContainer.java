@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ClimberSubsystem climber = new ClimberSubsystem();
-  // private final OuttakeSubsystem outtake = new OuttakeSubsystem();
+  private final OuttakeSubsystem outtake = new OuttakeSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
 
@@ -52,7 +52,7 @@ public class RobotContainer {
     // left trigger axis is definitely not the climber axis i just need a placeholder
     climber.setDefaultCommand(new ClimberCommand(climber, operatorController::getLeftTriggerAxis));
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
-    // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
+    outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
     drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
       // different controls for forward and backward for some reason, if backward axis is moved forward then robot moves backward or something
       // backward overrides forward perhaps
@@ -76,7 +76,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, operatorController::getLeftTriggerAxis)));
-    // operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, () -> operatorController.getRightTriggerAxis()));
+    operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
     operatorController.b().onTrue(new ClimberMagicButtonCommand(climber));
 

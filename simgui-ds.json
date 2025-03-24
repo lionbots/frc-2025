@@ -70,6 +70,14 @@
         {
           "decKey": 89,
           "incKey": 84
+        },
+        {
+          "decKey": 71,
+          "incKey": 70
+        },
+        {
+          "decKey": 74,
+          "incKey": 72
         }
       ],
       "axisCount": 4,
