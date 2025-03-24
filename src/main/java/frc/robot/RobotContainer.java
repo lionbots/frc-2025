@@ -11,8 +11,6 @@ import frc.robot.commands.*;
 
 import java.util.List;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,9 +21,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -45,6 +41,10 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.driverControllerPort);
   private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.operatorControllerPort);
+
+  // create here cuz "Loop time of 0.02s overrun" if in autonomous init
+  // apparently creating the trajectory and LTVUnicycleController takes a while
+  private final Command trajectoryCommand = createTestTrajectoryCommand();
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -85,13 +85,7 @@ public class RobotContainer {
     }
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // return new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> false).withTimeout(2);
+  private Command createTestTrajectoryCommand() {
     DifferentialDriveVoltageConstraint constraint = new DifferentialDriveVoltageConstraint(
       new SimpleMotorFeedforward(
         DriveConstants.ksVolts,
@@ -107,31 +101,23 @@ public class RobotContainer {
       DriveConstants.kMaxAccelerationMetersPerSecondSquared
     ).setKinematics(DriveConstants.kDriveKinematics).addConstraint(constraint);
 
-    Trajectory testTraj = TrajectoryGenerator.generateTrajectory(
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
       DriveConstants.simDefaultPose,
       List.of(new Translation2d(DriveConstants.simDefaultPose.getX() + 1, DriveConstants.simDefaultPose.getY() + 1), new Translation2d(DriveConstants.simDefaultPose.getX() + 2, DriveConstants.simDefaultPose.getY() - 1)),
       new Pose2d(DriveConstants.simDefaultPose.getX() + 3, DriveConstants.simDefaultPose.getY(), new Rotation2d()),
       config
     );
-  
-    RamseteCommand ramseteCommand = new RamseteCommand(
-      testTraj,
-      drivebase::getPose,
-      new RamseteController(),
-      new SimpleMotorFeedforward(
-        DriveConstants.ksVolts,
-        DriveConstants.kvVoltsSecsPerMeter,
-        DriveConstants.kaVoltSecsSquaredPerMeter
-      ),
-      DriveConstants.kDriveKinematics,
-      drivebase::getWheelSpeeds,
-      new PIDController(DriveConstants.kPDriveVel, 0, 0),
-      new PIDController(DriveConstants.kPDriveVel, 0, 0),
-      drivebase::voltageDrive,
-      drivebase
-    );
-    
-    drivebase.field.getObject("Trajectory").setTrajectory(testTraj);
-    return ramseteCommand.andThen(Commands.runOnce(() -> drivebase.voltageDrive(0, 0), drivebase));
+
+    drivebase.field.getObject("Trajectory").setTrajectory(trajectory);
+    return new FollowTrajectoryCommand(drivebase, trajectory);
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return this.trajectoryCommand;
   }
 }

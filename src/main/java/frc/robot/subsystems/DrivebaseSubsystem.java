@@ -104,7 +104,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     }
 
     public void voltageDrive(double leftVolts, double rightVolts) {
-        // System.out.println(leftVolts + " " + rightVolts);
         flMotor.setVoltage(leftVolts);
         frMotor.setVoltage(rightVolts);
         d_drive.feed();
