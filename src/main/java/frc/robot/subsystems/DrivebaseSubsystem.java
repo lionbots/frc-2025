@@ -41,9 +41,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
         setFollow();
         setMotorIdleModes();
-        setCurrentLimit();
         configurePID();
         setInverted();
+        setCurrentLimit();
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
