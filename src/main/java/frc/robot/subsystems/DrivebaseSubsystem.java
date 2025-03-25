@@ -107,7 +107,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         frMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         flMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         brMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        blMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
@@ -120,7 +120,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         frMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         flMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         brMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        blMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
