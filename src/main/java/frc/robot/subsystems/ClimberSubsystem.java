@@ -31,6 +31,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private final SparkMax climberMotor = new SparkMax(ClimberConstants.climberMotorPort, MotorType.kBrushless);
   private final DCMotor dcmotor = DCMotor.getNEO(1);
   private final SparkMaxSim climberMotorSim = new SparkMaxSim(climberMotor, dcmotor);
+  
   // made up values, me need cad to be done
   private final SingleJointedArmSim armSim = new SingleJointedArmSim(dcmotor, 1, 1, 0.254, 0, Math.PI, false, 0);
   private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
