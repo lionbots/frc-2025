@@ -33,8 +33,9 @@ public class MagicRotCommand extends Command {
      */
     public MagicRotCommand(IMagicRotSubsystem subsystem, String name, double minRot, double maxRot, double kP, double kI, double kD, double tolerance) {
         this.subsystem = subsystem;
-        this.minRot = minRot;
-        this.maxRot = maxRot;
+        // math.min() cuz i dont trust whoever uses this command (myself)
+        this.minRot = Math.min(minRot, maxRot);
+        this.maxRot = Math.max(minRot, maxRot);
         this.pid = new PIDController(kP, kI, kD);
         // this.pid.setTolerance(tolerance);
         this.name = name;
