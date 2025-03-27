@@ -75,8 +75,13 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, operatorController::getLeftTriggerAxis)));
-    operatorController.rightTrigger(0.1).onTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
+    operatorController.leftTrigger(0.1).whileTrue(new IntakeCommand(intake, operatorController::getLeftTriggerAxis));
+
+    // OuttakeCommand originally was operatorController.rightTrigger(0.1).onTrue
+    // changed to whileTrue because once the right trigger exceeds 0.1, OuttakeCommand will run for eternity
+    // this means the outtake subsystem is occupied and cannot be used by OuttakePivotCommand
+    // not sure if this is intentional but me want pivot work
+    operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
     operatorController.b().onTrue(new ClimberMagicButtonCommand(climber));
 
