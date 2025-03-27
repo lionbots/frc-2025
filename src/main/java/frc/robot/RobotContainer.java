@@ -111,7 +111,7 @@ public class RobotContainer {
     // not sure if this is intentional but me want pivot work
     // operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-    operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, 0.25, 0.1, 0, 0, 0.1));
+    operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, 0.25));
 
     if (RobotBase.isSimulation()) {
       operatorController.a().onTrue(new InstantCommand(drivebase::resetSimPos));

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
@@ -46,10 +47,13 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
 
   private MechanismLigament2d armLigament = null;
+  private PIDController pid = new PIDController(1, 0, 0);
+  private Double setpoint = 0.0 / 0.0;
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();
+    SmartDashboard.putData("intake PID", pid);
   }
 
   @Override
@@ -106,6 +110,16 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   }
 
   public void periodic() {
-    SmartDashboard.putNumber("Encoder", getEncoder());
+    if (!this.setpoint.isNaN()) {
+      this.setPivotSpeed(this.pid.calculate(this.getPivotPosition(), this.setpoint));
+    }
+  }
+
+  public void setSetpoint(double pos) {
+    this.setpoint = pos;
+  }
+
+  public boolean atSetPoint() {
+    return this.pid.atSetpoint();
   }
 }

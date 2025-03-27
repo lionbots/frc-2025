@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.IMagicRotSubsystem;
@@ -16,7 +15,6 @@ public class MagicRotCommand extends Command {
     private double minRot;
     // subsystem maximum rotation
     private double maxRot;
-    private PIDController pid;
     private String name;
     private final boolean doPutData = true;
     
@@ -26,38 +24,16 @@ public class MagicRotCommand extends Command {
      * @param name Name to use for NetworkTables data keys
      * @param minRot "Minimum" rotation in amount of rotations from 0 to 1. Should be something that doesn't have to bother with wraparound
      * @param maxRot "Maximum" rotation in amount of rotations from 0 to 1. Should be something that doesn't have to bother with wraparound
-     * @param kP Proportional coefficient as used by PIDController
-     * @param kI Integral coefficient as used by PIDController
-     * @param kD Derivative coefficient as used by PIDController
      */
-    public MagicRotCommand(IMagicRotSubsystem subsystem, String name, double minRot, double maxRot, double kP, double kI, double kD, double tolerance) {
+    public MagicRotCommand(IMagicRotSubsystem subsystem, String name, double minRot, double maxRot) {
         this.subsystem = subsystem;
         // math.min() cuz i dont trust whoever uses this command (myself)
         this.minRot = Math.min(minRot, maxRot);
         this.maxRot = Math.max(minRot, maxRot);
-        this.pid = new PIDController(kP, kI, kD);
         // this.pid.setTolerance(tolerance);
         this.name = name;
-        // this.doPutData = name.length() > 0 && RobotBase.isSimulation();
-        if (this.doPutData) {
-            SmartDashboard.putData(name + " rot PID", pid);
-        }
         addRequirements(subsystem);
     }
-
-    /**
-     * Construct command. PID coefficients default to 1, 0, 0.
-     * @param subsystem Subsystem to rotate
-     * @param name Name to use for NetworkTables data keys
-     * @param startRot "Minimum" rotation in amount of rotations from 0 to 1. Should be something that doesn't have to bother with wraparound
-     * @param endRot "Maximum" rotation in amount of rotations from 0 to 1. Should be something that doesn't have to bother with wraparound
-     */
-    public MagicRotCommand(IMagicRotSubsystem subsystem, String name, double startRot, double endRot) {
-        // 0 kP means no movement
-        // couldve used feedforward controller but me lazy
-        this(subsystem, name, startRot, endRot, 1, 0, 0, 0.05);
-    }
-
 
     @Override
     public void initialize() {
@@ -68,19 +44,14 @@ public class MagicRotCommand extends Command {
         if (this.doPutData) {
             SmartDashboard.putNumber(name + " target rot", this.targetRot);
         }
-    }
 
-    @Override
-    public void execute() {
-        double currentRot = this.subsystem.getPivotPosition();
-        this.subsystem.setPivotSpeed(this.pid.calculate(currentRot, this.targetRot));
-        if (this.doPutData) {
-            SmartDashboard.putNumber(name + " current rot", currentRot);
-        }
+        // set PID setpoint cuz PID gotta continue correcting errors
+        // have to do in subsystem cuz command can't interrupt itself, eternal command much annoy
+        this.subsystem.setSetpoint(this.targetRot);
     }
 
     @Override
     public boolean isFinished() {
-        return this.pid.atSetpoint();
+        return this.subsystem.atSetPoint();
     }
 }

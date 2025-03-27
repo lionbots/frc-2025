@@ -4,11 +4,13 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.IMagicRotSubsystem;
 import frc.robot.Constants.ClimberConstants;
@@ -32,10 +34,14 @@ public class ClimberSubsystem extends SubsystemBase implements IMagicRotSubsyste
   private final SingleJointedArmSim armSim = new SingleJointedArmSim(dcmotor, 100, SingleJointedArmSim.estimateMOI(0.254, 5), 0.254, 0, Math.PI, true, 0);
   private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
 
+  private final PIDController pid = new PIDController(1, 0, 0);
+  private Double setpoint = 0.0 / 0.0;
+
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
     setMotorIdleModes();
     setCurrentLimit();
+    SmartDashboard.putData("climber PID", pid);
   }
 
   @Override
@@ -71,5 +77,21 @@ public class ClimberSubsystem extends SubsystemBase implements IMagicRotSubsyste
    */
   public void setPivotSpeed(double speed){
     climberMotor.set(speed);
+  }
+
+  public void setSetpoint(double pos) {
+    this.setpoint = pos;
+  }
+
+  public boolean atSetPoint() {
+    System.out.println(this.pid.atSetpoint());
+    return this.pid.atSetpoint();
+  }
+
+  @Override
+  public void periodic() {
+      if (!this.setpoint.isNaN()) {
+        this.setPivotSpeed(this.pid.calculate(this.getPivotPosition(), this.setpoint));
+      }
   }
 }
