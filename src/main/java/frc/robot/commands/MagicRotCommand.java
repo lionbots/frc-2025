@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.IMagicRotSubsystem;
@@ -19,7 +18,7 @@ public class MagicRotCommand extends Command {
     private double maxRot;
     private PIDController pid;
     private String name;
-    private final boolean doPutData;
+    private final boolean doPutData = true;
     
     /**
      * Construct command
@@ -39,7 +38,7 @@ public class MagicRotCommand extends Command {
         this.pid = new PIDController(kP, kI, kD);
         // this.pid.setTolerance(tolerance);
         this.name = name;
-        this.doPutData = name.length() > 0 && RobotBase.isSimulation();
+        // this.doPutData = name.length() > 0 && RobotBase.isSimulation();
         if (this.doPutData) {
             SmartDashboard.putData(name + " rot PID", pid);
         }
