@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.IMagicRotSubsystem;
 import frc.robot.Constants.IntakeConstants;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -23,7 +24,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem {
 
   //Create instance variables for the motors
   private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
@@ -73,7 +74,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   //Method for setting intake speed
   public void setIntakeSpeed(double intakeSpeed) {
-    // System.out.println(intakeSpeed);
     intakeMotor.set(intakeSpeed);
   }
 
