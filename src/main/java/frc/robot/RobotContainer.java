@@ -20,6 +20,8 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -32,10 +34,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  private final Mechanism2d mechanism = new Mechanism2d(3, 3);
   // The robot's subsystems and commands are defined here...
   private final ClimberSubsystem climber = new ClimberSubsystem();
   private final OuttakeSubsystem outtake = new OuttakeSubsystem();
-  private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem().setMechanism(mechanism);
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -61,6 +64,7 @@ public class RobotContainer {
       return backwardSpeed > 0 ? -backwardSpeed : forwardSpeed;
     }, driverController::getLeftX, driverController::getLeftY, () -> driverController.rightBumper().getAsBoolean()));
 
+    SmartDashboard.putData("something", this.mechanism);
     // Configure the trigger bindings
     configureBindings();
   }
@@ -83,7 +87,8 @@ public class RobotContainer {
     // not sure if this is intentional but me want pivot work
     operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-    operatorController.b().onTrue(new MagicRotCommand(climber, "climber", 0, 0.25));
+    // operatorController.b().onTrue(new MagicRotCommand(climber, "climber", 0, 0.25));
+    operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, 0.4));
 
     if (RobotBase.isSimulation()) {
       operatorController.a().onTrue(new InstantCommand(drivebase::resetSimPos));

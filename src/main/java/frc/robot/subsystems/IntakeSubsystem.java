@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.IMagicRotSubsystem;
@@ -36,8 +39,12 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   //Create instance variable for the motor simulation
   private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
   private final SparkMaxSim intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNEO(1));
-  private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 1, 1, 0.2794, 0, Math.PI, false, 0);
+  private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 100, SingleJointedArmSim.estimateMOI(0.2794, 5), 0.2794, 0, Math.PI, true, 0);
   private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
+
+  private Mechanism2d mechanism = null;
+  private MechanismRoot2d mechRoot = null;
+  private MechanismLigament2d armLigament = null;
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
@@ -51,12 +58,24 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     this.pivotSim.setInput(pivotMotorSim.getAppliedOutput() * vInVoltage);
     this.pivotSim.update(0.02);
     this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec()), vInVoltage, 0.02);
+    if (this.armLigament != null) {
+      this.armLigament.setAngle(Math.toDegrees(this.pivotSim.getAngleRads()));
+    }
 
     this.intakeFlywheelSim.setInput(intakeMotorSim.getAppliedOutput() * vInVoltage);
     this.intakeFlywheelSim.update(0.02);
     this.intakeMotorSim.iterate(this.intakeFlywheelSim.getAngularVelocityRPM(), vInVoltage, 0.02);
 
     RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(this.pivotSim.getCurrentDrawAmps()));
+  }
+
+  public IntakeSubsystem setMechanism(Mechanism2d mechanism) {
+    this.mechanism = mechanism;
+    this.mechRoot = this.mechanism.getRoot("intake", 2.9, 0);
+    MechanismLigament2d intakeHolder = this.mechRoot.append(new MechanismLigament2d("bracket", 0.1, 90
+    ));
+    this.armLigament = intakeHolder.append(new MechanismLigament2d("intake", 2, 90));
+    return this;
   }
 
   public double getEncoder() {
@@ -84,6 +103,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   
   //Method to get position of pivot
   public double getPivotPosition() {
+    System.out.println(pivotEncoder.getPosition());
     return pivotEncoder.getPosition();
   }
 
