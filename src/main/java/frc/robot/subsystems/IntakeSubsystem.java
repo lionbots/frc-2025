@@ -87,8 +87,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     SparkMaxConfig idleMode = new SparkMaxConfig();
     idleMode.idleMode(IdleMode.kBrake);
 
-    pivotMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    pivotMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   //Method for setting intake speed

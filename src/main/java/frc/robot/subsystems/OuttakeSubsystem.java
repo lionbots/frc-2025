@@ -81,14 +81,14 @@ public class OuttakeSubsystem extends SubsystemBase {
   public void idleMotor() {
     SparkMaxConfig idleMode = new SparkMaxConfig();
     idleMode.idleMode(IdleMode.kCoast);
-    outerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    outerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    outerLMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    outerRMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     idleMode.idleMode(IdleMode.kBrake);
-    pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    innerFLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    innerFRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    innerBLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    innerBRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    pivotMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    innerFLMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    innerFRMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    innerBLMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    innerBRMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   //set the speed to the outer motors

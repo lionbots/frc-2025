@@ -49,7 +49,7 @@ public class ClimberSubsystem extends SubsystemBase implements IMagicRotSubsyste
   public void setMotorIdleModes() {
     SparkMaxConfig idleMode = new SparkMaxConfig();
     idleMode.idleMode(IdleMode.kBrake);
-    climberMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    climberMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void setCurrentLimit() {
