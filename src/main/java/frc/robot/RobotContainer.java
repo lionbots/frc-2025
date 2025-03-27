@@ -21,7 +21,10 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -34,11 +37,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final Mechanism2d mechanism = new Mechanism2d(3, 3);
   // The robot's subsystems and commands are defined here...
   private final ClimberSubsystem climber = new ClimberSubsystem();
   private final OuttakeSubsystem outtake = new OuttakeSubsystem();
-  private final IntakeSubsystem intake = new IntakeSubsystem().setMechanism(mechanism);
+  private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -64,9 +66,31 @@ public class RobotContainer {
       return backwardSpeed > 0 ? -backwardSpeed : forwardSpeed;
     }, driverController::getLeftX, driverController::getLeftY, () -> driverController.rightBumper().getAsBoolean()));
 
-    SmartDashboard.putData("something", this.mechanism);
+    drawRobot();
+
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  private void drawRobot() {
+    Mechanism2d mechanism = new Mechanism2d(3, 4);
+    MechanismRoot2d mechRoot = mechanism.getRoot("root", 0.5, 0.1);
+
+    // chassis ligament
+    mechRoot.append(new MechanismLigament2d("chassis", 2, 0));
+  
+    // tower ligaments
+    MechanismRoot2d towerRoot = mechanism.getRoot("tower root", 2, 0.2);
+    MechanismLigament2d verticalTower = towerRoot.append(new MechanismLigament2d("vertical tower", 2, 90, 6, new Color8Bit(0, 0, 255)));
+    MechanismLigament2d diagonalTower = verticalTower.append(new MechanismLigament2d("diagonal tower", 2, 148, 6, new Color8Bit(0, 0, 255)));
+    diagonalTower.append(new MechanismLigament2d("short vertical tower", 0.3, 32, 6, new Color8Bit(0, 0, 255)));
+    this.outtake.setBaseLigament(verticalTower);
+  
+    MechanismRoot2d intakeRoot = mechanism.getRoot("intake root", 2.4, 0.2);
+    MechanismLigament2d intakeHolderLigament = intakeRoot.append(new MechanismLigament2d("intake holder", 0.5, 90, 6, new Color8Bit(255, 0, 0)));
+    this.intake.setBaseLigament(intakeHolderLigament);
+  
+    SmartDashboard.putData("mechanism", mechanism);
   }
 
   /**

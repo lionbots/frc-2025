@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OuttakeConstants;
 
@@ -54,8 +56,17 @@ public class OuttakeSubsystem extends SubsystemBase {
   private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
   private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 1, 1, 0.559, 0, Math.PI, false, Math.PI / 2);
 
+  private MechanismLigament2d ligament = null;
+
   public OuttakeSubsystem() {
     idleMotor();
+  }
+
+  public OuttakeSubsystem setBaseLigament(MechanismLigament2d ligament) {
+    this.ligament = ligament.append(new MechanismLigament2d("cannon pivot", 1, 0, 6, new Color8Bit(0, 255, 0)));
+    this.ligament.append(new MechanismLigament2d("cannon 1", 0.5, 90, 6, new Color8Bit(0, 255, 0)));
+    this.ligament.append(new MechanismLigament2d("cannon 2", 0.5, 270, 6, new Color8Bit(0, 255, 0)));
+    return this;
   }
 
   @Override
@@ -72,9 +83,11 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.pivotSim.setInput(this.pivotMotorSim.getAppliedOutput() * vInVoltage);
     this.pivotSim.update(0.02);
     this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec()), vInVoltage, 0.02);
+    if (this.ligament != null) {
+      this.ligament.setAngle(Math.toDegrees(this.pivotSim.getAngleRads()) - 90);
+    }
 
     RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(this.outerFlyWheelSim.getCurrentDrawAmps() + this.innerFlywheelSim.getCurrentDrawAmps() + this.pivotSim.getCurrentDrawAmps()));
-
   }
 
   //set all the motors to brake mode

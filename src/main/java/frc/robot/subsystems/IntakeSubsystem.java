@@ -12,10 +12,9 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.IMagicRotSubsystem;
 import frc.robot.Constants.IntakeConstants;
@@ -46,8 +45,6 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 100, SingleJointedArmSim.estimateMOI(0.2794, 5), 0.2794, 0, 2 * Math.PI, true, Math.PI / 2);
   private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
 
-  private Mechanism2d mechanism = null;
-  private MechanismRoot2d mechRoot = null;
   private MechanismLigament2d armLigament = null;
 
   // Constructor to access the brake mode method
@@ -75,12 +72,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(this.pivotSim.getCurrentDrawAmps()));
   }
 
-  public IntakeSubsystem setMechanism(Mechanism2d mechanism) {
-    this.mechanism = mechanism;
-    this.mechRoot = this.mechanism.getRoot("intake", 2.9, 0);
-    MechanismLigament2d intakeHolder = this.mechRoot.append(new MechanismLigament2d("bracket", 0.5, 90
-    ));
-    this.armLigament = intakeHolder.append(new MechanismLigament2d("intake", 1, 90));
+  public IntakeSubsystem setBaseLigament(MechanismLigament2d baseLigament) {
+    this.armLigament = baseLigament.append(new MechanismLigament2d("intake", 1, 90, 6, new Color8Bit(255, 0, 0)));
     return this;
   }
 
