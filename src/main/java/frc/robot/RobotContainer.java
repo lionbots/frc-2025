@@ -38,8 +38,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  // private final ClimberSubsystem climber = new ClimberSubsystem();
-  // private final OuttakeSubsystem outtake = new OuttakeSubsystem();
+
+  // outtake and climber dont have valid motor ids yet
+  private final ClimberSubsystem climber = RobotBase.isSimulation() ? new ClimberSubsystem() : null;
+  private final OuttakeSubsystem outtake = RobotBase.isSimulation() ? new OuttakeSubsystem() : null;
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
 
@@ -55,9 +57,13 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // left trigger axis is definitely not the climber axis i just need a placeholder
-    // climber.setDefaultCommand(new ClimberCommand(climber, operatorController::getLeftTriggerAxis));
+    if (climber != null) {
+      climber.setDefaultCommand(new ClimberCommand(climber, operatorController::getLeftTriggerAxis));
+    }
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
-    // outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
+    if (outtake != null) {
+      outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
+    }
     drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
       // different controls for forward and backward for some reason, if backward axis is moved forward then robot moves backward or something
       // backward overrides forward perhaps
@@ -84,7 +90,9 @@ public class RobotContainer {
     MechanismLigament2d verticalTower = towerRoot.append(new MechanismLigament2d("vertical tower", 2, 90, 6, new Color8Bit(0, 0, 255)));
     MechanismLigament2d diagonalTower = verticalTower.append(new MechanismLigament2d("diagonal tower", 2, 148, 6, new Color8Bit(0, 0, 255)));
     diagonalTower.append(new MechanismLigament2d("short vertical tower", 0.3, 32, 6, new Color8Bit(0, 0, 255)));
-    // this.outtake.setBaseLigament(verticalTower);
+    if (this.outtake != null) {
+      this.outtake.setBaseLigament(verticalTower);
+    }
   
     MechanismRoot2d intakeRoot = mechanism.getRoot("intake root", 2.4, 0.2);
     MechanismLigament2d intakeHolderLigament = intakeRoot.append(new MechanismLigament2d("intake holder", 0.5, 90, 6, new Color8Bit(255, 0, 0)));
@@ -109,7 +117,9 @@ public class RobotContainer {
     // changed to whileTrue because once the right trigger exceeds 0.1, OuttakeCommand will run for eternity
     // this means the outtake subsystem is occupied and cannot be used by OuttakePivotCommand
     // not sure if this is intentional but me want pivot work
-    // operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
+    if (this.outtake != null) {
+      operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
+    }
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
     operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, 0.25));
 
