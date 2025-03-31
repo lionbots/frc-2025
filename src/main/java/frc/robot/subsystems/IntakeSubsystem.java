@@ -5,12 +5,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.PIDConstants;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -22,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
   private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
   //Create instance variables for the encoders
-  private final RelativeEncoder pivotEncoder = pivotMotor.getEncoder();
+  private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 360, 0);
   // PID for the pivot
   private final PIDController pivotPID = new PIDController(PIDConstants.kIntakeP, PIDConstants.kIntakeI, PIDConstants.kIntakeP);
 
@@ -56,10 +56,15 @@ public class IntakeSubsystem extends SubsystemBase {
   
   //Method to get position of pivot
   public double getPivotPosition() {
-    return pivotEncoder.getPosition();
+    return pivotEncoder.get();
+  }
+
+  public boolean atPosition() {
+    return pivotPID.atSetpoint();
   }
 
   public void periodic() {
     SmartDashboard.putNumber("Encoder", getPivotPosition());
+    SmartDashboard.putNumber("PID", pivotPID.calculate(getPivotPosition(), IntakeConstants.pivotSetPoint));
   }
 }

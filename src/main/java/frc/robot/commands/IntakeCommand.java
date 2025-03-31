@@ -30,7 +30,11 @@ public class IntakeCommand extends Command {
   @Override
   public void execute() {
     //if(!launcher.getBeamBreak()){
-    intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
+    if(!intake.atPosition()) {
+      intake.setIntakePosition();
+    } else {
+      intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
+    }
     //   launcher.setOuterSpeed(intakeSpeed.get()*-1);
     //   launcher.setInnerSpeed(intakeSpeed.get()*-1);
     // }

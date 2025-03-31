@@ -31,8 +31,8 @@ public final class Constants {
     public static final double kDriveI = 0.001;
     public static final double kDriveD = 0;
 
-    public static final double kIntakeP = 0.004;
-    public static final double kIntakeI = 0.001;
+    public static final double kIntakeP = 0.00075;
+    public static final double kIntakeI = 0.0000;
     public static final double kIntakeD = 0;
 
     public static final double tolerance = 2;
@@ -41,9 +41,10 @@ public final class Constants {
   public static class IntakeConstants {
     public static int pivotMotorPort = 1;
     public static int intakeMotorPort = 3;
-    public static double outtakeSpeed = -0.5;
+    public static int encoderPort = 8;
 
-    public static double pivotSetPoint = -17;
+    public static double outtakeSpeed = -0.5;
+    public static double pivotSetPoint = 70;
   }
 
   public static class OuttakeConstants {
