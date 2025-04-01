@@ -47,7 +47,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
 
   private MechanismLigament2d armLigament = null;
   private final PIDController pivotPid = new PIDController(PIDConstants.kIntakeP, PIDConstants.kIntakeI, PIDConstants.kIntakeD);
-  private Double setpoint = 0.0 / 0.0;
+  private Double setpoint = null;
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
@@ -106,14 +106,14 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   }
 
   public void periodic() {
-    if (!this.setpoint.isNaN()) {
+    if (this.setpoint != null) {
       double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
       SmartDashboard.putNumber("intake PID calculation", calculation);
       this.setPivotSpeed(calculation);
     }
   }
-
-  public void setSetpoint(double pos) {
+  
+  public void setSetpoint(Double pos) {
     this.setpoint = pos;
   }
 

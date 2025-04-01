@@ -52,6 +52,6 @@ public class MagicRotCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return this.subsystem.atSetPoint();
+        return true;
     }
 }

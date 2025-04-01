@@ -36,7 +36,7 @@ public class ClimberCommand extends Command {
   public void execute() {
     double climberSpeed = this.speed.get();
     if (climberSpeed != 0) {
-      this.climber.setSetpoint(0.0 / 0.0);
+      this.climber.setSetpoint(null);
       this.climber.setPivotSpeed(climberSpeed);
     }
   }

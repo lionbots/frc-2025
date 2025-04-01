@@ -35,7 +35,7 @@ public class ClimberSubsystem extends SubsystemBase implements IMagicRotSubsyste
   private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
 
   private final PIDController pid = new PIDController(1, 0, 0);
-  private Double setpoint = 0.0 / 0.0;
+  private Double setpoint = null;
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
@@ -79,18 +79,17 @@ public class ClimberSubsystem extends SubsystemBase implements IMagicRotSubsyste
     climberMotor.set(speed);
   }
 
-  public void setSetpoint(double pos) {
+  public void setSetpoint(Double pos) {
     this.setpoint = pos;
   }
 
   public boolean atSetPoint() {
-    System.out.println(this.pid.atSetpoint());
     return this.pid.atSetpoint();
   }
 
   @Override
   public void periodic() {
-      if (!this.setpoint.isNaN()) {
+      if (this.setpoint != null) {
         this.setPivotSpeed(this.pid.calculate(this.getPivotPosition(), this.setpoint));
       }
   }

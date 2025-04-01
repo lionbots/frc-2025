@@ -13,5 +13,5 @@ public interface IMagicRotSubsystem extends Subsystem {
     /**
      * Set the setpoint the subsystem will attempt to go to. If NaN then clear setpos
      */
-    public void setSetpoint(double pos);
+    public void setSetpoint(Double pos);
 }
