@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
@@ -121,7 +122,7 @@ public class RobotContainer {
       operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     }
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-    operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, 0.25));
+    operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint));
 
     if (RobotBase.isSimulation()) {
       operatorController.a().onTrue(new InstantCommand(drivebase::resetSimPos));

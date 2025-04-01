@@ -53,9 +53,13 @@ public final class Constants {
     public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(trackWidthMeters);
   }
   public static class PIDConstants {
-    public static final double kP = 0.008;
-    public static final double kI = 0.001;
-    public static final double kD = 0;
+    public static final double kDriveP = 0.008;
+    public static final double kDriveI = 0.001;
+    public static final double kDriveD = 0;
+
+    public static final double kIntakeP = 0.00075;
+    public static final double kIntakeI = 0;
+    public static final double kIntakeD = 0;
 
     public static final double tolerance = 2;
   }
@@ -63,7 +67,9 @@ public final class Constants {
   public static class IntakeConstants {
     public static int pivotMotorPort = 1;
     public static int intakeMotorPort = 3;
-    public static double outtakeSpeed = -1;
+    public static double outtakeSpeed = -0.5;
+    public static final int encoderPort = 8;
+    public static final double pivotSetpoint = -70;
   }
 
   public static class OuttakeConstants {

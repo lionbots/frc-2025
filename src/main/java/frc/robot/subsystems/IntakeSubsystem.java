@@ -8,8 +8,10 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -19,9 +21,8 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.IMagicRotSubsystem;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.PIDConstants;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -35,10 +36,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
   private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
   
-  //Create instance variables for the encoders
-  private final AbsoluteEncoder pivotEncoder = pivotMotor.getAbsoluteEncoder();
-  // have to simulate encoder cuz AbsoluteEncoder constantly gives 0 in simulation
-  private final SparkAbsoluteEncoderSim pivotEncoderSim = new SparkAbsoluteEncoderSim(pivotMotor);
+  private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 360, 0);
+  private final DutyCycleEncoderSim pivotEncoderSim = new DutyCycleEncoderSim(pivotEncoder);
 
   //Create instance variable for the motor simulation
   private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
@@ -47,13 +46,13 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
 
   private MechanismLigament2d armLigament = null;
-  private PIDController pid = new PIDController(1, 0, 0);
+  private final PIDController pivotPid = new PIDController(PIDConstants.kIntakeP, PIDConstants.kIntakeI, PIDConstants.kIntakeD);
   private Double setpoint = 0.0 / 0.0;
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();
-    SmartDashboard.putData("intake PID", pid);
+    SmartDashboard.putData("intake PID", pivotPid);
   }
 
   @Override
@@ -63,10 +62,11 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     this.pivotSim.setInput(pivotMotorSim.getAppliedOutput() * vInVoltage);
     this.pivotSim.update(0.02);
     this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec()), vInVoltage, 0.02);
-    this.pivotEncoderSim.setPosition(this.pivotSim.getAngleRads() / 2 / Math.PI);
+    double armAngle = Math.toDegrees(this.pivotSim.getAngleRads()) - 90;
+    this.pivotEncoderSim.set(armAngle);
     if (this.armLigament != null) {
       // anglE RElatIve To iTs pArent
-      this.armLigament.setAngle(Math.toDegrees(this.pivotSim.getAngleRads()) - 90);
+      this.armLigament.setAngle(armAngle);
     }
 
     this.intakeFlywheelSim.setInput(intakeMotorSim.getAppliedOutput() * vInVoltage);
@@ -79,10 +79,6 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   public IntakeSubsystem setBaseLigament(MechanismLigament2d baseLigament) {
     this.armLigament = baseLigament.append(new MechanismLigament2d("intake", 1, 90, 6, new Color8Bit(255, 0, 0)));
     return this;
-  }
-
-  public double getEncoder() {
-    return pivotEncoder.getPosition();
   }
 
   // Method for brake mode
@@ -106,12 +102,14 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   
   //Method to get position of pivot
   public double getPivotPosition() {
-    return RobotBase.isSimulation() ? pivotEncoderSim.getPosition() : pivotEncoder.getPosition();
+    return RobotBase.isSimulation() ? pivotEncoderSim.get() : pivotEncoder.get();
   }
 
   public void periodic() {
     if (!this.setpoint.isNaN()) {
-      this.setPivotSpeed(this.pid.calculate(this.getPivotPosition(), this.setpoint));
+      double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
+      SmartDashboard.putNumber("intake PID calculation", calculation);
+      this.setPivotSpeed(calculation);
     }
   }
 
@@ -120,6 +118,6 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   }
 
   public boolean atSetPoint() {
-    return this.pid.atSetpoint();
+    return this.pivotPid.atSetpoint();
   }
 }

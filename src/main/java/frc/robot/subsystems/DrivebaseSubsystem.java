@@ -59,7 +59,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
     private final SimDouble yawSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]"), "Yaw"));
-    private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
+    private final PIDController PID = new PIDController(PIDConstants.kDriveP, PIDConstants.kDriveI, PIDConstants.kDriveD);
 
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
         new Rotation2d(Math.toRadians(navx2.getYaw())),
