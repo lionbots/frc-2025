@@ -8,14 +8,22 @@ public class IntakePivotCommand extends Command {
     private final IntakeSubsystem pivot;
     private final Supplier<Double> speedFunction;
         
-    public IntakePivotCommand (IntakeSubsystem pivot, Supplier<Double> speedFunction) {
+    public IntakePivotCommand(IntakeSubsystem pivot, Supplier<Double> speedFunction) {
         this.pivot = pivot;
         this.speedFunction = speedFunction;
         //Use addRequirements() here to declare subsystem dependencies
         addRequirements(pivot);
     }
+
     public void execute() {
-        pivot.setPivotSpeed(speedFunction.get()*.1);
+        double speed = this.speedFunction.get();
+        if (speed != 0) {
+            // MagicRotCommand makes the subsystem PID go toward its setpoint forever
+            // this command should override that, so clear the setpoint
+            // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
+            this.pivot.setSetpoint(0.0 / 0.0);
+            pivot.setPivotSpeed(speed * 0.1);
+        }
     }
 
     // Called once the command ends or is interrupted.

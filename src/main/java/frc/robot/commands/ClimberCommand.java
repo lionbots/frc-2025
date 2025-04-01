@@ -34,7 +34,11 @@ public class ClimberCommand extends Command {
 
   @Override
   public void execute() {
-    this.climber.setPivotSpeed(this.speed.get());
+    double climberSpeed = this.speed.get();
+    if (climberSpeed != 0) {
+      this.climber.setSetpoint(0.0 / 0.0);
+      this.climber.setPivotSpeed(climberSpeed);
+    }
   }
 
   // Called once the command ends or is interrupted.
