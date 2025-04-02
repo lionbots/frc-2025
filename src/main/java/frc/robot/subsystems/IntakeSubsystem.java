@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -49,10 +50,20 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final PIDController pivotPid = new PIDController(PIDConstants.kIntakeP, PIDConstants.kIntakeI, PIDConstants.kIntakeD);
   private Double setpoint = null;
 
+  // intake pivot is controlled by a motor attached to a small gear which is attached to large gear. small gear has 16 teeth, large has 48 so 3:1 input:output rotations
+  // encoder is attached to small gear, so encoder reports three rotations for every intake pivot rotation
+  // for magic align need convert encoder rotations to pivot rotations
+  // duty cycle encoder is continuous or whatever so have to count number of rotations and calcualte accumulated rotations
+  // dont know why numRotations starts at -1, it just works kinda sorta maybe probably
+  private int numRotations = -1;
+  // previous encoder value to detect when 360 degrees turns to 0 degrees
+  private double dutyCyclePrev = 0;
+
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
-    setMotorIdleModes();
+    setMotorIdleModes();  
     SmartDashboard.putData("intake PID", pivotPid);
+    this.pivotPid.enableContinuousInput(0, 360);
   }
 
   @Override
@@ -63,7 +74,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     this.pivotSim.update(0.02);
     this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec()), vInVoltage, 0.02);
     double armAngle = Math.toDegrees(this.pivotSim.getAngleRads()) - 90;
-    this.pivotEncoderSim.set(armAngle);
+    this.pivotEncoderSim.set(MathUtil.inputModulus(armAngle * 3, 0, 360));
     if (this.armLigament != null) {
       // anglE RElatIve To iTs pArent
       this.armLigament.setAngle(armAngle);
@@ -101,16 +112,38 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   }
   
   //Method to get position of pivot
-  public double getPivotPosition() {
+  private double getRawPivotPosition() {
     return RobotBase.isSimulation() ? pivotEncoderSim.get() : pivotEncoder.get();
+  }
+
+  public double getPivotPosition() {
+    // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
+    return MathUtil.inputModulus((this.numRotations * 360 + this.getRawPivotPosition()) / 3, 0, 360);
   }
 
   public void periodic() {
     if (this.setpoint != null) {
       double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
-      SmartDashboard.putNumber("intake PID calculation", calculation);
       this.setPivotSpeed(calculation);
     }
+
+    // detect intake pivot 360 -> 0 degrees
+    // if encoder was previously 359 or something and now its 1 then +1 rotation
+    // if it was 1 and now its 359 then -1 rotation
+    double rawPivotPosition = this.getRawPivotPosition();
+    if (rawPivotPosition != dutyCyclePrev) {
+      // 350 chosen instead of 359 and 10 chosen instead of 1 because each "tick" can have the intake move more than 1 degree
+      // need some testing to find optimal values but for now what could possibly go wrong?
+      if (this.dutyCyclePrev > 350 && this.dutyCyclePrev < 360 && rawPivotPosition > 0 && rawPivotPosition < 10) {
+        this.numRotations++;
+      }
+      if (this.dutyCyclePrev > 0 && this.dutyCyclePrev < 10 && rawPivotPosition > 350 && rawPivotPosition < 360) {
+        this.numRotations--;
+      }
+    }
+    SmartDashboard.putNumber("intake num rotations", this.numRotations);
+    SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
+    this.dutyCyclePrev = rawPivotPosition;
   }
   
   public void setSetpoint(Double pos) {

@@ -69,7 +69,7 @@ public final class Constants {
     public static int intakeMotorPort = 3;
     public static double outtakeSpeed = -0.5;
     public static final int encoderPort = 8;
-    public static final double pivotSetpoint = -70;
+    public static final double pivotSetpoint = 290;
   }
 
   public static class OuttakeConstants {
