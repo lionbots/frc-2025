@@ -15,7 +15,6 @@ public class MagicRotCommand extends Command {
     private double maxRot;
     private Double continuousMax = null;
     private String name;
-    private final boolean doPutData = true;
     
     /**
      * Construct command
@@ -52,11 +51,8 @@ public class MagicRotCommand extends Command {
             double minRotToPivotDist = this.minRot + (pivotPos > this.minRot ? this.continuousMax : 0) - pivotPos;
             double maxRotToPivotDist = this.maxRot + (pivotPos > this.maxRot ? this.continuousMax : 0) - pivotPos;
             targetRot = minRotToPivotDist > maxRotToPivotDist ? this.minRot : this.maxRot;
-            System.out.println("pivot pos: " + pivotPos + " continuous max: " + this.continuousMax + " min dist: " + minRotToPivotDist + " max dist: " + maxRotToPivotDist + " target rot: " + targetRot);
         }
-        if (this.doPutData) {
-            SmartDashboard.putNumber(name + " target rot", targetRot);
-        }
+        SmartDashboard.putNumber(name + " target rot", targetRot);
 
         // set PID setpoint cuz PID gotta continue correcting errors
         // have to do in subsystem cuz command can't interrupt itself, eternal command much annoy

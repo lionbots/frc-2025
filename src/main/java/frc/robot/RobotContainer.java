@@ -73,7 +73,9 @@ public class RobotContainer {
       return backwardSpeed > 0 ? -backwardSpeed : forwardSpeed;
     }, driverController::getLeftX, driverController::getLeftY, () -> driverController.rightBumper().getAsBoolean()));
 
-    drawRobot();
+    if (RobotBase.isSimulation()) {
+      drawRobot();
+    }
 
     // Configure the trigger bindings
     configureBindings();

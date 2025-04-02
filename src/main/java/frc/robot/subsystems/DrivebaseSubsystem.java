@@ -77,8 +77,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
         configurePID();
         setInverted();
         setCurrentLimit();
-        // if (RobotBase.isSimulation()) {
-        SmartDashboard.putData("Field", field);
+        if (RobotBase.isSimulation()) {
+            SmartDashboard.putData("Field", field);
+        }
         SmartDashboard.putData("Drive PID", this.PID);
         SmartDashboard.putData("navx2", navx2);
         // get reference to getNormalizedAngle() here cuz "this" has a different value inside the anonymous class

@@ -6,7 +6,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,9 +27,7 @@ public class FollowTrajectoryCommand extends Command {
     public FollowTrajectoryCommand(DrivebaseSubsystem drivebase, Trajectory trajectory) {
         this.drivebase = drivebase;
         this.trajectory = trajectory;
-        if (RobotBase.isSimulation()) {
-            SmartDashboard.putData("trajectory PID", this.pid);
-        }
+        SmartDashboard.putData("trajectory PID", this.pid);
         addRequirements(drivebase);
     }
 

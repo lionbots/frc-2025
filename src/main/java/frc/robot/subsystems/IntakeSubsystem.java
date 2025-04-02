@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   // for magic align need convert encoder rotations to pivot rotations
   // duty cycle encoder is continuous or whatever so have to count number of rotations and calcualte accumulated rotations
   // dont know why numRotations starts at -1, it just works kinda sorta maybe probably
-  private int numRotations = -1;
+  private int numRotations = 0;
   // previous encoder value to detect when 360 degrees turns to 0 degrees
   private double dutyCyclePrev = 0;
 
@@ -141,6 +141,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
         this.numRotations--;
       }
     }
+    SmartDashboard.putNumber("raw rotation", pivotEncoder.get());
     SmartDashboard.putNumber("intake num rotations", this.numRotations);
     SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
     this.dutyCyclePrev = rawPivotPosition;
