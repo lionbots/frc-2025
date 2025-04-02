@@ -29,6 +29,7 @@ public class IntakeSubsystem extends SubsystemBase {
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();
+    configurePID();
   }
 
   // Method for brake mode
@@ -40,13 +41,23 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+  public void configurePID() {
+    pivotPID.enableContinuousInput(0, 360);
+    pivotPID.setTolerance(PIDConstants.intakeTolerance);
+  }
+
   //Method for setting intake speed
   public void setIntakeSpeed(double intakeSpeed) {
     intakeMotor.set(intakeSpeed);
   }
 
   public void setIntakePosition() {
-    setPivotSpeed(pivotPID.calculate(getPivotPosition(), IntakeConstants.pivotSetPoint));
+    if(getPivotPosition() > 125 || getPivotPosition() < 25) {
+      setPivotSpeed(-0.1);
+    } 
+    // else {
+    //   setPivotSpeed(pivotPID.calculate(getPivotPosition(), IntakeConstants.pivotSetPoint));
+    // }
   }
 
   //Method for setting pivot speed

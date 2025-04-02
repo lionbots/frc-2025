@@ -49,7 +49,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
     private void configurePID() {
         PID.enableContinuousInput(-180, 180);
-        PID.setTolerance(PIDConstants.tolerance);
+        PID.setTolerance(PIDConstants.driveTolerance);
     }
 
     /**
