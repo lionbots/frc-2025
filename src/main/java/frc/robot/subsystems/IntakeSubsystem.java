@@ -73,8 +73,18 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     this.pivotSim.setInput(pivotMotorSim.getAppliedOutput() * vInVoltage);
     this.pivotSim.update(0.02);
     this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec()), vInVoltage, 0.02);
-    double armAngle = Math.toDegrees(this.pivotSim.getAngleRads()) - 90;
-    this.pivotEncoderSim.set(MathUtil.inputModulus(armAngle * 3, 0, 360));
+
+    double pivotAngle = this.pivotSim.getAngleRads();
+    if (MathUtil.isNear(2 * Math.PI, pivotAngle, 0.01) && this.pivotMotorSim.getAppliedOutput() > 0) {
+      this.pivotSim.setState(0, this.pivotSim.getVelocityRadPerSec());
+    }
+    if (MathUtil.isNear(0, pivotAngle, 0.01) && this.pivotMotorSim.getAppliedOutput() < 0) {
+      this.pivotSim.setState(2 * Math.PI, this.pivotSim.getVelocityRadPerSec());
+    }
+  
+    double armAngle = Math.toDegrees(pivotAngle) - 90;
+    this.pivotEncoderSim.set(MathUtil.inputModulus(armAngle * IntakeConstants.pivotGearRatio + this.encoderOffset.getEncoderOffset(), 0, 360));
+
     if (this.armLigament != null) {
       // anglE RElatIve To iTs pArent
       this.armLigament.setAngle(armAngle);
