@@ -60,7 +60,6 @@ public class MagicRotCommand extends Command {
             if (MathUtil.isNear(maxRotToPivotDist, 360.0, 0.1)) {
                 maxRotToPivotDist = 0;
             }
-            System.out.println("min rot dist: " + minRotToPivotDist + " max rot dist: " + maxRotToPivotDist + " pivot pos: " + pivotPos);
             targetRot = minRotToPivotDist > maxRotToPivotDist ? this.minRot : this.maxRot;
         }
         SmartDashboard.putNumber(name + " target rot", targetRot);

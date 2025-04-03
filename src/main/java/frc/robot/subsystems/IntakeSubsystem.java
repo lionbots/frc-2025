@@ -180,7 +180,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
 
     if (this.setpoint != null) {
       double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
-      SmartDashboard.putNumber("intake pid calculation", this.pivotPid.calculate(this.getPivotPosition(), this.setpoint));
+      SmartDashboard.putNumber("intake pid calculation", calculation);
       this.setPivotSpeed(calculation);
     }
   }
