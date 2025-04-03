@@ -52,16 +52,15 @@ public class MagicRotCommand extends Command {
             double halfRotation = this.minRot + (this.maxRot - this.minRot) / 2;
             targetRot = pivotPos < halfRotation ? maxRot : minRot;
         } else {
-            // double minRotToPivotDist = this.minRot + (pivotPos > this.minRot ? this.continuousMax : 0) - pivotPos;
-            // double maxRotToPivotDist = this.maxRot + (pivotPos > this.maxRot ? this.continuousMax : 0) - pivotPos;
-            double minRotToPivotDist = Math.min(Math.abs(pivotPos - this.minRot), Math.abs(this.minRot - pivotPos));
-            double maxRotToPivotDist = Math.min(Math.abs(pivotPos - this.maxRot), Math.abs(this.maxRot - pivotPos));
+            double minRotToPivotDist = Math.min(MathUtil.inputModulus(pivotPos - this.minRot, 0, this.continuousMax), MathUtil.inputModulus(this.minRot - pivotPos, 0, this.continuousMax));
+            double maxRotToPivotDist = Math.min(MathUtil.inputModulus(pivotPos - this.maxRot, 0, this.continuousMax), MathUtil.inputModulus(this.maxRot - pivotPos, 0, this.continuousMax));
             if (MathUtil.isNear(minRotToPivotDist, 360.0, 0.1)) {
                 minRotToPivotDist = 0;
             }
             if (MathUtil.isNear(maxRotToPivotDist, 360.0, 0.1)) {
                 maxRotToPivotDist = 0;
             }
+            System.out.println("min rot dist: " + minRotToPivotDist + " max rot dist: " + maxRotToPivotDist + " pivot pos: " + pivotPos);
             targetRot = minRotToPivotDist > maxRotToPivotDist ? this.minRot : this.maxRot;
         }
         SmartDashboard.putNumber(name + " target rot", targetRot);
