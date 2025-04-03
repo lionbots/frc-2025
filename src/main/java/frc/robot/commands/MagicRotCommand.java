@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.IMagicRotSubsystem;
@@ -42,14 +43,25 @@ public class MagicRotCommand extends Command {
     public void initialize() {
         double targetRot;
         double pivotPos = this.subsystem.getPivotPosition();
+        if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
+            pivotPos = 0;
+        }
         if (this.continuousMax == null) {
             // anything below or equal to half rotation will toggle to maxrotation
             // anything above half rotation will toggle to min rotation
             double halfRotation = this.minRot + (this.maxRot - this.minRot) / 2;
             targetRot = pivotPos < halfRotation ? maxRot : minRot;
         } else {
-            double minRotToPivotDist = this.minRot + (pivotPos > this.minRot ? this.continuousMax : 0) - pivotPos;
-            double maxRotToPivotDist = this.maxRot + (pivotPos > this.maxRot ? this.continuousMax : 0) - pivotPos;
+            // double minRotToPivotDist = this.minRot + (pivotPos > this.minRot ? this.continuousMax : 0) - pivotPos;
+            // double maxRotToPivotDist = this.maxRot + (pivotPos > this.maxRot ? this.continuousMax : 0) - pivotPos;
+            double minRotToPivotDist = Math.min(Math.abs(pivotPos - this.minRot), Math.abs(this.minRot - pivotPos));
+            double maxRotToPivotDist = Math.min(Math.abs(pivotPos - this.maxRot), Math.abs(this.maxRot - pivotPos));
+            if (MathUtil.isNear(minRotToPivotDist, 360.0, 0.1)) {
+                minRotToPivotDist = 0;
+            }
+            if (MathUtil.isNear(maxRotToPivotDist, 360.0, 0.1)) {
+                maxRotToPivotDist = 0;
+            }
             targetRot = minRotToPivotDist > maxRotToPivotDist ? this.minRot : this.maxRot;
         }
         SmartDashboard.putNumber(name + " target rot", targetRot);

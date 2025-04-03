@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeSubsystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
@@ -22,7 +23,7 @@ public class IntakePivotCommand extends Command {
             // this command should override that, so clear the setpoint
             // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
             this.pivot.setSetpoint(null);
-            pivot.setPivotSpeed(speed * 0.1);
+            pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.1 : 0.5));
         }
     }
 

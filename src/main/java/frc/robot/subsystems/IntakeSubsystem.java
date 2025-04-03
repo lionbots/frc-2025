@@ -9,6 +9,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -43,7 +45,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   //Create instance variable for the motor simulation
   private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
   private final SparkMaxSim intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNEO(1));
-  private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 100, SingleJointedArmSim.estimateMOI(0.2794, 5), 0.2794, 0, 2 * Math.PI, true, Math.PI / 2);
+  private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 100, SingleJointedArmSim.estimateMOI(0.2794, 5), 0.2794, 0, 2 * Math.PI, false, Math.toRadians(IntakeConstants.simPivotStartDeg));
   private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
 
   private MechanismLigament2d armLigament = null;
@@ -57,13 +59,33 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   // dont know why numRotations starts at -1, it just works kinda sorta maybe probably
   private int numRotations = 0;
   // previous encoder value to detect when 360 degrees turns to 0 degrees
-  private double dutyCyclePrev = 0;
+  private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
+
+  class EncoderOffsetSendable implements Sendable {
+    private double encoderOffset = 0;
+
+    public double getEncoderOffset() {
+      return this.encoderOffset;
+    }
+
+    public void setEncoderOffset(double newOffset) {
+      this.encoderOffset = newOffset;
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+      builder.addDoubleProperty("encoder offset", this::getEncoderOffset, this::setEncoderOffset);
+    }
+  }
+  private EncoderOffsetSendable encoderOffset = new EncoderOffsetSendable();
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();  
     SmartDashboard.putData("intake PID", pivotPid);
+    SmartDashboard.putData("intake pivot encoder offset", encoderOffset);
     this.pivotPid.enableContinuousInput(0, 360);
+    this.pivotEncoderSim.set(this.prevPivotPosition);
   }
 
   @Override
@@ -128,33 +150,39 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
 
   public double getPivotPosition() {
     // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
-    return MathUtil.inputModulus((this.numRotations * 360 + this.getRawPivotPosition()) / 3, 0, 360);
+    double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getEncoderOffset();
+    if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
+      pivotPos = 0;
+    }
+    return MathUtil.inputModulus((this.numRotations * 360 + pivotPos) / IntakeConstants.pivotGearRatio, 0, 360);
   }
 
   public void periodic() {
-    if (this.setpoint != null) {
-      double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
-      this.setPivotSpeed(calculation);
-    }
-
     // detect intake pivot 360 -> 0 degrees
-    // if encoder was previously 359 or something and now its 1 then +1 rotation
-    // if it was 1 and now its 359 then -1 rotation
+    // if encoder was previously 340 or something and now its 20 then +1 rotation
+    // if it was 20 and now its 340 then -1 rotation
+    // 20 chosen because thats around how much the intake moves every time this method called
     double rawPivotPosition = this.getRawPivotPosition();
-    if (rawPivotPosition != dutyCyclePrev) {
-      // 350 chosen instead of 359 and 10 chosen instead of 1 because each "tick" can have the intake move more than 1 degree
-      // need some testing to find optimal values but for now what could possibly go wrong?
-      if (this.dutyCyclePrev > 350 && this.dutyCyclePrev < 360 && rawPivotPosition > 0 && rawPivotPosition < 10) {
+    if (rawPivotPosition != this.prevPivotPosition) {
+      if (this.prevPivotPosition > 340 && this.prevPivotPosition < 360 && rawPivotPosition > 0 && rawPivotPosition < 20) {
         this.numRotations++;
       }
-      if (this.dutyCyclePrev > 0 && this.dutyCyclePrev < 10 && rawPivotPosition > 350 && rawPivotPosition < 360) {
+      if (this.prevPivotPosition > 0 && this.prevPivotPosition < 20 && rawPivotPosition > 340 && rawPivotPosition < 360) {
         this.numRotations--;
       }
     }
-    SmartDashboard.putNumber("raw rotation", pivotEncoder.get());
-    SmartDashboard.putNumber("intake num rotations", this.numRotations);
+    SmartDashboard.putNumber("intake previous raw rotation", this.prevPivotPosition);
+    SmartDashboard.putNumber("intake pivot num rotations", this.numRotations);
+    SmartDashboard.putNumber("intake pivot raw rotation", rawPivotPosition);
+    SmartDashboard.putNumber("intake pivot offset rotation", rawPivotPosition - this.encoderOffset.getEncoderOffset());
     SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
-    this.dutyCyclePrev = rawPivotPosition;
+    this.prevPivotPosition = rawPivotPosition;
+
+    if (this.setpoint != null) {
+      double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
+      SmartDashboard.putNumber("intake pid calculation", this.pivotPid.calculate(this.getPivotPosition(), this.setpoint));
+      this.setPivotSpeed(calculation);
+    }
   }
   
   public void setSetpoint(Double pos) {

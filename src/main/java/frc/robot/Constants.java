@@ -70,6 +70,8 @@ public final class Constants {
     public static double outtakeSpeed = -0.5;
     public static final int encoderPort = 8;
     public static final double pivotSetpoint = 290;
+    public static final double simPivotStartDeg = 99;
+    public static final double pivotGearRatio = 3.0;
   }
 
   public static class OuttakeConstants {
