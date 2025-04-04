@@ -22,8 +22,7 @@ public class OuttakeCommand extends Command {
     // Called every time the scheduler runs while the command is scheduled.
 
   public void execute(){
-    outtake.setOuterSpeed(speedFunction.get());
-    outtake.setInnerSpeed(speedFunction.get());
+    outtake.setOuttakeSpeed(speedFunction.get());
   }
 
   // Called when the command is initially scheduled.
@@ -33,8 +32,7 @@ public class OuttakeCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    outtake.setInnerSpeed(0);
-    outtake.setOuterSpeed(0);
+    outtake.setOuttakeSpeed(0);
   }
 
   // Returns true when the command should end.
