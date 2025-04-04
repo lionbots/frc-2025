@@ -40,10 +40,9 @@ public class OuttakeSubsystem extends SubsystemBase {
     //set all the motors to brake mode
     public void idleMotor() {
       SparkMaxConfig idleMode = new SparkMaxConfig();
-      idleMode.idleMode(IdleMode.kCoast);
+      idleMode.idleMode(IdleMode.kBrake);
       outerLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       outerRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      idleMode.idleMode(IdleMode.kBrake);
       pivotMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       innerFLMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       innerFRMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -51,10 +50,10 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     //set the speed to the outer motors
     public void setOuttakeSpeed(double speed) {
-      outerLMotor.set(speed *-1);
+      outerLMotor.set(speed * -1);
       outerRMotor.set(speed);
-      innerFLMotor.set(speed);
-      innerFRMotor.set(speed * -1);
+      innerFLMotor.set(speed * 0.1);
+      innerFRMotor.set(speed * -0.1);
     }
 
     public void setPivotSpeed(double pivotSpeed){
