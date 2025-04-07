@@ -31,7 +31,7 @@ public class IntakeCommand extends Command {
   public void execute() {
     //if(!launcher.getBeamBreak()){
       intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
-      launcher.setOuttakeSpeed(intakeSpeed.get()* -0.3);
+      launcher.setOuttakeSpeed(intakeSpeed.get()* -0.7);
     // }
   }
 

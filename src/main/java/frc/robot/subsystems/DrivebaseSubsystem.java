@@ -15,7 +15,10 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PIDConstants;
@@ -149,6 +152,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
     public double angleToRotation(double target, boolean backwards) {
+        SmartDashboard.putNumber("Current angle", getAngle(backwards));
+        SmartDashboard.putNumber("Target", target);
         return PID.calculate(getAngle(backwards), target);
     }
 }

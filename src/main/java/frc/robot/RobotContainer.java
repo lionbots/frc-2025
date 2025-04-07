@@ -62,6 +62,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new ParallelCommandGroup(new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2), new SequentialCommandGroup(new OuttakePivotCommand(outtake, () -> 1.0).withTimeout(1), new IntakePivotCommand(intake, () -> -1.0).withTimeout(0.5)));
+    return new ParallelCommandGroup(new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2), new SequentialCommandGroup(new OuttakePivotCommand(outtake, () -> 1.0).withTimeout(0.5), new IntakePivotCommand(intake, () -> -0.5).withTimeout(0.5)));
   }
 }
