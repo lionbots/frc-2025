@@ -34,4 +34,40 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static class OperatorConstants {
+    public static final int driverControllerPort = 0;
+    public static final int operatorControllerPort = 5;
+  }
+  public static class DriveConstants {
+    public static final int frDeviceId = 2;
+    public static final int flDeviceId = 4;
+    public static final int brDeviceId = 6;
+    public static final int blDeviceId = 5;
+
+    public static final int currentLimit = 40;
+    public static final double slowSpeed = 0.5;
+  }
+  public static class PIDConstants {
+    public static final double kP = 0.011;
+    public static final double kI = 0.001;
+    public static final double kD = 0.000;
+
+    public static final double tolerance = 2;
+  }
+
+  public static class IntakeConstants {
+    public static int pivotMotorPort = 1;
+    public static int intakeMotorPort = 3;
+    public static double outtakeSpeed = -0.7;
+  }
+
+  public static class OuttakeConstants {
+    public static int outerLMotorPort = 11;
+    public static int outerRMotorPort = 9;
+    public static int innerFLMotorPort = 10;
+    public static int innerFRMotorPort = 8;
+    public static int pivotMotorPort = 7;
+    public static int beamBreakPort = 0;
+  }
 }
