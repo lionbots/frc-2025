@@ -51,8 +51,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     //set the speed to the outer motors
     public void setOuttakeSpeed(double speed) {
-      outerLMotor.set(speed * -1);
-      outerRMotor.set(speed);
+      outerLMotor.set(speed * -1 * 3);
+      outerRMotor.set(speed * 3);
       innerFLMotor.set(speed * 0.8);
       innerFRMotor.set(speed * 0.8);
     }
