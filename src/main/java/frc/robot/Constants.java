@@ -27,9 +27,9 @@ public final class Constants {
     public static final double slowSpeed = 0.5;
   }
   public static class PIDConstants {
-    public static final double kDriveP = 0.008;
-    public static final double kDriveI = 0.001;
-    public static final double kDriveD = 0;
+    public static final double kDriveP = 0.07;
+    public static final double kDriveI = 0.0001;
+    public static final double kDriveD = 0.05;
 
     public static final double kIntakeP = 0.00075;
     public static final double kIntakeI = 0.0000;
