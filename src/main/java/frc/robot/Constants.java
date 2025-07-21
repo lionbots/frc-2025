@@ -31,11 +31,12 @@ public final class Constants {
     public static final double kDriveI = 0.0001;
     public static final double kDriveD = 0.05;
 
-    public static final double kIntakeP = 0.00075;
+    public static final double kIntakeP = 0.0006;
     public static final double kIntakeI = 0.0000;
-    public static final double kIntakeD = 0;
+    public static final double kIntakeD = 0.0001;
 
-    public static final double tolerance = 2;
+    public static final double driveTolerance = 2;
+    public static final double intakeTolerance = 3;
   }
 
   public static class IntakeConstants {
@@ -44,7 +45,7 @@ public final class Constants {
     public static int encoderPort = 8;
 
     public static double outtakeSpeed = -0.5;
-    public static double pivotSetPoint = 70;
+    public static double pivotSetPoint = 120;
   }
 
   public static class OuttakeConstants {

@@ -49,7 +49,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
     private void configurePID() {
         PID.enableContinuousInput(-180, 180);
-        PID.setTolerance(PIDConstants.tolerance);
+        PID.setTolerance(PIDConstants.driveTolerance);
     }
 
     /**
@@ -86,15 +86,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
         leftFollow.follow(flMotor);
         rightFollow.follow(frMotor);
 
-        blMotor.configure(leftFollow, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(rightFollow, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        blMotor.configure(leftFollow, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(rightFollow, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void setInverted() {
         SparkMaxConfig inverted = new SparkMaxConfig();
         inverted.inverted(true);
-        frMotor.configure(inverted, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(inverted, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        frMotor.configure(inverted, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(inverted, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
@@ -104,10 +104,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
         SparkMaxConfig idleMode = new SparkMaxConfig();
         idleMode.idleMode(IdleMode.kBrake);
 
-        frMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        flMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(idleMode, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        frMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        flMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(idleMode, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
@@ -117,10 +117,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
         SparkMaxConfig motorSpeed = new SparkMaxConfig();
         motorSpeed.smartCurrentLimit(DriveConstants.currentLimit);
 
-        frMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        flMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        brMotor.configure(motorSpeed, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        frMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        flMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        brMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
