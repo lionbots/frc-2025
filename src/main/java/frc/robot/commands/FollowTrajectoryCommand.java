@@ -27,7 +27,7 @@ public class FollowTrajectoryCommand extends Command {
     public FollowTrajectoryCommand(DrivebaseSubsystem drivebase, Trajectory trajectory) {
         this.drivebase = drivebase;
         this.trajectory = trajectory;
-        SmartDashboard.putData("trajectory PID", this.pid);
+        // SmartDashboard.putData("trajectory PID", this.pid);
         addRequirements(drivebase);
     }
 
