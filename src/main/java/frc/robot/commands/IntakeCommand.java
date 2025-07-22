@@ -5,19 +5,20 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
 import edu.wpi.first.wpilibj2.command.*;
 import java.util.function.Supplier;
 
 // An Intake command that uses an Intake subsystem.
 public class IntakeCommand extends Command {
     private final IntakeSubsystem intake;
-    // private final OuttakeSubsystem launcher;
+    private final OuttakeSubsystem launcher;
     private final Supplier<Double> intakeSpeed;
 
-  public IntakeCommand(IntakeSubsystem intake, /*OuttakeSubsystem launcher,*/ Supplier<Double> intakeSpeed) {
+  public IntakeCommand(IntakeSubsystem intake, OuttakeSubsystem launcher, Supplier<Double> intakeSpeed) {
     this.intake = intake;
     this.intakeSpeed = intakeSpeed;
-    // this.launcher = launcher;
+    this.launcher = launcher;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -30,14 +31,16 @@ public class IntakeCommand extends Command {
   public void execute() {
     //if(!launcher.getBeamBreak()){
       intake.setIntakeSpeed(intakeSpeed.get() * 0.5);
-    //   launcher.setOuterSpeed(intakeSpeed.get()*-1);
-    //   launcher.setInnerSpeed(intakeSpeed.get()*-1);
+      launcher.setOuttakeSpeed(intakeSpeed.get()* -0.7);
     // }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intake.setIntakeSpeed(0);
+    launcher.setOuttakeSpeed(0);
+  }
 
   // Returns true when the command should end.
   @Override

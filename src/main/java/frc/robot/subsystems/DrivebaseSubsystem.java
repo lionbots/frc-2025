@@ -21,13 +21,13 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -59,7 +59,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
     private final SimDouble yawSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]"), "Yaw"));
-    private final PIDController PID = new PIDController(PIDConstants.kDriveP, PIDConstants.kDriveI, PIDConstants.kDriveD);
+    private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
 
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
         new Rotation2d(Math.toRadians(navx2.getYaw())),
@@ -71,9 +71,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
-        // order of these functions matter apparently cuz ResetMode.kNoResetSafeParameters or something
-        setFollow();
         setMotorIdleModes();
+        setCurrentLimit();
+        setFollow();
         configurePID();
         setInverted();
         setCurrentLimit();
@@ -115,7 +115,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         // RelativeEncoder supposed to return revolutions, need convert to meters
         // couldve used EncoderConfig.setPositionConversionFactor or something but im sure someones going to forget it exists
         double wheelCircumference = 2 * Math.PI * DriveConstants.wheelRadiusMeters;
-        odometry.update(new Rotation2d(Math.toRadians(this.getNormalizedAngle())), this.getLeftPosition() * wheelCircumference, this.getRightPosition() * wheelCircumference);
+        odometry.update(new Rotation2d(Math.toRadians(this.getAngle(false))), this.getLeftPosition() * wheelCircumference, this.getRightPosition() * wheelCircumference);
         field.setRobotPose(getPose());
     }
 
@@ -221,31 +221,25 @@ public class DrivebaseSubsystem extends SubsystemBase {
         d_drive.arcadeDrive(speed, rotation);
     }
 
-    /**
-     * Yaw according to navx2. -180 to 180 degrees, positive is clockwise
-     * @return Yaw in degrees
-     */
-    public double getGyroAngle() {
-        return navx2.getYaw();
-    }
-
-    public double getNormalizedAngle() {
-        return getNormalizedAngle(false);
-    }
-
-    /**
-     * Get yaw according to navx2.getAngle(), flip (add 180 degrees) if backward, normalize to 0 to 360, convert to -180 to 180
-     * @param backwards
-     * @return Normalized yaw
-     */
-    public double getNormalizedAngle(boolean backwards) {
-        double gyroscopeAngle = -navx2.getAngle();
-        gyroscopeAngle = ((gyroscopeAngle % 360) + 360) % 360;
-        return gyroscopeAngle > 180 ? gyroscopeAngle - 360 : gyroscopeAngle;
+    // Returns the robot heading (0 - 180/-180) from the gyroscope and gets the mirror value if the robot is driving backwards
+    public double getAngle(boolean backwards) {
+        double gyroscopeAngle = (navx2.getAngle() * -1) + 180;
+        if(backwards) {
+            gyroscopeAngle = (gyroscopeAngle) % 360;
+        }
+        if(gyroscopeAngle % 360  > 180) {
+            return (gyroscopeAngle % 360) - 360;
+        } else if (gyroscopeAngle % 360 < -180) {
+            return (gyroscopeAngle % 360) + 360;
+        } else {
+            return gyroscopeAngle % 360;
+        }
     }
 
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
     public double angleToRotation(double target, boolean backwards) {
-        return PID.calculate(getNormalizedAngle(backwards), target);
+        SmartDashboard.putNumber("Current angle", getAngle(backwards));
+        SmartDashboard.putNumber("Target", target);
+        return PID.calculate(getAngle(backwards), target);
     }
 }

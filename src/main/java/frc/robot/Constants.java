@@ -53,13 +53,9 @@ public final class Constants {
     public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(trackWidthMeters);
   }
   public static class PIDConstants {
-    public static final double kDriveP = 0.008;
-    public static final double kDriveI = 0.001;
-    public static final double kDriveD = 0;
-
-    public static final double kIntakeP = 0.00075;
-    public static final double kIntakeI = 0;
-    public static final double kIntakeD = 0;
+    public static final double kP = 0.011;
+    public static final double kI = 0.001;
+    public static final double kD = 0.000;
 
     public static final double tolerance = 2;
   }
@@ -67,27 +63,19 @@ public final class Constants {
   public static class IntakeConstants {
     public static int pivotMotorPort = 1;
     public static int intakeMotorPort = 3;
-    public static double outtakeSpeed = -0.5;
     public static final int encoderPort = 0;
     public static final double pivotSetpoint = 300;
     public static final double simPivotStartDeg = 99;
     public static final double pivotGearRatio = 3.0;
+    public static double outtakeSpeed = -0.7;
   }
 
   public static class OuttakeConstants {
-    // placeholder values so simulation won't crash
-    public static int outerLMotorPort = 8;
+    public static int outerLMotorPort = 11;
     public static int outerRMotorPort = 9;
     public static int innerFLMotorPort = 10;
-    public static int innerFRMotorPort = 11;
-    public static int innerBLMotorPort = 12;
-    public static int innerBRMotorPort = 13;
-    public static int pivotMotorPort = 14;
-    public static int beamBreakPort = 15;
-  }
-
-  public static class ClimberConstants {
-    // placeholder values
-    public static int climberMotorPort = 7;
+    public static int innerFRMotorPort = 8;
+    public static int pivotMotorPort = 7;
+    public static int beamBreakPort = 0;
   }
 }

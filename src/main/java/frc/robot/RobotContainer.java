@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -39,10 +41,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-
-  // outtake and climber dont have valid motor ids yet
-  private final ClimberSubsystem climber = RobotBase.isSimulation() ? new ClimberSubsystem() : null;
-  private final OuttakeSubsystem outtake = RobotBase.isSimulation() ? new OuttakeSubsystem() : null;
+  private final OuttakeSubsystem outtake = new OuttakeSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
 
@@ -52,33 +51,20 @@ public class RobotContainer {
 
   // create here cuz "Loop time of 0.02s overrun" if in autonomous init
   // apparently creating the trajectory and LTVUnicycleController takes a while
-  private final Command trajectoryCommand = createTestTrajectoryCommand();
+  // private final Command trajectoryCommand = createTestTrajectoryCommand();
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // left trigger axis is definitely not the climber axis i just need a placeholder
-    if (climber != null) {
-      climber.setDefaultCommand(new ClimberCommand(climber, operatorController::getLeftTriggerAxis));
-    }
     intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
-    if (outtake != null) {
-      outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY() * -1));
-    }
-    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> {
-      // different controls for forward and backward for some reason, if backward axis is moved forward then robot moves backward or something
-      // backward overrides forward perhaps
-      double forwardSpeed = driverController.getRightTriggerAxis();
-      double backwardSpeed = driverController.getLeftTriggerAxis();
-      return backwardSpeed > 0 ? -backwardSpeed : forwardSpeed;
-    }, driverController::getLeftX, driverController::getLeftY, () -> driverController.rightBumper().getAsBoolean()));
-
+    drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
+    outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY()));
+    // Configure the trigger bindings
+    configureBindings();
     if (RobotBase.isSimulation()) {
       drawRobot();
     }
-
-    // Configure the trigger bindings
-    configureBindings();
   }
 
   private void drawRobot() {
@@ -93,9 +79,6 @@ public class RobotContainer {
     MechanismLigament2d verticalTower = towerRoot.append(new MechanismLigament2d("vertical tower", 2, 90, 6, new Color8Bit(0, 0, 255)));
     MechanismLigament2d diagonalTower = verticalTower.append(new MechanismLigament2d("diagonal tower", 2, 148, 6, new Color8Bit(0, 0, 255)));
     diagonalTower.append(new MechanismLigament2d("short vertical tower", 0.3, 32, 6, new Color8Bit(0, 0, 255)));
-    if (this.outtake != null) {
-      this.outtake.setBaseLigament(verticalTower);
-    }
   
     MechanismRoot2d intakeRoot = mechanism.getRoot("intake root", 2.4, 0.2);
     MechanismLigament2d intakeHolderLigament = intakeRoot.append(new MechanismLigament2d("intake holder", 0.5, 90, 6, new Color8Bit(255, 0, 0)));
@@ -114,15 +97,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    operatorController.leftTrigger(0.1).whileTrue(new IntakeCommand(intake, operatorController::getLeftTriggerAxis));
-
-    // OuttakeCommand originally was operatorController.rightTrigger(0.1).onTrue
-    // changed to whileTrue because once the right trigger exceeds 0.1, OuttakeCommand will run for eternity
-    // this means the outtake subsystem is occupied and cannot be used by OuttakePivotCommand
-    // not sure if this is intentional but me want pivot work
-    if (this.outtake != null) {
-      operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
-    }
+    operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
+    operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
     operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
 
@@ -166,6 +142,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return this.trajectoryCommand;
+    // An example command will be run in autonomous
+    return new ParallelCommandGroup(new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2), new SequentialCommandGroup(new OuttakePivotCommand(outtake, () -> 1.0).withTimeout(0.5), new IntakePivotCommand(intake, () -> -0.5).withTimeout(0.5)));
   }
 }

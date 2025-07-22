@@ -7,6 +7,9 @@ package frc.robot.commands;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.function.Supplier;
 
 /** An example command that uses an example subsystem. */
@@ -15,16 +18,17 @@ public class FieldCentricDriveCommand extends Command {
     // The X and Y values of a controler joystick
   private final Supplier<Double> xAxisFunction, yAxisFunction;
     // The forward and backward speed
-  private final Supplier<Double> forwardSpeedFunction;
+  private final Supplier<Double> forwardSpeedFunction, backwardSpeedFunction;
   // The drive base subsystem
   private final DrivebaseSubsystem drivebase;
   private final Supplier<Boolean> slowMode;
 
 
   // Creates a new ArcadeDriveCommand
-  public FieldCentricDriveCommand(DrivebaseSubsystem drivebase, Supplier<Double> speedFunction, Supplier<Double> xAxisFunction, Supplier<Double> yAxisFunction, Supplier<Boolean> slowMode) {
+  public FieldCentricDriveCommand(DrivebaseSubsystem drivebase, Supplier<Double> forwardSpeedFunction, Supplier<Double> backwardSpeedFunction, Supplier<Double> xAxisFunction, Supplier<Double> yAxisFunction, Supplier<Boolean> slowMode) {
     this.drivebase = drivebase;
-    this.forwardSpeedFunction = speedFunction;
+    this.forwardSpeedFunction = forwardSpeedFunction;
+    this.backwardSpeedFunction = backwardSpeedFunction;
     this.xAxisFunction = xAxisFunction;
     this.yAxisFunction = yAxisFunction;
     this.slowMode = slowMode;
@@ -42,21 +46,31 @@ public class FieldCentricDriveCommand extends Command {
   public void execute() {
     // Gets the forward speed backwards speed from the suppliers
     double forwardSpeed = forwardSpeedFunction.get();
+    double backwardSpeed = backwardSpeedFunction.get();
     if (slowMode.get() == true) {
       forwardSpeed *= DriveConstants.slowSpeed;
-    }
-  
-    double xAxis = xAxisFunction.get();
-    double yAxis = yAxisFunction.get();
-    double joystickAngle = Math.toDegrees(Math.atan2(yAxis, xAxis));
-    
-    // Gets the rotation speed based on the the joystick heading and whether or not the robot is driving backwards
-    double rotationSpeed = 0;
-    if (xAxis != 0 || yAxis != 0) {
-      rotationSpeed = drivebase.angleToRotation(joystickAngle, forwardSpeed < 0);
+      backwardSpeed *= DriveConstants.slowSpeed;
     }
 
-    drivebase.setDifferentialDrive(forwardSpeed, rotationSpeed);
+    // double rotation = rotationFunction.get();
+    // joystick atan2 is positive = counterclockwise radians, 0 radians = +x axis
+    // convert to positive = clockwise degrees, 0 degree = +y axis
+    double xAxis = xAxisFunction.get();
+    double yAxis = yAxisFunction.get() * -1;
+    double joystickAngle = Math.toDegrees(Math.atan2(xAxis, yAxis));
+    
+    // Gets the rotation speed based on the the joystick heading and whether or not the robotis driving backwards
+    double rotationSpeed = 0;
+    if(xAxis > 0 || xAxis < 0 || yAxis > 0 || yAxis < 0) {
+      rotationSpeed = drivebase.angleToRotation(joystickAngle, backwardSpeed > 0);
+    }
+
+    // Drives the robot either forward or backwards back on the whether or not the left trigger is pressed
+    if(backwardSpeed < 0) {
+      drivebase.setDifferentialDrive(backwardSpeed, rotationSpeed);
+    } else {
+      drivebase.setDifferentialDrive(forwardSpeed, rotationSpeed);
+    }
     
   }
 

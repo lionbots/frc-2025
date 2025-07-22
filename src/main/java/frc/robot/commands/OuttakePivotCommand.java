@@ -17,7 +17,7 @@ public class OuttakePivotCommand extends Command {
 
     // Called every time the scheduler runs while the command is scheduled.
     public void execute(){
-        pivot.setPivotSpeed(speedFunction.get());
+        pivot.setPivotSpeed(speedFunction.get() * 0.5);
     }
 
     // Called when the command is initially scheduled.

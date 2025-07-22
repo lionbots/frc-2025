@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.IMagicRotSubsystem;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.PIDConstants;
 import frc.robot.SendableDouble;
 
 import com.revrobotics.sim.SparkMaxSim;
@@ -48,7 +47,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
 
   private MechanismLigament2d armLigament = null;
-  private final PIDController pivotPid = new PIDController(PIDConstants.kIntakeP, PIDConstants.kIntakeI, PIDConstants.kIntakeD);
+  private final PIDController pivotPid = new PIDController(0.005, 0, 0);
   private Double setpoint = null;
 
   // intake pivot is controlled by a motor attached to a small gear which is attached to large gear. small gear has 16 teeth, large has 48 so 3:1 input:output rotations
