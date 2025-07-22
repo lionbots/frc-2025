@@ -60,8 +60,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
   private SendableDouble encoderOffset = new SendableDouble(0);
 
-  private SendableDouble negLimit = new SendableDouble(-0.02);
-  private SendableDouble posLimit = new SendableDouble(0.07);
+  private SendableDouble negLimit = new SendableDouble(-0.1);
+  private SendableDouble posLimit = new SendableDouble(0.1);
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {

@@ -8,8 +8,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
-import static edu.wpi.first.units.Units.Rotations;
-
 import java.util.function.Supplier;
 
 /** An example command that uses an example subsystem. */
