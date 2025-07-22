@@ -9,8 +9,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -25,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.IMagicRotSubsystem;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.PIDConstants;
+import frc.robot.SendableDouble;
 
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
@@ -57,33 +56,21 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   // for magic align need convert encoder rotations to pivot rotations
   // duty cycle encoder is continuous or whatever so have to count number of rotations and calcualte accumulated rotations
   // dont know why numRotations starts at -1, it just works kinda sorta maybe probably
-  private int numRotations = 0;
+  private SendableDouble numRotations = new SendableDouble(0);
   // previous encoder value to detect when 360 degrees turns to 0 degrees
   private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
+  private SendableDouble encoderOffset = new SendableDouble(0);
 
-  class EncoderOffsetSendable implements Sendable {
-    private double encoderOffset = 0;
-
-    public double getEncoderOffset() {
-      return this.encoderOffset;
-    }
-
-    public void setEncoderOffset(double newOffset) {
-      this.encoderOffset = newOffset;
-    }
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-      builder.addDoubleProperty("encoder offset", this::getEncoderOffset, this::setEncoderOffset);
-    }
-  }
-  private EncoderOffsetSendable encoderOffset = new EncoderOffsetSendable();
+  private SendableDouble negLimit = new SendableDouble(-0.02);
+  private SendableDouble posLimit = new SendableDouble(0.07);
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
     setMotorIdleModes();  
     SmartDashboard.putData("intake PID", pivotPid);
     SmartDashboard.putData("intake pivot encoder offset", encoderOffset);
+    SmartDashboard.putData("negative limit", negLimit);
+    SmartDashboard.putData("positive limit", posLimit);
     this.pivotPid.enableContinuousInput(0, 360);
     this.pivotEncoderSim.set(this.prevPivotPosition);
   }
@@ -140,7 +127,10 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
 
   //Method for setting pivot speed
   public void setPivotSpeed(double pivotSpeed) {
-    pivotMotor.set(pivotSpeed);
+    double clampedPivotSpeed = MathUtil.clamp(pivotSpeed, negLimit.getThing(), posLimit.getThing());
+    SmartDashboard.putNumber("intake pivot speed", pivotSpeed);
+    SmartDashboard.putNumber("intake pivot clamped speed", clampedPivotSpeed);
+    pivotMotor.set(clampedPivotSpeed);
   }
   
   //Method to get position of pivot
@@ -165,16 +155,16 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     double rawPivotPosition = this.getRawPivotPosition();
     if (rawPivotPosition != this.prevPivotPosition) {
       if (this.prevPivotPosition > 340 && this.prevPivotPosition < 360 && rawPivotPosition > 0 && rawPivotPosition < 20) {
-        this.numRotations++;
+        this.numRotations.setThing(this.numRotations.getThing() + 1);
       }
       if (this.prevPivotPosition > 0 && this.prevPivotPosition < 20 && rawPivotPosition > 340 && rawPivotPosition < 360) {
-        this.numRotations--;
+        this.numRotations.setThing(this.numRotations.getThing() - 1);
       }
     }
     SmartDashboard.putNumber("intake previous raw rotation", this.prevPivotPosition);
-    SmartDashboard.putNumber("intake pivot num rotations", this.numRotations);
+    SmartDashboard.putData("intake pivot num rotations", this.numRotations);
     SmartDashboard.putNumber("intake pivot raw rotation", rawPivotPosition);
-    SmartDashboard.putNumber("intake pivot offset rotation", rawPivotPosition - this.encoderOffset.getEncoderOffset());
+    SmartDashboard.putNumber("intake pivot offset rotation", rawPivotPosition - this.encoderOffset.getThing());
     SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
     this.prevPivotPosition = rawPivotPosition;
 
