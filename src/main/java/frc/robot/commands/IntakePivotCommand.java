@@ -24,7 +24,9 @@ public class IntakePivotCommand extends Command {
             // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
             this.pivot.setSetpoint(null);
         }
-        pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.1 : 0.5));
+        if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
+            pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.1 : 0.5));
+        }
     }
 
     // Called once the command ends or is interrupted.

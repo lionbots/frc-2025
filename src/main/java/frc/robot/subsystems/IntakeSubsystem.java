@@ -12,7 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
+// import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -39,7 +39,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
   
   private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 360, 0);
-  private final DutyCycleEncoderSim pivotEncoderSim = new DutyCycleEncoderSim(pivotEncoder);
+  // private final DutyCycleEncoderSim pivotEncoderSim = new DutyCycleEncoderSim(pivotEncoder);
 
   //Create instance variable for the motor simulation
   private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
@@ -72,7 +72,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     SmartDashboard.putData("negative limit", negLimit);
     SmartDashboard.putData("positive limit", posLimit);
     this.pivotPid.enableContinuousInput(0, 360);
-    this.pivotEncoderSim.set(this.prevPivotPosition);
+    // this.pivotEncoderSim.set(this.prevPivotPosition);
   }
 
   @Override
@@ -92,7 +92,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     }
   
     double armAngle = Math.toDegrees(pivotAngle) - 90;
-    this.pivotEncoderSim.set(MathUtil.inputModulus(armAngle * IntakeConstants.pivotGearRatio + this.encoderOffset.getEncoderOffset(), 0, 360));
+    // this.pivotEncoderSim.set(MathUtil.inputModulus(armAngle * IntakeConstants.pivotGearRatio + this.encoderOffset.getEncoderOffset(), 0, 360));
 
     if (this.armLigament != null) {
       // anglE RElatIve To iTs pArent
@@ -135,16 +135,17 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   
   //Method to get position of pivot
   private double getRawPivotPosition() {
-    return RobotBase.isSimulation() ? pivotEncoderSim.get() : pivotEncoder.get();
+    // return RobotBase.isSimulation() ? pivotEncoderSim.get() : pivotEncoder.get();
+    return pivotEncoder.get();
   }
 
   public double getPivotPosition() {
     // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
-    double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getEncoderOffset();
+    double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getThing();
     if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
       pivotPos = 0;
     }
-    return MathUtil.inputModulus((this.numRotations * 360 + pivotPos) / IntakeConstants.pivotGearRatio, 0, 360);
+    return MathUtil.inputModulus((this.numRotations.getThing() * 360 + pivotPos) / IntakeConstants.pivotGearRatio, 0, 360);
   }
 
   public void periodic() {
@@ -177,6 +178,10 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   
   public void setSetpoint(Double pos) {
     this.setpoint = pos;
+  }
+
+  public Double getSetpoint() {
+    return this.setpoint;
   }
 
   public boolean atSetPoint() {

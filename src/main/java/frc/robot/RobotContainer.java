@@ -124,10 +124,12 @@ public class RobotContainer {
       operatorController.rightTrigger(0.1).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
     }
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-    operatorController.b().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
+    operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
 
     if (RobotBase.isSimulation()) {
       operatorController.a().onTrue(new InstantCommand(drivebase::resetSimPos));
+    } else {
+      operatorController.a().onTrue(new InstantCommand(() -> intake.setSetpoint(null), intake));
     }
   }
 
