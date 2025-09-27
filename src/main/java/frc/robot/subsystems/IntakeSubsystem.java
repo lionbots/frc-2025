@@ -57,6 +57,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1);
   // intake pivot maximum positive velocity
   private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1);
+  public SendableDouble minPivotRot = new SendableDouble(-90);
+  public SendableDouble maxPivotRot = new SendableDouble(0);
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
@@ -65,6 +67,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     SmartDashboard.putData("intake pivot encoder offset", encoderOffset);
     SmartDashboard.putData("negative pivot velocity limit", negPivotVelocityLimit);
     SmartDashboard.putData("positive pivot velocity limit", posPivotVelocityLimit);
+    SmartDashboard.putData("minimum intake pivot rotation", minPivotRot);
+    SmartDashboard.putData("maximum intake pivot rotation", maxPivotRot);
     this.pivotPid.enableContinuousInput(0, 360);
     // this.pivotEncoderSim.set(this.prevPivotPosition);
   }
@@ -75,7 +79,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
 
     this.pivotSim.setInput(pivotMotorSim.getAppliedOutput() * vInVoltage);
     this.pivotSim.update(0.02);
-    this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec()), vInVoltage, 0.02);
+    // i have no clue how to simulate the gears and chain, so multiply arm velocity by gear ratio to get motor velocity
+    this.pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(this.pivotSim.getVelocityRadPerSec() * IntakeConstants.pivotGearRatio), vInVoltage, 0.02);
 
     double pivotAngle = this.pivotSim.getAngleRads();
     if (MathUtil.isNear(2 * Math.PI, pivotAngle, 0.01) && this.pivotMotorSim.getAppliedOutput() > 0) {
@@ -114,12 +119,12 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     intakeMotor.configure(idleMode, com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  //Method for setting intake speed
+  // Method for setting intake speed
   public void setIntakeSpeed(double intakeSpeed) {
     intakeMotor.set(intakeSpeed);
   }
 
-  //Method for setting pivot speed
+  // Method for setting pivot speed if 
   public void setPivotSpeed(double pivotSpeed) {
     double clampedPivotSpeed = MathUtil.clamp(pivotSpeed, negPivotVelocityLimit.getThing(), posPivotVelocityLimit.getThing());
     SmartDashboard.putNumber("intake pivot speed", pivotSpeed);
@@ -127,28 +132,40 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     pivotMotor.set(clampedPivotSpeed);
   }
   
-  //Method to get position of pivot
+  // Method to get position of pivot
   private double getRawPivotPosition() {
     return RobotBase.isReal() ? this.pivotEncoder.getPosition() : this.pivotMotorSim.getPosition();
   }
 
-  public double getPivotPosition() {
+  // gets pivot position in degrees, compensating for gear ratio and encoder offset. can be <0 and >360
+  public double getDiscontinuousPivotPosition() {
     // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
     double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getThing();
     if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
       pivotPos = 0;
     }
-    return MathUtil.inputModulus((this.getRawPivotPosition() * 360 + pivotPos) / IntakeConstants.pivotGearRatio, 0, 360);
+    return (this.getRawPivotPosition() * 360 + pivotPos) / IntakeConstants.pivotGearRatio;
+  }
+
+  // gets pivot position with range [0, 360], compensating for gear ratio and encoder offset
+  public double getPivotPosition() {
+    return MathUtil.inputModulus(this.getDiscontinuousPivotPosition(), 0, 360);
   }
 
   public void periodic() {
     SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
+    SmartDashboard.putNumber("intake discontinuous rotation", this.getDiscontinuousPivotPosition());
     SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
 
     if (this.setpoint != null) {
       double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
       SmartDashboard.putNumber("intake pid calculation", calculation);
       this.setPivotSpeed(calculation);
+    }
+
+    // if intake pivot motor is attempting to go past limits, stop it
+    if ((this.getDiscontinuousPivotPosition() < this.minPivotRot.getThing() && this.pivotMotor.get() < 0) || (this.getDiscontinuousPivotPosition() > this.maxPivotRot.getThing() && this.pivotMotor.get() > 0)) {
+      this.setPivotSpeed(0);
     }
   }
   

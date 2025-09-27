@@ -24,7 +24,9 @@ public class IntakePivotCommand extends Command {
             // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
             this.pivot.setSetpoint(null);
         }
-        if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
+        // stop pivot from going past limits
+        boolean pivotWithinBounds = (speed < 0 && pivot.getDiscontinuousPivotPosition() >= pivot.minPivotRot.getThing()) || (speed > 0 && pivot.getDiscontinuousPivotPosition() <= pivot.maxPivotRot.getThing()) || speed == 0;
+        if (pivotWithinBounds && (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint())) {
             pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.15 : 0.5));
         }
     }
