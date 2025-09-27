@@ -56,7 +56,7 @@ public class RobotContainer {
   }
 
   private void drawRobot() {
-    Mechanism2d mechanism = new Mechanism2d(3, 4);
+    Mechanism2d mechanism = new Mechanism2d(3, 3);
     MechanismRoot2d mechRoot = mechanism.getRoot("root", 0.5, 0.1);
 
     // chassis ligament
