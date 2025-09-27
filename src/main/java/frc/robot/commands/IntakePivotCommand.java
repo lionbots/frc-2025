@@ -25,7 +25,7 @@ public class IntakePivotCommand extends Command {
             this.pivot.setSetpoint(null);
         }
         if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
-            pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.1 : 0.5));
+            pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.15 : 0.5));
         }
     }
 

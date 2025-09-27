@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -86,8 +85,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    operatorController.leftTrigger(0).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
-    operatorController.rightTrigger(0).whileTrue(new OuttakeCommand(outtake, operatorController::getRightTriggerAxis));
+    operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
+    operatorController.rightTrigger(0.1).whileTrue((new OuttakeCommand(outtake, intake, operatorController::getRightTriggerAxis)));
     operatorController.rightBumper().whileTrue(new EjectCommand(intake));
     operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
 
@@ -132,6 +131,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new ParallelCommandGroup(new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(2), new SequentialCommandGroup(new OuttakePivotCommand(outtake, () -> 1.0).withTimeout(0.5), new IntakePivotCommand(intake, () -> -0.5).withTimeout(0.5)));
+    return new ParallelCommandGroup(new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(3));
   }
 }
