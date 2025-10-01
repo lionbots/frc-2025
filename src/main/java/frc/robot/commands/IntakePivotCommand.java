@@ -25,8 +25,7 @@ public class IntakePivotCommand extends Command {
             this.pivot.setSetpoint(null);
         }
         // stop pivot from going past limits
-        boolean pivotWithinBounds = (speed < 0 && pivot.getDiscontinuousPivotPosition() >= pivot.minPivotRot.getThing()) || (speed > 0 && pivot.getDiscontinuousPivotPosition() <= pivot.maxPivotRot.getThing()) || speed == 0;
-        if (pivotWithinBounds && (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint())) {
+        if (pivot.pivotWithinBounds(speed) && (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint())) {
             pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.15 : 0.5));
         }
     }

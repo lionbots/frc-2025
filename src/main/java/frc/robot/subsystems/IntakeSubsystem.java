@@ -59,8 +59,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1);
     // intake pivot maximum positive velocity
     private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1);
-    public SendableDouble minPivotRot = new SendableDouble(-90);
-    public SendableDouble maxPivotRot = new SendableDouble(0);
+    private SendableDouble minPivotRot = new SendableDouble(-90);
+    private SendableDouble maxPivotRot = new SendableDouble(0);
     
     // Constructor to access the brake mode method
     public IntakeSubsystem() {
@@ -140,7 +140,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     }
     
     // gets pivot position in degrees, compensating for gear ratio and encoder offset. can be <0 and >360
-    public double getDiscontinuousPivotPosition() {
+    private double getDiscontinuousPivotPosition() {
         // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
         double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getThing();
         if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
@@ -154,6 +154,16 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
         return MathUtil.inputModulus(this.getDiscontinuousPivotPosition(), 0, 360);
     }
     
+    /**
+     * Checks if the intake pivot will remain in its rotation limit
+     * @param speed Attempted speed of the intake pivot motor
+     * @return Whether the intake pivot motor will remain within its rotation limits
+     */
+    public boolean pivotWithinBounds(double speed) {
+        double pivotPos = this.getDiscontinuousPivotPosition();
+        return (speed < 0 && pivotPos >= this.minPivotRot.getThing()) || (speed > 0 && pivotPos <= this.maxPivotRot.getThing()) || speed == 0;
+    }
+
     public void periodic() {
         double rawPivotPosition = this.getRawPivotPosition();
         if (rawPivotPosition != this.prevPivotPosition) {
@@ -180,7 +190,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
         }
         
         // if intake pivot motor is attempting to go past limits, stop it
-        if ((this.getDiscontinuousPivotPosition() < this.minPivotRot.getThing() && this.pivotMotor.get() < 0) || (this.getDiscontinuousPivotPosition() > this.maxPivotRot.getThing() && this.pivotMotor.get() > 0)) {
+        if (!this.pivotWithinBounds(this.pivotMotor.get())) {
             this.setPivotSpeed(0);
         }
     }
