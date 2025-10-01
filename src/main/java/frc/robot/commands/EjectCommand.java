@@ -11,33 +11,33 @@ import edu.wpi.first.wpilibj2.command.*;
 // An Intake command that uses an Intake subsystem.
 public class EjectCommand extends Command {
     private final IntakeSubsystem intake;
-
-
-  public EjectCommand(IntakeSubsystem intake) {
-    this.intake = intake;
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(intake);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    intake.setIntakeSpeed(IntakeConstants.outtakeSpeed);
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    intake.setIntakeSpeed(0);
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    
+    
+    public EjectCommand(IntakeSubsystem intake) {
+        this.intake = intake;
+        // Use addRequirements() here to declare subsystem dependencies.
+        addRequirements(intake);
+    }
+    
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {}
+    
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        intake.setIntakeSpeed(IntakeConstants.outtakeSpeed);
+    }
+    
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        intake.setIntakeSpeed(0);
+    }
+    
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }
