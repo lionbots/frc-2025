@@ -50,29 +50,23 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     // intake pivot is controlled by a motor attached to a small gear which is attached to large gear. small gear has 16 teeth, large has 48 so 3:1 input:output rotations
     // encoder is attached to small gear, so encoder reports three rotations for every intake pivot rotation
     // for magic align need convert encoder rotations to pivot rotations
-    private SendableDouble encoderOffset = new SendableDouble(0);
+    private SendableDouble encoderOffset = new SendableDouble(0, "intake pivot encoder offset");
     private SendableDouble numRotations = new SendableDouble(0);
     private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get
     ();
     
     // intake pivot minimum negative velocity
-    private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1);
+    private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1, "negative pivot velocity limit");
     // intake pivot maximum positive velocity
-    private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1);
-    private SendableDouble minPivotRot = new SendableDouble(-90);
-    private SendableDouble maxPivotRot = new SendableDouble(0);
+    private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1, "positive pivot velocity limit");
+    private SendableDouble minPivotRot = new SendableDouble(-90, "minimum intake pivot rotation");
+    private SendableDouble maxPivotRot = new SendableDouble(0, "maximum intake pivot rotation");
     
     // Constructor to access the brake mode method
     public IntakeSubsystem() {
         setMotorIdleModes();  
         SmartDashboard.putData("intake PID", pivotPid);
-        SmartDashboard.putData("intake pivot encoder offset", encoderOffset);
-        SmartDashboard.putData("negative pivot velocity limit", negPivotVelocityLimit);
-        SmartDashboard.putData("positive pivot velocity limit", posPivotVelocityLimit);
-        SmartDashboard.putData("minimum intake pivot rotation", minPivotRot);
-        SmartDashboard.putData("maximum intake pivot rotation", maxPivotRot);
         this.pivotPid.enableContinuousInput(0, 360);
-        // this.pivotEncoderSim.set(this.prevPivotPosition);
     }
     
     @Override
