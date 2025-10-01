@@ -60,6 +60,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1);
   public SendableDouble minPivotRot = new SendableDouble(-90);
   public SendableDouble maxPivotRot = new SendableDouble(0);
+  
+  public final String pivotLimEnabledName = "intake pivot position limit enabled";
 
   // Constructor to access the brake mode method
   public IntakeSubsystem() {
@@ -71,6 +73,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     SmartDashboard.putData("minimum intake pivot rotation", minPivotRot);
     SmartDashboard.putData("maximum intake pivot rotation", maxPivotRot);
     SmartDashboard.putData("intake pivot num rotations", numRotations);
+    SmartDashboard.putBoolean(this.pivotLimEnabledName, false);
     this.pivotPid.enableContinuousInput(0, 360);
     // this.pivotEncoderSim.set(this.prevPivotPosition);
   }
@@ -162,21 +165,25 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     }
 
     SmartDashboard.putNumber("intake pivot raw rotation", rawPivotPosition);
-    SmartDashboard.putNumber("intake pivot discontinuous rotation", this.getDiscontinuousPivotPosition());
-    SmartDashboard.putNumber("intake pivot previous rotation", this.prevPivotPosition);
-    SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
+    // SmartDashboard.putNumber("intake pivot discontinuous rotation", this.getDiscontinuousPivotPosition());
+    // SmartDashboard.putNumber("intake pivot previous rotation", this.prevPivotPosition);
+    // SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
     SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
     this.prevPivotPosition = rawPivotPosition;
 
     if (this.setpoint != null) {
       double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
-      SmartDashboard.putNumber("intake pid calculation", calculation);
+      // SmartDashboard.putNumber("intake pid calculation", calculation);
       this.setPivotSpeed(calculation);
     }
 
-    // if intake pivot motor is attempting to go past limits, stop it
-    if ((this.getDiscontinuousPivotPosition() < this.minPivotRot.getThing() && this.pivotMotor.get() < 0) || (this.getDiscontinuousPivotPosition() > this.maxPivotRot.getThing() && this.pivotMotor.get() > 0)) {
-      this.setPivotSpeed(0);
+    if (SmartDashboard.getBoolean(this.pivotLimEnabledName, false)) {
+      boolean pastMinimum = this.getDiscontinuousPivotPosition() < this.minPivotRot.getThing() && this.pivotMotor.get() < 0;
+      boolean pastMaximum = this.getDiscontinuousPivotPosition() > this.maxPivotRot.getThing() && this.pivotMotor.get() > 0;
+      // if intake pivot motor is attempting to go past limits, stop it
+      if (pastMinimum || pastMaximum) {
+        this.setPivotSpeed(0);
+      }
     }
   }
   

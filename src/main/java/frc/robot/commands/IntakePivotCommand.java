@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
@@ -18,15 +19,20 @@ public class IntakePivotCommand extends Command {
 
     public void execute() {
         double speed = this.speedFunction.get();
+        // stop pivot from going past limits
+        boolean pivotWithinBounds = !SmartDashboard.getBoolean(pivot.pivotLimEnabledName, false) || (speed < 0 && pivot.getDiscontinuousPivotPosition() >= pivot.minPivotRot.getThing()) || (speed > 0 && pivot.getDiscontinuousPivotPosition() <= pivot.maxPivotRot.getThing()) || speed == 0;
+        if (!pivotWithinBounds) {
+            return;
+        }
         if (speed != 0) {
             // MagicRotCommand makes the subsystem PID go toward its setpoint forever
             // this command should override that, so clear the setpoint
             // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
             this.pivot.setSetpoint(null);
+        } else if (this.pivot.getSetpoint() == null) {
+            this.pivot.setSetpoint(this.pivot.getPivotPosition());
         }
-        // stop pivot from going past limits
-        boolean pivotWithinBounds = (speed < 0 && pivot.getDiscontinuousPivotPosition() >= pivot.minPivotRot.getThing()) || (speed > 0 && pivot.getDiscontinuousPivotPosition() <= pivot.maxPivotRot.getThing()) || speed == 0;
-        if (pivotWithinBounds && (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint())) {
+        if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
             pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.15 : 0.5));
         }
     }
