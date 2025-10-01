@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   // Create instance variables for the motors
   private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
   private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
-  private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 1, 0);
+  private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 360, 0);
 
   //Create instance variable for the motor simulation
   private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
@@ -52,8 +52,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   // for magic align need convert encoder rotations to pivot rotations
   private SendableDouble encoderOffset = new SendableDouble(0);
   private SendableDouble numRotations = new SendableDouble(0);
-  private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get
-  ();
+  private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
 
   // intake pivot minimum negative velocity
   private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1);
@@ -66,11 +65,12 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
   public IntakeSubsystem() {
     setMotorIdleModes();  
     SmartDashboard.putData("intake PID", pivotPid);
-    SmartDashboard.putData("intake pivot encoder offset", encoderOffset);
+    SmartDashboard.putData("intake encoder offset", encoderOffset);
     SmartDashboard.putData("negative pivot velocity limit", negPivotVelocityLimit);
     SmartDashboard.putData("positive pivot velocity limit", posPivotVelocityLimit);
     SmartDashboard.putData("minimum intake pivot rotation", minPivotRot);
     SmartDashboard.putData("maximum intake pivot rotation", maxPivotRot);
+    SmartDashboard.putData("intake pivot num rotations", numRotations);
     this.pivotPid.enableContinuousInput(0, 360);
     // this.pivotEncoderSim.set(this.prevPivotPosition);
   }
@@ -139,14 +139,9 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     return RobotBase.isReal() ? this.pivotEncoder.get() : this.pivotMotorSim.getPosition();
   }
 
-  // gets pivot position in degrees, compensating for gear ratio and encoder offset. can be <0 and >360
   public double getDiscontinuousPivotPosition() {
-    // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
     double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getThing();
-    if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
-      pivotPos = 0;
-    }
-    return (this.getRawPivotPosition() * 360 + pivotPos) / IntakeConstants.pivotGearRatio;
+    return (this.numRotations.getThing() * 360 + pivotPos) / IntakeConstants.pivotGearRatio;
   }
 
   // gets pivot position with range [0, 360], compensating for gear ratio and encoder offset
@@ -167,9 +162,9 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     }
 
     SmartDashboard.putNumber("intake pivot raw rotation", rawPivotPosition);
+    SmartDashboard.putNumber("intake pivot discontinuous rotation", this.getDiscontinuousPivotPosition());
     SmartDashboard.putNumber("intake pivot previous rotation", this.prevPivotPosition);
     SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
-    SmartDashboard.putNumber("intake discontinuous rotation", this.getDiscontinuousPivotPosition());
     SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
     this.prevPivotPosition = rawPivotPosition;
 
