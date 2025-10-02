@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -16,20 +15,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
-import edu.wpi.first.hal.SimDouble;
-import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -44,26 +31,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final SparkMax brMotor = new SparkMax(DriveConstants.brDeviceId, MotorType.kBrushless);
     // back left motor, the type is brushless
     private final SparkMax blMotor = new SparkMax(DriveConstants.blDeviceId, MotorType.kBrushless);
-    private final SparkMaxSim frMotorSim = new SparkMaxSim(frMotor, DCMotor.getNEO(1));
-    private final SparkMaxSim flMotorSim = new SparkMaxSim(flMotor, DCMotor.getNEO(1));
 
     // DifferentialDrive with front left and front right motor.
     private final DifferentialDrive d_drive = new DifferentialDrive(flMotor, frMotor);
     private final RelativeEncoder frEncoder = frMotor.getEncoder();
     private final RelativeEncoder flEncoder = flMotor.getEncoder();
-    private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DriveConstants.numMotors), DriveConstants.gearing, DriveConstants.momentIntertia, DriveConstants.massKg, DriveConstants.wheelRadiusMeters, DriveConstants.trackWidthMeters, DriveConstants.measurementStdDevs);
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
-    private final SimDouble yawSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]"), "Yaw"));
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
-
-    private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
-        new Rotation2d(Math.toRadians(navx2.getYaw())),
-        0,
-        0,
-        DriveConstants.simDefaultPose
-    );
-    public Field2d field = new Field2d();
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
@@ -73,70 +48,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
         configurePID();
         setInverted();
         setCurrentLimit();
-        if (RobotBase.isSimulation()) {
-            SmartDashboard.putData("Field", field);
-        }
-        // SmartDashboard.putData("Drive PID", this.PID);
-        // SmartDashboard.putData("navx2", navx2);
-        // get reference to getNormalizedAngle() here cuz "this" has a different value inside the anonymous class
-        // DoubleSupplier bruh = this::getNormalizedAngle;
-        // create a Sendable() with type "Gyro" to get that fancy gyro widget in simulation UI
-        // SmartDashboard.putData("Normalized angle", new Sendable() {
-        //     @Override
-        //     public void initSendable(SendableBuilder builder) {
-        //         builder.setSmartDashboardType("Gyro");
-        //         builder.addDoubleProperty("Value", bruh, null);
-        //     }
-        // });
-        // }
-    }
-
-    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-        double wheelCircumference = 2 * Math.PI * DriveConstants.wheelRadiusMeters;
-        return new DifferentialDriveWheelSpeeds(flEncoder.getVelocity() / 60 * wheelCircumference, frEncoder.getVelocity() / 60 * wheelCircumference);
-    }
-
-    public Pose2d getPose() {
-        return odometry.getPoseMeters();
     }
 
     public void voltageDrive(double leftVolts, double rightVolts) {
         flMotor.setVoltage(leftVolts);
         frMotor.setVoltage(rightVolts);
         d_drive.feed();
-    }
-
-    @Override
-    public void periodic() {
-        // RelativeEncoder supposed to return revolutions, need convert to meters
-        // couldve used EncoderConfig.setPositionConversionFactor or something but im sure someones going to forget it exists
-        double wheelCircumference = 2 * Math.PI * DriveConstants.wheelRadiusMeters;
-        odometry.update(new Rotation2d(Math.toRadians(this.getAngle(false))), this.getLeftPosition() * wheelCircumference, this.getRightPosition() * wheelCircumference);
-        field.setRobotPose(getPose());
-    }
-
-    public void resetSimPos() {
-        // for now wont reset angle or velocity or driveSim or encoder positions
-        // those always cause problems like "mirroring" actions across simDefaultPose
-        if (RobotBase.isSimulation()) {
-            odometry.resetPose(DriveConstants.simDefaultPose);
-        }
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        driveSim.setInputs(flMotor.getAppliedOutput() * RoboRioSim.getVInVoltage(), frMotor.getAppliedOutput() * RoboRioSim.getVInVoltage());
-        driveSim.update(0.02);
-
-        // meters per second to revolutions per minute
-        double conversionFactor = 60.0 / 2.0 / Math.PI / DriveConstants.wheelRadiusMeters;
-        flMotorSim.iterate(driveSim.getLeftVelocityMetersPerSecond() * conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
-        frMotorSim.iterate(driveSim.getRightVelocityMetersPerSecond() * conversionFactor, RoboRioSim.getVInVoltage(), 0.02);
-
-        double heading = driveSim.getHeading().getDegrees();
-        yawSim.set(-heading);
-
-        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(driveSim.getCurrentDrawAmps()));
     }
 
     // Makes the PID continuous at 0/360 and sets the tolerance to 2

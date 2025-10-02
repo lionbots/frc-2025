@@ -1,14 +1,12 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeSubsystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
 public class IntakePivotCommand extends Command {
     private final IntakeSubsystem pivot;
     private final Supplier<Double> speedFunction;
-    private final double speedMultiplier = RobotBase.isReal() ? 0.15 : 0.5;
         
     public IntakePivotCommand(IntakeSubsystem pivot, Supplier<Double> speedFunction) {
         this.pivot = pivot;
@@ -32,7 +30,7 @@ public class IntakePivotCommand extends Command {
             this.pivot.setSetpoint(this.pivot.getPivotPosition());
         }
         if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
-            pivot.setPivotSpeed(speed * this.speedMultiplier);
+            pivot.setPivotSpeed(speed * 0.15);
         }
     }
 
