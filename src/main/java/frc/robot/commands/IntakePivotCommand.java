@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 public class IntakePivotCommand extends Command {
     private final IntakeSubsystem pivot;
     private final Supplier<Double> speedFunction;
+    private final double speedMultiplier = RobotBase.isReal() ? 0.15 : 0.5;
         
     public IntakePivotCommand(IntakeSubsystem pivot, Supplier<Double> speedFunction) {
         this.pivot = pivot;
@@ -18,15 +19,20 @@ public class IntakePivotCommand extends Command {
 
     public void execute() {
         double speed = this.speedFunction.get();
+        // stop pivot from going past limits
+        if (!pivot.pivotWithinBounds(speed)) {
+            return;
+        }
         if (speed != 0) {
             // MagicRotCommand makes the subsystem PID go toward its setpoint forever
             // this command should override that, so clear the setpoint
             // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
             this.pivot.setSetpoint(null);
+        } else if (this.pivot.getSetpoint() == null) {
+            this.pivot.setSetpoint(this.pivot.getPivotPosition());
         }
-        // stop pivot from going past limits
-        if (pivot.pivotWithinBounds(speed) && (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint())) {
-            pivot.setPivotSpeed(speed * (RobotBase.isReal() ? 0.15 : 0.5));
+        if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
+            pivot.setPivotSpeed(speed * this.speedMultiplier);
         }
     }
 

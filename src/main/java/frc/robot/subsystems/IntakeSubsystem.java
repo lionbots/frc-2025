@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     // Create instance variables for the motors
     private final SparkMax pivotMotor = new SparkMax(IntakeConstants.pivotMotorPort, MotorType.kBrushless);
     private final SparkMax intakeMotor = new SparkMax(IntakeConstants.intakeMotorPort, MotorType.kBrushless);
-    private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 1, 0);
+    private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(IntakeConstants.encoderPort, 360, 0);
     
     //Create instance variable for the motor simulation
     private final SparkMaxSim pivotMotorSim = new SparkMaxSim(pivotMotor, DCMotor.getNEO(1));
@@ -51,9 +51,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     // encoder is attached to small gear, so encoder reports three rotations for every intake pivot rotation
     // for magic align need convert encoder rotations to pivot rotations
     private SendableDouble encoderOffset = new SendableDouble(0, "intake pivot encoder offset");
-    private SendableDouble numRotations = new SendableDouble(0);
-    private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get
-    ();
+    private SendableDouble numRotations = new SendableDouble(0, "intake pivot num rotations");
+    private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
     
     // intake pivot minimum negative velocity
     private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1, "negative pivot velocity limit");
@@ -62,6 +61,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private SendableDouble minPivotRot = new SendableDouble(-90, "minimum intake pivot rotation");
     private SendableDouble maxPivotRot = new SendableDouble(0, "maximum intake pivot rotation");
     
+  public final String pivotLimEnabledName = "intake pivot position limit enabled";
+
     // Constructor to access the brake mode method
     public IntakeSubsystem() {
         setMotorIdleModes();  
@@ -137,10 +138,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private double getDiscontinuousPivotPosition() {
         // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
         double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getThing();
-        if (MathUtil.isNear(pivotPos, 360.0, 0.1)) {
-            pivotPos = 0;
-        }
-        return (this.getRawPivotPosition() * 360 + pivotPos) / IntakeConstants.pivotGearRatio;
+        return (this.numRotations.getThing() * 360 + pivotPos) / IntakeConstants.pivotGearRatio;
     }
     
     // gets pivot position with range [0, 360], compensating for gear ratio and encoder offset
@@ -171,23 +169,25 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
         }
         
         SmartDashboard.putNumber("intake pivot raw rotation", rawPivotPosition);
-        SmartDashboard.putNumber("intake pivot previous rotation", this.prevPivotPosition);
-        SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
-        SmartDashboard.putNumber("intake discontinuous rotation", this.getDiscontinuousPivotPosition());
+    // SmartDashboard.putNumber("intake pivot discontinuous rotation", this.getDiscontinuousPivotPosition());
+    // SmartDashboard.putNumber("intake pivot previous rotation", this.prevPivotPosition);
+    // SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
         SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
         this.prevPivotPosition = rawPivotPosition;
         
         if (this.setpoint != null) {
             double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
-            SmartDashboard.putNumber("intake pid calculation", calculation);
+      // SmartDashboard.putNumber("intake pid calculation", calculation);
             this.setPivotSpeed(calculation);
         }
         
+    if (SmartDashboard.getBoolean(this.pivotLimEnabledName, false)) {
         // if intake pivot motor is attempting to go past limits, stop it
         if (!this.pivotWithinBounds(this.pivotMotor.get())) {
             this.setPivotSpeed(0);
         }
     }
+  }
     
     public void setSetpoint(Double pos) {
         this.setpoint = pos;
