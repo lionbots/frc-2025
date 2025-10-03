@@ -27,7 +27,7 @@ public class IntakePivotCommand extends Command {
             // didnt do this in initialize() cuz i have no clue when thats called but in my experience it dont allow this command to interrupt magic rotation
             this.pivot.setSetpoint(null);
         } else if (this.pivot.getSetpoint() == null) {
-            this.pivot.setSetpoint(this.pivot.getPivotPosition());
+            // this.pivot.setSetpoint(this.pivot.getPivotPosition());
         }
         if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
             pivot.setPivotSpeed(speed * 0.5);

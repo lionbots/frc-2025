@@ -40,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1, "negative pivot velocity limit");
     // intake pivot maximum positive velocity
     private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1, "positive pivot velocity limit");
-    private SendableDouble minPivotRot = new SendableDouble(-90, "minimum intake pivot rotation");
+    private SendableDouble minPivotRot = new SendableDouble(-60, "minimum intake pivot rotation");
     private SendableDouble maxPivotRot = new SendableDouble(0, "maximum intake pivot rotation");
     
     public final String pivotLimEnabledName = "intake pivot position limit enabled";
