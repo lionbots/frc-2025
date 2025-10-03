@@ -43,12 +43,13 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private SendableDouble minPivotRot = new SendableDouble(-90, "minimum intake pivot rotation");
     private SendableDouble maxPivotRot = new SendableDouble(0, "maximum intake pivot rotation");
     
-  public final String pivotLimEnabledName = "intake pivot position limit enabled";
+    public final String pivotLimEnabledName = "intake pivot position limit enabled";
 
     // Constructor to access the brake mode method
     public IntakeSubsystem() {
         setMotorIdleModes();  
         SmartDashboard.putData("intake PID", pivotPid);
+        SmartDashboard.putBoolean(this.pivotLimEnabledName, false);
         this.pivotPid.enableContinuousInput(0, 360);
     }
 
@@ -97,6 +98,9 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
      * @return Whether the intake pivot motor will remain within its rotation limits
      */
     public boolean pivotWithinBounds(double speed) {
+        if (!SmartDashboard.getBoolean(this.pivotLimEnabledName, false)) {
+            return true;
+        }
         double pivotPos = this.getDiscontinuousPivotPosition();
         return (speed < 0 && pivotPos >= this.minPivotRot.getThing()) || (speed > 0 && pivotPos <= this.maxPivotRot.getThing()) || speed == 0;
     }

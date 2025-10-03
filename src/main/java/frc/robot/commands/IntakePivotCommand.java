@@ -30,7 +30,7 @@ public class IntakePivotCommand extends Command {
             this.pivot.setSetpoint(this.pivot.getPivotPosition());
         }
         if (speed != 0 || this.pivot.getSetpoint() == null || this.pivot.atSetPoint()) {
-            pivot.setPivotSpeed(speed * 0.15);
+            pivot.setPivotSpeed(speed * 0.5);
         }
     }
 
