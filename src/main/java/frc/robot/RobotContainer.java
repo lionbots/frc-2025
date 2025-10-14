@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 

@@ -108,6 +108,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     }
 
     public void periodic() {
+        SmartDashboard.putNumber("intake bus voltage voltage", this.intakeMotor.getBusVoltage());
+
         double rawPivotPosition = this.getRawPivotPosition();
         if (rawPivotPosition != this.prevPivotPosition) {
             if (this.prevPivotPosition > 340 && this.prevPivotPosition < 360 &&
