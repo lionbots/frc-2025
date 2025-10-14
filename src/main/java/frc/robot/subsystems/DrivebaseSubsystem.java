@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -16,9 +20,14 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.MutDistance;
+import edu.wpi.first.units.measure.MutLinearVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PIDConstants;
 
@@ -39,6 +48,25 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
     private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
+
+    //fancy classes for unit safe values
+    private final MutVoltage voltage = Volts.mutable(0);
+    private final MutDistance distance = Meters.mutable(0);
+    private final MutLinearVelocity velocity = MetersPerSecond.mutable(0);
+    public final SysIdRoutine routine = new SysIdRoutine(
+        new SysIdRoutine.Config(),
+        new SysIdRoutine.Mechanism(voltage -> {frMotor.setVoltage(voltage); flMotor.setVoltage(voltage);},
+        log -> {
+            log.motor("left-motor").voltage(
+                voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
+                .linearPosition(distance.mut_replace(getLeftPosition(), Meters))
+                .linearVelocity(velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
+            log.motor("right-motor").voltage(
+                voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
+                .linearPosition(distance.mut_replace(getRightPosition(), Meters))
+                .linearVelocity(velocity.mut_replace(getRightVelocity(), MetersPerSecond));
+        },
+        this));
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
@@ -76,6 +104,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
      */
     public double getRightPosition() {
         return frEncoder.getPosition();
+    }
+
+    public double getLeftVelocity() {
+        return flEncoder.getVelocity();
+    }
+
+    public double getRightVelocity() {
+        return frEncoder.getVelocity();
     }
 
     /**

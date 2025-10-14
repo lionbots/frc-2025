@@ -10,9 +10,9 @@ import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
 * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,7 +58,8 @@ public class RobotContainer {
         operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
         operatorController.rightTrigger(0.1).whileTrue((new OuttakeCommand(outtake, intake, operatorController::getRightTriggerAxis)));
         operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-        operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
+        operatorController.x().whileTrue(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward));
+        // operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
     }
 
     /**
@@ -68,6 +69,6 @@ public class RobotContainer {
     */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return new ParallelCommandGroup(new FieldCentricDriveCommand(drivebase, () -> -0.3, () -> 0.0, () -> 0.0, () -> 0.0, () -> false).withTimeout(3));
+        return null;
     }
 }
