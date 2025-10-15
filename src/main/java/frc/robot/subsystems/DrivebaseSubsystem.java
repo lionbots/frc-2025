@@ -56,19 +56,27 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final MutLinearVelocity velocity = MetersPerSecond.mutable(0);
     public final SysIdRoutine routine = new SysIdRoutine(
         new SysIdRoutine.Config(),
-        new SysIdRoutine.Mechanism(voltage -> {frMotor.setVoltage(voltage); flMotor.setVoltage(voltage);},
-        log -> {
-            // wheel diameter 6 inches
-            log.motor("left-motor").voltage(
-                voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts))
-                .linearPosition(distance.mut_replace(getLeftPosition() * 0.4787787 / 8.46, Meters))
-                .linearVelocity(velocity.mut_replace(getLeftVelocity() * 0.4787787 / 60 / 8.46, MetersPerSecond));
-            log.motor("right-motor").voltage(
-                voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput(), Volts))
-                .linearPosition(distance.mut_replace(getRightPosition() * 0.4787787 / 8.46, Meters))
-                .linearVelocity(velocity.mut_replace(getRightVelocity() * 0.4787787 / 60 / 8.46, MetersPerSecond));
-        },
-        this));
+        new SysIdRoutine.Mechanism(
+            voltage -> {
+                frMotor.setVoltage(voltage);
+                flMotor.setVoltage(voltage);
+            },
+            log -> {
+                // wheel diameter 6 inches, wheel circumference is 0.4787787
+                // approximately 7.33 motor rotations per wheel rotation
+                final double rotationsToMeters = 0.4787787 / 7.33;
+                log.motor("left-motor").voltage(
+                    voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts))
+                    .linearPosition(distance.mut_replace(getLeftPosition() * rotationsToMeters, Meters))
+                    .linearVelocity(velocity.mut_replace(getLeftVelocity() * rotationsToMeters / 60, MetersPerSecond));
+                log.motor("right-motor").voltage(
+                    voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput(), Volts))
+                    .linearPosition(distance.mut_replace(getRightPosition() * rotationsToMeters, Meters))
+                    .linearVelocity(velocity.mut_replace(getRightVelocity() * rotationsToMeters / 60, MetersPerSecond));
+            },
+            this
+        )
+    );
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
