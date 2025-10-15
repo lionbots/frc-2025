@@ -57,7 +57,7 @@ public class RobotContainer {
         operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
         operatorController.rightTrigger(0.1).whileTrue((new OuttakeCommand(outtake, intake, operatorController::getRightTriggerAxis)));
         operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-        operatorController.x().whileTrue(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward));
+        driverController.x().whileTrue(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward));
         // operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
     }
 

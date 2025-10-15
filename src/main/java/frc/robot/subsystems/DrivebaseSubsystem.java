@@ -23,7 +23,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,14 +56,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
         new SysIdRoutine.Config(),
         new SysIdRoutine.Mechanism(voltage -> {frMotor.setVoltage(voltage); flMotor.setVoltage(voltage);},
         log -> {
+            // wheel diameter 6 inches
             log.motor("left-motor").voltage(
-                voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
-                .linearPosition(distance.mut_replace(getLeftPosition(), Meters))
-                .linearVelocity(velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
+                voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts))
+                .linearPosition(distance.mut_replace(getLeftPosition() * 0.4787787 / 8.46, Meters))
+                .linearVelocity(velocity.mut_replace(getLeftVelocity() * 0.4787787 / 60 / 8.46, MetersPerSecond));
             log.motor("right-motor").voltage(
-                voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
-                .linearPosition(distance.mut_replace(getRightPosition(), Meters))
-                .linearVelocity(velocity.mut_replace(getRightVelocity(), MetersPerSecond));
+                voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput(), Volts))
+                .linearPosition(distance.mut_replace(getRightPosition() * 0.4787787 / 8.46, Meters))
+                .linearVelocity(velocity.mut_replace(getRightVelocity() * 0.4787787 / 60 / 8.46, MetersPerSecond));
         },
         this));
 
