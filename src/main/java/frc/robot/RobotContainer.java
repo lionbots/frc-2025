@@ -44,8 +44,13 @@ public class RobotContainer {
     * joysticks}.
     */
     private void configureBindings() {
-        driverController.x().whileTrue(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward));
-        // operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
+        driverController.x().whileTrue(
+            drivebase.resetEncoders()
+            .andThen(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward))
+            .andThen(drivebase.routine.quasistatic(SysIdRoutine.Direction.kReverse))
+            .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kReverse))
+            .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kReverse))
+        );
     }
 
     /**
