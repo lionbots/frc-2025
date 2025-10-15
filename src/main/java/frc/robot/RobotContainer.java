@@ -48,7 +48,7 @@ public class RobotContainer {
             drivebase.resetEncoders()
             .andThen(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward))
             .andThen(drivebase.routine.quasistatic(SysIdRoutine.Direction.kReverse))
-            .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kReverse))
+            .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kForward))
             .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kReverse))
         );
     }

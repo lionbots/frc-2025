@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.RelativeEncoder;
@@ -59,7 +61,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final MutDistance distance = Meters.mutable(0);
     private final MutLinearVelocity velocity = MetersPerSecond.mutable(0);
     public final SysIdRoutine routine = new SysIdRoutine(
-        new SysIdRoutine.Config(),
+        new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(7), Seconds.of(5)),
         new SysIdRoutine.Mechanism(
             voltage -> {
                 frMotor.setVoltage(voltage);
