@@ -21,25 +21,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 */
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
-    private final OuttakeSubsystem outtake = new OuttakeSubsystem();
-    private final IntakeSubsystem intake = new IntakeSubsystem();
     private final DrivebaseSubsystem drivebase = new DrivebaseSubsystem();
     
     // Replace with CommandPS4Controller or CommandJoystick if needed
-    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.driverControllerPort);
-    private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.operatorControllerPort);
-    
-    // create here cuz "Loop time of 0.02s overrun" if in autonomous init
-    // apparently creating the trajectory and LTVUnicycleController takes a while
-    // private final Command trajectoryCommand = createTestTrajectoryCommand();
-    
-    
+    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.driverControllerPort);    
+
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         // left trigger axis is definitely not the climber axis i just need a placeholder
-        intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
         drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, driverController::getRightTriggerAxis, () -> driverController.getLeftTriggerAxis() * -1, driverController::getLeftX, () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
-        outtake.setDefaultCommand(new OuttakePivotCommand(outtake, operatorController::getRightY));
         // Configure the trigger bindings
         configureBindings();
     }
@@ -54,9 +44,6 @@ public class RobotContainer {
     * joysticks}.
     */
     private void configureBindings() {
-        operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
-        operatorController.rightTrigger(0.1).whileTrue((new OuttakeCommand(outtake, intake, operatorController::getRightTriggerAxis)));
-        operatorController.rightBumper().whileTrue(new EjectCommand(intake));
         driverController.x().whileTrue(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward));
         // operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
     }
