@@ -20,10 +20,14 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -78,6 +82,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
         )
     );
 
+    private final Field2d imuField = new Field2d();
+    private final Field2d encoderField = new Field2d();
+    private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(navx2.getRotation2d(), 0, 0);
+
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
         setMotorIdleModes();
@@ -86,12 +94,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
         configurePID();
         setInverted();
         setCurrentLimit();
+        SmartDashboard.putData("IMU field", imuField);
+        SmartDashboard.putData("encoder field", encoderField);
+    }
+
+    @Override
+    public void periodic() {
+        final double rotationsToMeters = 0.4787787 / 7.33;
+        encoderField.setRobotPose(odometry.update(navx2.getRotation2d(), this.getLeftPosition() * rotationsToMeters, this.getRightPosition() * rotationsToMeters));
+        imuField.setRobotPose(new Pose2d(navx2.getDisplacementX(), navx2.getDisplacementY(), navx2.getRotation2d()));
     }
 
     public Command resetEncoders() {
         return new InstantCommand(() -> {
             this.frEncoder.setPosition(0);
-            this.flEncoder.setPosition(1);
+            this.flEncoder.setPosition(0);
+            this.navx2.resetDisplacement();
+            this.odometry.resetPosition(new Rotation2d(0), 0, 0, new Pose2d(0, 0, new Rotation2d(0)));
         }, this);
     }
 
