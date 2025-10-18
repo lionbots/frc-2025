@@ -6,8 +6,11 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -24,7 +27,12 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
@@ -60,7 +68,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     private final MutVoltage voltage = Volts.mutable(0);
     private final MutDistance distance = Meters.mutable(0);
     private final MutLinearVelocity velocity = MetersPerSecond.mutable(0);
-    public final SysIdRoutine routine = new SysIdRoutine(
+    private final MutAngle rotation = Degrees.mutable(0);
+    private final MutAngularVelocity angularVelocity = DegreesPerSecond.mutable(0);
+
+    public final SysIdRoutine linearRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(7), Seconds.of(5)),
         new SysIdRoutine.Mechanism(
             voltage -> {
@@ -83,10 +94,26 @@ public class DrivebaseSubsystem extends SubsystemBase {
             this
         )
     );
+    public final SysIdRoutine angularRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(3.5), Seconds.of(5)),
+        new SysIdRoutine.Mechanism(
+        voltage -> {
+            frMotor.setVoltage(voltage);
+            flMotor.setVoltage(voltage.unaryMinus());
+        }, log -> {
+            final double rotationsToMeters = 0.4787787 / 7.33;
+            ChassisSpeeds chassisSpeeds = this.kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(this.getLeftVelocity() * rotationsToMeters / 60, this.getRightVelocity() * rotationsToMeters / 60));
+            log.motor("left-motor").voltage(
+                voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts)
+            ).angularPosition(rotation.mut_replace(this.navx2.getAngle(), Degrees)).angularVelocity(angularVelocity.mut_replace(chassisSpeeds.omegaRadiansPerSecond, RadiansPerSecond));
+        }, 
+        this)
+    );
 
     private final Field2d imuField = new Field2d();
     private final Field2d encoderField = new Field2d();
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(navx2.getRotation2d(), 0, 0);
+    private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(0.56);
 
     public DrivebaseSubsystem() {
         // make back motors follow front motors, set idle braking, and limit current to 40 amps
@@ -103,8 +130,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         final double rotationsToMeters = 0.4787787 / 7.33;
-        encoderField.setRobotPose(odometry.update(navx2.getRotation2d(), this.getLeftPosition() * rotationsToMeters, this.getRightPosition() * rotationsToMeters));
+        final double leftPosition = this.getLeftPosition() * rotationsToMeters;
+        final double rightPosition = this.getRightPosition() * rotationsToMeters;
+        encoderField.setRobotPose(odometry.update(navx2.getRotation2d(), leftPosition, rightPosition));
         imuField.setRobotPose(new Pose2d(navx2.getDisplacementX(), navx2.getDisplacementY(), navx2.getRotation2d()));
+        SmartDashboard.putNumber("left encoder pos meters", leftPosition);
+        SmartDashboard.putNumber("right encoder pos meters", rightPosition);
+        SmartDashboard.putNumber("left encoder velocity meters", this.getLeftVelocity() * rotationsToMeters);
+        SmartDashboard.putNumber("right encoder velocity meters", this.getRightVelocity() * rotationsToMeters);
+
     }
 
     public Command resetEncoders() {

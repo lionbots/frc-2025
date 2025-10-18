@@ -46,11 +46,12 @@ public class RobotContainer {
     private void configureBindings() {
         driverController.x().whileTrue(
             drivebase.resetEncoders()
-            .andThen(drivebase.routine.quasistatic(SysIdRoutine.Direction.kForward))
-            .andThen(drivebase.routine.quasistatic(SysIdRoutine.Direction.kReverse))
-            .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kForward))
-            .andThen(drivebase.routine.dynamic(SysIdRoutine.Direction.kReverse))
+            .andThen(drivebase.angularRoutine.quasistatic(SysIdRoutine.Direction.kForward))
+            .andThen(drivebase.angularRoutine.quasistatic(SysIdRoutine.Direction.kReverse))
+            .andThen(drivebase.angularRoutine.dynamic(SysIdRoutine.Direction.kForward))
+            .andThen(drivebase.angularRoutine.dynamic(SysIdRoutine.Direction.kReverse))
         );
+        driverController.a().onTrue(drivebase.resetEncoders());
     }
 
     /**
