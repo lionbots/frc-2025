@@ -10,15 +10,19 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPLTVController;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.studica.frc.AHRS;
@@ -36,6 +40,7 @@ import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -123,6 +128,34 @@ public class DrivebaseSubsystem extends SubsystemBase {
         setEncoderConversionFactors();
         SmartDashboard.putData("IMU field", imuField);
         SmartDashboard.putData("encoder field", encoderField);
+        SmartDashboard.putData("navx2", navx2);
+
+        RobotConfig config;
+        try{
+            config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                this::getPose,
+                this::resetPose,
+                this::getCurrentSpeeds,
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
+                config, // The robot configuration
+                () -> {
+                  // Boolean supplier that controls when the path will be mirrored for the red alliance
+                  // This will flip the path being followed to the red side of the field.
+                  // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    
+                  var alliance = DriverStation.getAlliance();
+                  if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                  }
+                  return false;
+                },
+                this // Reference to this subsystem to set requirements
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -146,6 +179,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
             this.navx2.resetDisplacement();
             this.odometry.resetPosition(new Rotation2d(0), 0, 0, new Pose2d(0, 0, new Rotation2d(0)));
         }, this);
+    }
+
+    private void resetPose(Pose2d pose) {
+        this.odometry.resetPose(pose);
+    }
+
+    public Pose2d getPose() {
+        return this.odometry.getPoseMeters();
+    }
+
+    public ChassisSpeeds getCurrentSpeeds() {
+        return this.kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(this.getLeftVelocity(), this.getRightVelocity()));
+    }
+
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        DifferentialDriveWheelSpeeds wheelSpeeds = this.kinematics.toWheelSpeeds(speeds);
+        this.voltageDrive(DriveConstants.linearKs * Math.signum(wheelSpeeds.leftMetersPerSecond) + DriveConstants.linearKv * wheelSpeeds.leftMetersPerSecond, DriveConstants.linearKs * Math.signum(wheelSpeeds.rightMetersPerSecond) + DriveConstants.linearKv * wheelSpeeds.rightMetersPerSecond);
     }
 
     public void voltageDrive(double leftVolts, double rightVolts) {
@@ -246,7 +296,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         frMotor.configure(realConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         flMotor.configure(realConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
-
+    
     /**
      * Take parameter for speed and rotation for arcadeDrive and set motors accordingly
      * @param speed The robot's speed along the X axis [-1.0..1.0]. Forward is positive.

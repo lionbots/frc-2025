@@ -25,6 +25,10 @@ public final class Constants {
         
         public static final int currentLimit = 40;
         public static final double slowSpeed = 0.5;
+
+        public static final double linearKs = 0.245;
+        public static final double linearKv = 1.9487;
+        public static final double linearKa = 0.7784;
     }
     public static class PIDConstants {
         public static final double kP = 0.011;
