@@ -79,17 +79,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
                 flMotor.setVoltage(voltage);
             },
             log -> {
-                // wheel diameter 6 inches, wheel circumference is 0.4787787
-                // approximately 7.33 motor rotations per wheel rotation
-                final double rotationsToMeters = 0.4787787 / 7.33;
                 log.motor("left-motor").voltage(
-                    voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts))
-                    .linearPosition(distance.mut_replace(getLeftPosition() * rotationsToMeters, Meters))
-                    .linearVelocity(velocity.mut_replace(getLeftVelocity() * rotationsToMeters / 60, MetersPerSecond));
+                    voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts ))
+                    .linearPosition(distance.mut_replace(getLeftPosition(), Meters))
+                    .linearVelocity(velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
                 log.motor("right-motor").voltage(
                     voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput(), Volts))
-                    .linearPosition(distance.mut_replace(getRightPosition() * rotationsToMeters, Meters))
-                    .linearVelocity(velocity.mut_replace(getRightVelocity() * rotationsToMeters / 60, MetersPerSecond));
+                    .linearPosition(distance.mut_replace(getRightPosition(), Meters))
+                    .linearVelocity(velocity.mut_replace(getRightVelocity(), MetersPerSecond));
             },
             this
         )
@@ -101,11 +98,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
             frMotor.setVoltage(voltage);
             flMotor.setVoltage(voltage.unaryMinus());
         }, log -> {
-            final double rotationsToMeters = 0.4787787 / 7.33;
-            ChassisSpeeds chassisSpeeds = this.kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(this.getLeftVelocity() * rotationsToMeters / 60, this.getRightVelocity() * rotationsToMeters / 60));
-            log.motor("left-motor").voltage(
-                voltage.mut_replace(flMotor.getBusVoltage() * flMotor.getAppliedOutput(), Volts)
-            ).angularPosition(rotation.mut_replace(this.navx2.getAngle(), Degrees)).angularVelocity(angularVelocity.mut_replace(chassisSpeeds.omegaRadiansPerSecond, RadiansPerSecond));
+            log.motor("right-motor")
+                .voltage(voltage.mut_replace(frMotor.getBusVoltage() * frMotor.getAppliedOutput(), Volts))
+                .angularPosition(rotation.mut_replace(-this.navx2.getAngle(), Degrees))
+                .angularVelocity(angularVelocity.mut_replace(this.getCurrentSpeeds().omegaRadiansPerSecond / Math.PI * 180, DegreesPerSecond));
+            // navx2 is clockwise positive while wpilib is counterclockwise positive so negate
         }, 
         this)
     );
@@ -123,21 +120,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
         configurePID();
         setInverted();
         setCurrentLimit();
+        setEncoderConversionFactors();
         SmartDashboard.putData("IMU field", imuField);
         SmartDashboard.putData("encoder field", encoderField);
     }
 
     @Override
     public void periodic() {
-        final double rotationsToMeters = 0.4787787 / 7.33;
-        final double leftPosition = this.getLeftPosition() * rotationsToMeters;
-        final double rightPosition = this.getRightPosition() * rotationsToMeters;
+        final double leftPosition = this.getLeftPosition();
+        final double rightPosition = this.getRightPosition();
         encoderField.setRobotPose(odometry.update(navx2.getRotation2d(), leftPosition, rightPosition));
         imuField.setRobotPose(new Pose2d(navx2.getDisplacementX(), navx2.getDisplacementY(), navx2.getRotation2d()));
         SmartDashboard.putNumber("left encoder pos meters", leftPosition);
         SmartDashboard.putNumber("right encoder pos meters", rightPosition);
-        SmartDashboard.putNumber("left encoder velocity meters", this.getLeftVelocity() * rotationsToMeters);
-        SmartDashboard.putNumber("right encoder velocity meters", this.getRightVelocity() * rotationsToMeters);
+        SmartDashboard.putNumber("left encoder velocity meters", this.getLeftVelocity());
+        SmartDashboard.putNumber("right encoder velocity meters", this.getRightVelocity());
+        SmartDashboard.putNumber("navx2 raw", navx2.getAngle());
 
     }
 
@@ -231,6 +229,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
         flMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         brMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         blMotor.configure(motorSpeed, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    /**
+     * Converts drive encoder position units from rotations to meters and velocity from RPM to m/s
+     */
+    private void setEncoderConversionFactors() {
+        EncoderConfig conversionConfig = new EncoderConfig();
+        // wheel diameter 6 inches, wheel circumference is 0.4787787
+        // approximately 7.33 motor rotations per wheel rotation
+        double rotationsToMeters = 0.4787787 / 7.33;
+        conversionConfig.positionConversionFactor(rotationsToMeters);
+        conversionConfig.velocityConversionFactor(rotationsToMeters / 60);
+        SparkBaseConfig realConfig = new SparkMaxConfig().apply(conversionConfig);
+
+        frMotor.configure(realConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        flMotor.configure(realConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
