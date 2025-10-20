@@ -8,12 +8,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -46,6 +45,9 @@ public class RobotContainer {
         outtake.setDefaultCommand(new OuttakePivotCommand(outtake, operatorController::getRightY));
         // Configure the trigger bindings
         configureBindings();
+
+        NamedCommands.registerCommand("intakeDown", new InstantCommand(() -> intake.setSetpoint(320.0)));
+        NamedCommands.registerCommand("intakeUp", new InstantCommand(() -> intake.setSetpoint(0.0)));
     }
 
     /**
@@ -69,12 +71,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
     */
     public Command getAutonomousCommand() {
-        try {
-            PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
-            return AutoBuilder.followPath(path);
-        } catch (Exception e) {
-            DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-            return Commands.none();
-        }
+        return new PathPlannerAuto("New Auto");
     }
 }
