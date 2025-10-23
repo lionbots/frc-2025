@@ -55,18 +55,17 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
     
     // intake pivot minimum negative velocity
-    private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1, "negative pivot velocity limit");
+    private SendableDouble negPivotVelocityLimit = new SendableDouble(-0.1);
     // intake pivot maximum positive velocity
-    private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1, "positive pivot velocity limit");
-    private SendableDouble minPivotRot = new SendableDouble(-90, "minimum intake pivot rotation");
-    private SendableDouble maxPivotRot = new SendableDouble(0, "maximum intake pivot rotation");
+    private SendableDouble posPivotVelocityLimit = new SendableDouble(0.1);
+    private SendableDouble minPivotRot = new SendableDouble(-90);
+    private SendableDouble maxPivotRot = new SendableDouble(0);
     
   public final String pivotLimEnabledName = "intake pivot position limit enabled";
 
     // Constructor to access the brake mode method
     public IntakeSubsystem() {
         setMotorIdleModes();  
-        SmartDashboard.putData("intake PID", pivotPid);
         this.pivotPid.enableContinuousInput(0, 360);
     }
     
@@ -124,8 +123,6 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     // Method for setting pivot speed if 
     public void setPivotSpeed(double pivotSpeed) {
         double clampedPivotSpeed = MathUtil.clamp(pivotSpeed, negPivotVelocityLimit.getThing(), posPivotVelocityLimit.getThing());
-        SmartDashboard.putNumber("intake pivot speed", pivotSpeed);
-        SmartDashboard.putNumber("intake pivot clamped speed", clampedPivotSpeed);
         pivotMotor.set(clampedPivotSpeed);
     }
     
@@ -167,17 +164,10 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
                 this.numRotations.setThing(this.numRotations.getThing() - 1);
             }
         }
-        
-        SmartDashboard.putNumber("intake pivot raw rotation", rawPivotPosition);
-    // SmartDashboard.putNumber("intake pivot discontinuous rotation", this.getDiscontinuousPivotPosition());
-    // SmartDashboard.putNumber("intake pivot previous rotation", this.prevPivotPosition);
-    // SmartDashboard.putNumber("intake pivot offset rotation", this.getRawPivotPosition() - this.encoderOffset.getThing());
-        SmartDashboard.putNumber("intake true rotation", this.getPivotPosition());
         this.prevPivotPosition = rawPivotPosition;
         
         if (this.setpoint != null) {
             double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
-      // SmartDashboard.putNumber("intake pid calculation", calculation);
             this.setPivotSpeed(calculation);
         }
         
