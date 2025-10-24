@@ -8,7 +8,8 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
-
+import frc.robot.geofence.GeofenceObject;
+import frc.robot.geofence.GeofencePoint;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -46,7 +47,11 @@ public class RobotContainer {
     public RobotContainer() {
         // left trigger axis is definitely not the climber axis i just need a placeholder
         intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
-        drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
+        // drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
+        GeofenceObject[] objects = {new GeofencePoint(13, 4, 1)};
+        drivebase.setDefaultCommand(new GeofenceDriveCommand(drivebase, () -> {
+            return driverController.getLeftX() == 0 && driverController.getLeftY() == 0 ? 0.0 / 0 : Math.toDegrees(Math.atan2(driverController.getLeftX(), driverController.getLeftY()));
+        }, () -> driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis(), objects));
         outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY()));
         // Configure the trigger bindings
         configureBindings();
@@ -96,33 +101,6 @@ public class RobotContainer {
             operatorController.a().onTrue(new InstantCommand(() -> intake.setSetpoint(null), intake));
         }
     }
-    
-    // private Command createTestTrajectoryCommand() {
-    //   DifferentialDriveVoltageConstraint constraint = new DifferentialDriveVoltageConstraint(
-    //     new SimpleMotorFeedforward(
-    //       DriveConstants.ksVolts,
-    //       DriveConstants.kvVoltsSecsPerMeter,
-    //       DriveConstants.kaVoltSecsSquaredPerMeter
-    //     ),
-    //     DriveConstants.kDriveKinematics,
-    //     10
-    //   );
-    
-    //   TrajectoryConfig config = new TrajectoryConfig(
-    //     DriveConstants.kMaxSpeedMetersPerSecond,
-    //     DriveConstants.kMaxAccelerationMetersPerSecondSquared
-    //   ).setKinematics(DriveConstants.kDriveKinematics).addConstraint(constraint);
-    
-    //   Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-    //     DriveConstants.simDefaultPose,
-    //     List.of(new Translation2d(DriveConstants.simDefaultPose.getX() + 1, DriveConstants.simDefaultPose.getY() + 1), new Translation2d(DriveConstants.simDefaultPose.getX() + 2, DriveConstants.simDefaultPose.getY() - 1)),
-    //     new Pose2d(DriveConstants.simDefaultPose.getX() + 3, DriveConstants.simDefaultPose.getY(), new Rotation2d()),
-    //     config
-    //   );
-    
-    //   drivebase.field.getObject("Trajectory").setTrajectory(trajectory);
-    //   return new FollowTrajectoryCommand(drivebase, trajectory);
-    // }
     
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

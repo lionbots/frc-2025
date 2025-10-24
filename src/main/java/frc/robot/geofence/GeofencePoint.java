@@ -33,13 +33,13 @@ public class GeofencePoint implements GeofenceObject {
     public static Translation2d pointDamping(double x, double y, Translation2d robotMotion, Translation2d robotPos, double robotRadius, double buffer) {
         // this method exists because line motion modification also needs point damping
 
-        double robotSpeed = robotMotion.getDistance(new Translation2d(0, 0));
+        double robotSpeed = robotMotion.getNorm();
         double distanceToObject = Math.sqrt(Math.pow(robotPos.getX() - x, 2) + Math.pow(robotPos.getY() - y, 2));
 
         if (distanceToObject > robotRadius + buffer || robotSpeed < 0.1) {
             return robotMotion;
         }
-
+        
         double normalizedToObjectX = (robotPos.getX() - x) / distanceToObject;
         double normalizedToObjectY = (robotPos.getY() - y) / distanceToObject;
         double dotProduct = robotMotion.getX() * normalizedToObjectX + robotMotion.getY() * normalizedToObjectY;
@@ -49,13 +49,16 @@ public class GeofencePoint implements GeofenceObject {
         // component of robot motion vector perpendicular to the line of sight to the point
         double rejectionX = robotMotion.getX() - projectionX;
         double rejectionY = robotMotion.getY() - projectionY;
+        System.out.println("robot motion: (" + robotMotion.getX() + ", " + robotMotion.getY() + ") projection: (" + projectionX + ", " + projectionY + ") rejection: (" + rejectionX + ", " + rejectionY + ")");
 
         // reduce the magnitude of the projection to prevent the robot from going toward the point
         double projectionCoefficient = robotSpeed - dotProduct;
         projectionX *= projectionCoefficient;
         projectionY *= projectionCoefficient;
 
+        System.out.println("new projection: (" + projectionX + ", " + projectionY + ")");
+
         Translation2d modifiedMotion = new Translation2d(projectionX + rejectionX, projectionY + rejectionY);
-        return modifiedMotion.times(modifiedMotion.getDistance(new Translation2d(0, 0)) / robotSpeed);
+        return modifiedMotion.times(modifiedMotion.getNorm() / robotSpeed);
     }
 }

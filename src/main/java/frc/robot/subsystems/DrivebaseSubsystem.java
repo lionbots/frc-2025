@@ -18,6 +18,7 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -206,17 +207,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // Returns the robot heading (0 - 180/-180) from the gyroscope and gets the mirror value if the robot is driving backwards
     public double getAngle(boolean backwards) {
-        double gyroscopeAngle = (navx2.getAngle() * -1) + 180;
-        if(backwards) {
-            gyroscopeAngle = (gyroscopeAngle) % 360;
-        }
-        if(gyroscopeAngle % 360  > 180) {
-            return (gyroscopeAngle % 360) - 360;
-        } else if (gyroscopeAngle % 360 < -180) {
-            return (gyroscopeAngle % 360) + 360;
-        } else {
-            return gyroscopeAngle % 360;
-        }
+        return MathUtil.inputModulus(-navx2.getAngle() - (backwards ? 180 : 0), -180, 180);
     }
 
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
