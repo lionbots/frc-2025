@@ -40,6 +40,9 @@ public class GeofenceDriveCommand extends Command {
         Pose2d robotPose = this.drivebase.getPose();
         double suppliedRotation = this.rotationSupplier.get();
         double suppliedSpeed = this.speedSupplier.get();
+        if (Math.abs(suppliedSpeed) < 0.01) {
+            suppliedSpeed = 0;
+        }
         Rotation2d inputRotation = Double.isNaN(suppliedRotation) ? robotPose.getRotation() : new Rotation2d(suppliedRotation);
         Translation2d inputMotion = new Translation2d(suppliedSpeed, inputRotation);
         SmartDashboard.putString("drive inputs", "speed: " + suppliedSpeed + " rotation: " + inputRotation.getDegrees());

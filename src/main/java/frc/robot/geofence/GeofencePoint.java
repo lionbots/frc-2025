@@ -1,6 +1,7 @@
 package frc.robot.geofence;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class GeofencePoint implements GeofenceObject {
     double x;
@@ -36,12 +37,12 @@ public class GeofencePoint implements GeofenceObject {
         double robotSpeed = robotMotion.getNorm();
         double distanceToObject = Math.sqrt(Math.pow(robotPos.getX() - x, 2) + Math.pow(robotPos.getY() - y, 2));
 
-        if (distanceToObject > robotRadius + buffer || robotSpeed < 0.1) {
+        if (distanceToObject > robotRadius + buffer || robotSpeed < 0.05) {
             return robotMotion;
         }
         
-        double normalizedToObjectX = (robotPos.getX() - x) / distanceToObject;
-        double normalizedToObjectY = (robotPos.getY() - y) / distanceToObject;
+        double normalizedToObjectX = (x - robotPos.getX()) / distanceToObject;
+        double normalizedToObjectY = (y - robotPos.getY()) / distanceToObject;
         double dotProduct = robotMotion.getX() * normalizedToObjectX + robotMotion.getY() * normalizedToObjectY;
         // component of robot motion vector toward the point
         double projectionX = normalizedToObjectX * dotProduct;
@@ -49,14 +50,19 @@ public class GeofencePoint implements GeofenceObject {
         // component of robot motion vector perpendicular to the line of sight to the point
         double rejectionX = robotMotion.getX() - projectionX;
         double rejectionY = robotMotion.getY() - projectionY;
-        System.out.println("robot motion: (" + robotMotion.getX() + ", " + robotMotion.getY() + ") projection: (" + projectionX + ", " + projectionY + ") rejection: (" + rejectionX + ", " + rejectionY + ")");
+
+        SmartDashboard.putString("robot motion", "(" + robotMotion.getX() + ", " + robotMotion.getY() + ")");
+        SmartDashboard.putString("projection", "(" + projectionX + ", " + projectionY + ")");
+        SmartDashboard.putString("rejection", "(" + rejectionX + ", "+ rejectionY + ")");
+        SmartDashboard.putNumber("robot speed", robotSpeed);
+        SmartDashboard.putNumber("dot product", dotProduct);
 
         // reduce the magnitude of the projection to prevent the robot from going toward the point
         double projectionCoefficient = robotSpeed - dotProduct;
         projectionX *= projectionCoefficient;
         projectionY *= projectionCoefficient;
 
-        System.out.println("new projection: (" + projectionX + ", " + projectionY + ")");
+        SmartDashboard.putString("new projection", "(" + projectionX + ", " + projectionY + ")");
 
         Translation2d modifiedMotion = new Translation2d(projectionX + rejectionX, projectionY + rejectionY);
         return modifiedMotion.times(modifiedMotion.getNorm() / robotSpeed);
