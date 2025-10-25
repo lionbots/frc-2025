@@ -9,6 +9,10 @@ public class GeofencePoint implements GeofenceObject {
     double x;
     double y;
     /**
+     * Limit that robot cannot pass
+     */
+    double radius;
+    /**
      * Distance over which the robot's speed goes from normal to zero
      */
     double buffer;
@@ -18,15 +22,16 @@ public class GeofencePoint implements GeofenceObject {
     static final StructPublisher<Translation2d> newProjectionPublisher = NetworkTableInstance.getDefault().getStructTopic("new projection", Translation2d.struct).publish();
     static final StructPublisher<Translation2d> modifiedMotionPublisher = NetworkTableInstance.getDefault().getStructTopic("new projection", Translation2d.struct).publish();
 
-    public GeofencePoint(double x, double y, double buffer) {
+    public GeofencePoint(double x, double y, double radius, double buffer) {
         this.x = x;
         this.y = y;
+        this.radius = radius;
         this.buffer = buffer;
     }
 
     @Override
     public Translation2d modifyMotion(Translation2d robotMotion, Translation2d robotPos, double robotRadius) {
-        return GeofencePoint.pointDamping(this.x, this.y, robotMotion, robotPos, robotRadius, this.buffer);
+        return GeofencePoint.pointDamping(this.x, this.y, robotMotion, robotPos, robotRadius, this.radius, this.buffer);
     }
 
     /**
@@ -36,15 +41,17 @@ public class GeofencePoint implements GeofenceObject {
      * @param robotMotion Field relative robot velocity
      * @param robotPos Robot center position
      * @param robotRadius Robot radius
+     * @param radius Radius around object that robot cannot pass
+     * @param buffer Radius around object that robot begins to slow
      * @return Modified velocity
      */
-    public static Translation2d pointDamping(double x, double y, Translation2d robotMotion, Translation2d robotPos, double robotRadius, double buffer) {
+    public static Translation2d pointDamping(double x, double y, Translation2d robotMotion, Translation2d robotPos, double robotRadius, double radius, double buffer) {
         // this method exists because line motion modification also needs point damping
 
         double robotSpeed = robotMotion.getNorm();
         double distanceToObject = Math.sqrt(Math.pow(robotPos.getX() - x, 2) + Math.pow(robotPos.getY() - y, 2));
 
-        if (distanceToObject > robotRadius + buffer || robotSpeed < 0.05) {
+        if (distanceToObject > robotRadius + buffer + radius || robotSpeed < 0.05) {
             return robotMotion;
         }
         
@@ -65,12 +72,13 @@ public class GeofencePoint implements GeofenceObject {
         rejectionPublisher.set(new Translation2d(rejectionX, rejectionY));
 
         // reduce the magnitude of the projection to prevent the robot from going toward the point
-        double projectionCoefficient = robotSpeed - dotProduct;
+        double projectionCoefficient = (distanceToObject - robotRadius - radius) / buffer;
         projectionX *= projectionCoefficient;
         projectionY *= projectionCoefficient;
         Translation2d modifiedMotion = new Translation2d(projectionX + rejectionX, projectionY + rejectionY);
         modifiedMotion = modifiedMotion.times(modifiedMotion.getNorm() / robotSpeed);
 
+        SmartDashboard.putNumber("projection coefficient", projectionCoefficient);
         newProjectionPublisher.set(new Translation2d(projectionX, projectionY));
         modifiedMotionPublisher.set(modifiedMotion);
 
