@@ -17,10 +17,10 @@ public class GeofencePoint implements GeofenceObject {
      */
     double buffer;
 
-    static final StructPublisher<Translation2d> projectionPublisher = NetworkTableInstance.getDefault().getStructTopic("projection", Translation2d.struct).publish();
-    static final StructPublisher<Translation2d> rejectionPublisher = NetworkTableInstance.getDefault().getStructTopic("rejection", Translation2d.struct).publish();
-    static final StructPublisher<Translation2d> newProjectionPublisher = NetworkTableInstance.getDefault().getStructTopic("new projection", Translation2d.struct).publish();
-    static final StructPublisher<Translation2d> modifiedMotionPublisher = NetworkTableInstance.getDefault().getStructTopic("new projection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> projectionPublisher = NetworkTableInstance.getDefault().getStructTopic("/geofence/point/projection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> rejectionPublisher = NetworkTableInstance.getDefault().getStructTopic("/geofence/point/rejection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> newProjectionPublisher = NetworkTableInstance.getDefault().getStructTopic("/geofence/point/new projection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> modifiedMotionPublisher = NetworkTableInstance.getDefault().getStructTopic("/geofence/point/new projection", Translation2d.struct).publish();
 
     public GeofencePoint(double x, double y, double radius, double buffer) {
         this.x = x;

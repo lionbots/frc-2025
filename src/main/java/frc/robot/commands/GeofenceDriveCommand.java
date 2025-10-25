@@ -45,11 +45,13 @@ public class GeofenceDriveCommand extends Command {
         }
         Rotation2d inputRotation = Double.isNaN(suppliedRotation) ? robotPose.getRotation() : new Rotation2d(suppliedRotation);
         Translation2d inputMotion = new Translation2d(suppliedSpeed, inputRotation);
-        SmartDashboard.putString("drive inputs", "speed: " + suppliedSpeed + " rotation: " + inputRotation.getDegrees());
-        SmartDashboard.putString("input cartesian velocity", inputMotion.getX() + " " + inputMotion.getY());
-        if (suppliedSpeed != 0) {
-            SmartDashboard.putString("input polar velocity", "speed: " + inputMotion.getNorm() + " rotation: " + inputMotion.getAngle().getDegrees() + " source rotation: " + inputRotation);
-        }
+        SmartDashboard.putNumber("geofenceCommand/joystickSpeed", suppliedSpeed);
+        SmartDashboard.putNumber("geofenceCommand/joystickRotation", suppliedRotation);
+        SmartDashboard.putNumber("geofenceCommand/inputX", inputMotion.getX());
+        SmartDashboard.putNumber("geofenceCommand/inputY", inputMotion.getY());
+        // if (suppliedSpeed != 0) {
+        //     SmartDashboard.putString("input polar velocity", "speed: " + inputMotion.getNorm() + " rotation: " + inputMotion.getAngle().getDegrees() + " source rotation: " + inputRotation);
+        // }
         for (GeofenceObject object : geofenceObjects) {
             inputMotion = object.modifyMotion(inputMotion, robotPose.getTranslation(), this.robotRadius);
         }

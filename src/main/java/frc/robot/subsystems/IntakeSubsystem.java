@@ -50,8 +50,8 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     // intake pivot is controlled by a motor attached to a small gear which is attached to large gear. small gear has 16 teeth, large has 48 so 3:1 input:output rotations
     // encoder is attached to small gear, so encoder reports three rotations for every intake pivot rotation
     // for magic align need convert encoder rotations to pivot rotations
-    private SendableDouble encoderOffset = new SendableDouble(0, "intake pivot encoder offset");
-    private SendableDouble numRotations = new SendableDouble(0, "intake pivot num rotations");
+    private SendableDouble encoderOffset = new SendableDouble(0, "intake/pivot/encoder offset");
+    private SendableDouble numRotations = new SendableDouble(0, "intake/pivot/num rotations");
     private double prevPivotPosition = RobotBase.isSimulation() ? (IntakeConstants.simPivotStartDeg - 90) * IntakeConstants.pivotGearRatio : pivotEncoder.get();
     
     // intake pivot minimum negative velocity
@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private SendableDouble minPivotRot = new SendableDouble(-90);
     private SendableDouble maxPivotRot = new SendableDouble(0);
     
-  public final String pivotLimEnabledName = "intake pivot position limit enabled";
+  public final String pivotLimEnabledName = "intake/pivot/position limit enabled";
 
     // Constructor to access the brake mode method
     public IntakeSubsystem() {

@@ -212,8 +212,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // Returns an amount of motor effort/speed to turn based on the distance between the robot heading and a target point (0 - 180/-180°) using the PID
     public double angleToRotation(double target, boolean backwards) {
-        SmartDashboard.putNumber("Current angle", getAngle(backwards));
-        SmartDashboard.putNumber("Target", target);
+        SmartDashboard.putNumber("drive/current angle", getAngle(backwards));
+        SmartDashboard.putNumber("drive/target angle", target);
         return PID.calculate(getAngle(backwards), target);
     }
 }
