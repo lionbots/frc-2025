@@ -1,6 +1,8 @@
 package frc.robot.geofence;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class GeofencePoint implements GeofenceObject {
@@ -10,6 +12,11 @@ public class GeofencePoint implements GeofenceObject {
      * Distance over which the robot's speed goes from normal to zero
      */
     double buffer;
+
+    static final StructPublisher<Translation2d> projectionPublisher = NetworkTableInstance.getDefault().getStructTopic("projection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> rejectionPublisher = NetworkTableInstance.getDefault().getStructTopic("rejection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> newProjectionPublisher = NetworkTableInstance.getDefault().getStructTopic("new projection", Translation2d.struct).publish();
+    static final StructPublisher<Translation2d> modifiedMotionPublisher = NetworkTableInstance.getDefault().getStructTopic("new projection", Translation2d.struct).publish();
 
     public GeofencePoint(double x, double y, double buffer) {
         this.x = x;
@@ -51,20 +58,22 @@ public class GeofencePoint implements GeofenceObject {
         double rejectionX = robotMotion.getX() - projectionX;
         double rejectionY = robotMotion.getY() - projectionY;
 
-        SmartDashboard.putString("robot motion", "(" + robotMotion.getX() + ", " + robotMotion.getY() + ")");
-        SmartDashboard.putString("projection", "(" + projectionX + ", " + projectionY + ")");
-        SmartDashboard.putString("rejection", "(" + rejectionX + ", "+ rejectionY + ")");
         SmartDashboard.putNumber("robot speed", robotSpeed);
         SmartDashboard.putNumber("dot product", dotProduct);
+        SmartDashboard.putNumber("distance to object", distanceToObject);
+        projectionPublisher.set(new Translation2d(projectionX, projectionY));
+        rejectionPublisher.set(new Translation2d(rejectionX, rejectionY));
 
         // reduce the magnitude of the projection to prevent the robot from going toward the point
         double projectionCoefficient = robotSpeed - dotProduct;
         projectionX *= projectionCoefficient;
         projectionY *= projectionCoefficient;
-
-        SmartDashboard.putString("new projection", "(" + projectionX + ", " + projectionY + ")");
-
         Translation2d modifiedMotion = new Translation2d(projectionX + rejectionX, projectionY + rejectionY);
-        return modifiedMotion.times(modifiedMotion.getNorm() / robotSpeed);
+        modifiedMotion = modifiedMotion.times(modifiedMotion.getNorm() / robotSpeed);
+
+        newProjectionPublisher.set(new Translation2d(projectionX, projectionY));
+        modifiedMotionPublisher.set(modifiedMotion);
+
+        return modifiedMotion;
     }
 }
