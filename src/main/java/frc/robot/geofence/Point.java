@@ -5,7 +5,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class GeofencePoint implements GeofenceObject {
+public class Point implements GeofenceObject {
     double x;
     double y;
     /**
@@ -22,7 +22,7 @@ public class GeofencePoint implements GeofenceObject {
     static final StructPublisher<Translation2d> newProjectionPublisher = NetworkTableInstance.getDefault().getStructTopic("/geofence/point/new projection", Translation2d.struct).publish();
     static final StructPublisher<Translation2d> modifiedMotionPublisher = NetworkTableInstance.getDefault().getStructTopic("/geofence/point/new projection", Translation2d.struct).publish();
 
-    public GeofencePoint(double x, double y, double radius, double buffer) {
+    public Point(double x, double y, double radius, double buffer) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -31,7 +31,7 @@ public class GeofencePoint implements GeofenceObject {
 
     @Override
     public Translation2d modifyMotion(Translation2d robotMotion, Translation2d robotPos, double robotRadius) {
-        return GeofencePoint.pointDamping(this.x, this.y, robotMotion, robotPos, robotRadius, this.radius, this.buffer);
+        return Point.pointDamping(this.x, this.y, robotMotion, robotPos, robotRadius, this.radius, this.buffer);
     }
 
     /**

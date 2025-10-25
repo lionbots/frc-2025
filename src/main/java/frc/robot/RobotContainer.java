@@ -9,7 +9,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import frc.robot.geofence.GeofenceObject;
-import frc.robot.geofence.GeofencePoint;
+import frc.robot.geofence.Point;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -48,7 +48,7 @@ public class RobotContainer {
         // left trigger axis is definitely not the climber axis i just need a placeholder
         intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
         // drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
-        GeofenceObject[] objects = {new GeofencePoint(13, 4, 1, 0.5)};
+        GeofenceObject[] objects = {new Point(13, 4, 1, 0.5)};
         drivebase.setDefaultCommand(new GeofenceDriveCommand(drivebase, () -> {
             return driverController.getLeftX() == 0 && driverController.getLeftY() == 0 ? 0.0 / 0 : Math.toDegrees(Math.atan2(driverController.getLeftX(), driverController.getLeftY()));
         }, () -> driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis(), objects));
