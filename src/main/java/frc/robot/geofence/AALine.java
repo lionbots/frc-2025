@@ -5,6 +5,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+/**
+ * Axis aligned line
+ * 
+ * An infintely long line aligned with an axis. Has buffer over which the robot will slow down and a radius at which the robot will stop.
+ */
 public class AALine implements GeofenceObject {
     double axis;
     double radius;
@@ -62,6 +67,8 @@ public class AALine implements GeofenceObject {
         double distance, dampedMotion, motion;
         if (this.robotPosGreater) {
             distance = (this.axis + this.radius) - (robotAxisPos - robotRadius);
+            // the closer the robot's radius approaches the line's radius, the slow the robot moves toward the line
+            // everything here is negative so spam unary negation and max() and clamp() until something appears to work
             dampedMotion = MathUtil.clamp(distance, -this.buffer, 0) / this.buffer;
             motion = Math.max(robotAxisMotion, dampedMotion);
         } else {

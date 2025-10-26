@@ -16,9 +16,7 @@ public class GeofenceDriveCommand extends Command {
     private final Supplier<Double> speedSupplier;
     private final GeofenceObject[] geofenceObjects;
     private Rotation2d lastCommandedRot = new Rotation2d(0);
-    
-    // private final double maximumSpeed = 4;
-    private final double robotRadius = 0.8;
+    private final double robotRadius = 0.8; // radius for geofencing
 
     /**
      * Constructs a GeofenceDriveCommand
@@ -47,36 +45,39 @@ public class GeofenceDriveCommand extends Command {
         // hold previous intended rotation if there aint no rotation input
         // previous intended rotation can be either input from controller or modified input from geofencing
         Rotation2d inputRotation = Double.isNaN(suppliedRotation) ? this.lastCommandedRot : new Rotation2d(suppliedRotation);
+        // convert input rotatino and speed into XY motion for geofencing
         Translation2d inputMotion = new Translation2d(suppliedSpeed, inputRotation);
+        SmartDashboard.putNumber("geofenceCommand/lastCommandedRot", this.lastCommandedRot.getDegrees());
         SmartDashboard.putNumber("geofenceCommand/joystickSpeed", suppliedSpeed);
         SmartDashboard.putNumber("geofenceCommand/joystickRotation", suppliedRotation);
         SmartDashboard.putNumber("geofenceCommand/inputX", inputMotion.getX());
         SmartDashboard.putNumber("geofenceCommand/inputY", inputMotion.getY());
-        // if (suppliedSpeed != 0) {
-        //     SmartDashboard.putString("input polar velocity", "speed: " + inputMotion.getNorm() + " rotation: " + inputMotion.getAngle().getDegrees() + " source rotation: " + inputRotation);
-        // }
+        // not finding a proper order for geofencing objects may cause problems in the future
         for (GeofenceObject object : geofenceObjects) {
             inputMotion = object.modifyMotion(inputMotion, robotPose.getTranslation(), this.robotRadius);
         }
+        // if there's no motion, can't get inputMotion's angle
         boolean noMotion = Math.abs(inputMotion.getNorm()) < 0.001;
+        // can't drive a robot toward a rotation that doesn't exist
         boolean noSuppliedRot = Double.isNaN(suppliedRotation);
         double outputRotRate = 0;
+        // if rotating in place
         if (noMotion && !noSuppliedRot) {
             outputRotRate = drivebase.angleToRotation(suppliedRotation, suppliedSpeed < 0);
             this.lastCommandedRot = new Rotation2d(Math.toRadians(suppliedRotation));
         }
+        // if translating
         if (!noMotion) {
             outputRotRate = drivebase.angleToRotation(inputMotion.getAngle().getDegrees(), suppliedSpeed < 0);
             this.lastCommandedRot = inputMotion.getAngle();
         }
+        // if not moving
         if (noMotion && noSuppliedRot) {
             outputRotRate = drivebase.angleToRotation(this.lastCommandedRot.getDegrees(), suppliedSpeed < 0);
         }
         SmartDashboard.putNumber("geofenceCommand/modifiedInputX", inputMotion.getX());
         SmartDashboard.putNumber("geofenceCommand/modifiedInputY", inputMotion.getY());
-        SmartDashboard.putNumber("geofenceCommand/lastCommandedRot", this.lastCommandedRot.getDegrees());
-        // if speed is 0, inputMotion.getAngle() will fail
-        // NaN is for a good reason i swear i forgor why
+        SmartDashboard.putNumber("geofenceCommand/newCommandedRot", this.lastCommandedRot.getDegrees());
         // the Math.signum thing is a cheap hack and will probably cause problems
         double outputSpeed = inputMotion.getNorm() * Math.signum(suppliedSpeed);
         SmartDashboard.putNumber("geofenceCommand/outputSpeed", outputSpeed);

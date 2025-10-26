@@ -5,6 +5,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * Geofencing point
+ * 
+ * A point with a buffer over which the robot will slow down and a radius at which the robot will stop. The robot's motion rotates around the point.
+ */
 public class Point implements GeofenceObject {
     double x;
     double y;
