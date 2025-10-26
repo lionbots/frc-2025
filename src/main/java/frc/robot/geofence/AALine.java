@@ -47,7 +47,7 @@ public class AALine implements GeofenceObject {
         }
         double distance = (this.axis - this.radius) - ((this.horizontal ? robotPos.getY() : robotPos.getX()) + robotRadius);
         double dampedMotion = MathUtil.clamp(distance, 0, this.buffer) / this.buffer;
-        double motion = Math.min(this.horizontal ? robotPos.getY() : robotMotion.getX(), dampedMotion);
+        double motion = Math.min(this.horizontal ? robotMotion.getY() : robotMotion.getX(), dampedMotion);
         this.distancePublisher.set(distance);
         this.dampedMotionPublisher.set(dampedMotion);
         this.modifiedMotionPublisher.set(motion);
