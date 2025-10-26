@@ -33,32 +33,42 @@ public final class Constants {
         public static final int currentLimit = 40;
         public static final double slowSpeed = 0.5;
         
-        // all these values are placeholders
+        // some values guessed, some values measured
         public static final int numMotors = 2;
-        public static final int gearing = 8;
-        public static final int momentIntertia = 3;
-        public static final double massKg = 50;
+        public static final double gearing = 8.46;
+        public static final int momentIntertia = 30; // calculated with sysid, looks suspicious tho
+        public static final double massKg = 49.44;
         public static final double wheelRadiusMeters = 0.076;
-        public static final double trackWidthMeters = 0.58;
+        public static final double trackWidthMeters = 0.546;
         public static final Matrix<N7,N1> measurementStdDevs = null;
         public static final Pose2d simDefaultPose = new Pose2d(8.775, 4.025, new Rotation2d());
         
-        // more placeholders cuz i couldnt get a robot to characterize
-        public static final double ksVolts = 0.22;
-        public static final double kvVoltsSecsPerMeter = 1.98;
-        public static final double kaVoltSecsSquaredPerMeter = 0.2;
+        // feedforward constants from linear sysid
+        public static final double ksVolts = 0.24507;
+        public static final double kvVoltsSecsPerMeter = 1.9463;
+        public static final double kaVoltSecsSquaredPerMeter = 0.78253;
+
         public static final double kPDriveVel = 8.5;
         public static final double kMaxSpeedMetersPerSecond = 3;
         public static final double kMaxAccelerationMetersPerSecondSquared = 1;
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(trackWidthMeters);
+
+        public static class PIDConstants {
+            public static final double kP = 0.011;
+            public static final double kI = 0.001;
+            public static final double kD = 0.000;
+            public static final double tolerance = 2;
+        }
+
+        // feedbackward constants for simulated drivebase because the drivebase characteristics i used are probably all wrong
+        public static class SimulatedPIDConstants {
+            public static final double kP = 0.1;
+            public static final double kI = 0;
+            public static final double kD = 0.05;
+            public static final double tolerance = PIDConstants.tolerance;
+        }
     }
-    public static class PIDConstants {
-        public static final double kP = 0.011;
-        public static final double kI = 0.001;
-        public static final double kD = 0.000;
-        
-        public static final double tolerance = 2;
-    }
+
     
     public static class IntakeConstants {
         public static int pivotMotorPort = 1;

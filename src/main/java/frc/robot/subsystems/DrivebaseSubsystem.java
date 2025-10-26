@@ -34,7 +34,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.PIDConstants;
 
 public class DrivebaseSubsystem extends SubsystemBase {
     // front right motor, the type is brushless
@@ -56,7 +55,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     private final AHRS navx2 = new AHRS(NavXComType.kUSB1);
     private final SimDouble yawSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[2]"), "Yaw"));
-    private final PIDController PID = new PIDController(PIDConstants.kP, PIDConstants.kI, PIDConstants.kD);
+    private final PIDController PID = RobotBase.isReal() ? new PIDController(DriveConstants.PIDConstants.kP, DriveConstants.PIDConstants.kI, DriveConstants.PIDConstants.kD) : new PIDController(DriveConstants.SimulatedPIDConstants.kP, DriveConstants.SimulatedPIDConstants.kI, DriveConstants.SimulatedPIDConstants.kD);
 
     private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
         new Rotation2d(Math.toRadians(navx2.getYaw())),
@@ -76,6 +75,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
         setCurrentLimit();
         if (RobotBase.isSimulation()) {
             SmartDashboard.putData("Field", field);
+            SmartDashboard.putData("drive/pid", PID);
         }
     }
 
@@ -130,7 +130,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // Makes the PID continuous at 0/360 and sets the tolerance to 2
     private void configurePID() {
         PID.enableContinuousInput(-180, 180);
-        PID.setTolerance(PIDConstants.tolerance);
+        PID.setTolerance(RobotBase.isReal() ? DriveConstants.PIDConstants.tolerance : DriveConstants.PIDConstants.tolerance);
     }
 
     /**
