@@ -51,7 +51,8 @@ public class RobotContainer {
         // drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
         GeofenceObject[] objects = {
             new Point(13, 4, 1, 0.5),
-            new AALine("top border", 8, 0.5, 0.5, true),
+            new AALine("top border", 8, 0.5, 0.5, true, false),
+            new AALine("left border", 0, 0.5, 0.5, false, true),
         };
         drivebase.setDefaultCommand(new GeofenceDriveCommand(drivebase, () -> {
             return driverController.getLeftX() == 0 && driverController.getLeftY() == 0 ? 0.0 / 0 : Math.toDegrees(Math.atan2(driverController.getLeftX(), driverController.getLeftY()));

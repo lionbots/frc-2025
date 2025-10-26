@@ -11,6 +11,7 @@ public class AALine implements GeofenceObject {
     double buffer;
     String name;
     boolean horizontal;
+    boolean robotPosGreater;
 
     DoublePublisher distancePublisher;
     DoublePublisher dampedMotionPublisher;
@@ -22,17 +23,28 @@ public class AALine implements GeofenceObject {
      * @param radius Radius at which the robot will stop
      * @param buffer Buffer over which the robot slows down
      * @param horizontal Whether the line is horizontal
+     * @param robotPosGreater Whether the robot's position on the axis is greater than the line's
      */
-    public AALine(double axis, double radius, double buffer, boolean horizontal) {
-        this("", axis, radius, buffer, horizontal);
+    public AALine(double axis, double radius, double buffer, boolean horizontal, boolean robotPosGreater) {
+        this("", axis, radius, buffer, horizontal, robotPosGreater);
     }
 
-    public AALine(String name, double axis, double radius, double buffer, boolean horizontal) {
+    /** 
+     * Construct an infinitely long axis aligned line
+     * @param name Name of the line, used for NetworkTables topics
+     * @param axis Y coordinate of the line if horizontal or X coordinate if not
+     * @param radius Radius at which the robot will stop
+     * @param buffer Buffer over which the robot slows down
+     * @param horizontal Whether the line is horizontal
+     * @param robotPosGreater Whether the robot's position on the axis is greater than the line's
+     */
+    public AALine(String name, double axis, double radius, double buffer, boolean horizontal, boolean robotPosGreater) {
         this.name = name + "/";
         this.axis = axis;
         this.radius = radius;
         this.buffer = buffer;
         this.horizontal = horizontal;
+        this.robotPosGreater = robotPosGreater;
 
         NetworkTableInstance defaultInstance = NetworkTableInstance.getDefault();
         this.distancePublisher = defaultInstance.getDoubleTopic("/geofence/" + this.name + "distance").publish();
@@ -42,12 +54,21 @@ public class AALine implements GeofenceObject {
 
     @Override
     public Translation2d modifyMotion(Translation2d robotMotion, Translation2d robotPos, double robotRadius) {
-        if ((this.horizontal && Math.signum(robotMotion.getY()) != Math.signum(this.axis - robotPos.getY())) || (!this.horizontal && Math.signum(robotMotion.getX()) != Math.signum(this.axis - robotPos.getX()))) {
+        double robotAxisPos = this.horizontal ? robotPos.getY() : robotPos.getX();
+        double robotAxisMotion = this.horizontal ? robotMotion.getY() : robotMotion.getX();
+        if (Math.signum(robotAxisMotion) != Math.signum(this.axis - robotAxisPos)) {
             return robotMotion;
         }
-        double distance = (this.axis - this.radius) - ((this.horizontal ? robotPos.getY() : robotPos.getX()) + robotRadius);
-        double dampedMotion = MathUtil.clamp(distance, 0, this.buffer) / this.buffer;
-        double motion = Math.min(this.horizontal ? robotMotion.getY() : robotMotion.getX(), dampedMotion);
+        double distance, dampedMotion, motion;
+        if (this.robotPosGreater) {
+            distance = (this.axis + this.radius) - (robotAxisPos - robotRadius);
+            dampedMotion = MathUtil.clamp(distance, -this.buffer, 0) / this.buffer;
+            motion = Math.max(robotAxisMotion, dampedMotion);
+        } else {
+            distance = (this.axis - this.radius) - (robotAxisPos + robotRadius);
+            dampedMotion = MathUtil.clamp(distance, 0, this.buffer) / this.buffer;
+            motion = Math.min(robotAxisMotion, dampedMotion);
+        }
         this.distancePublisher.set(distance);
         this.dampedMotionPublisher.set(dampedMotion);
         this.modifiedMotionPublisher.set(motion);
