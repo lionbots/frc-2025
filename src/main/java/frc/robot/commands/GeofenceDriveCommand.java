@@ -13,7 +13,7 @@ import frc.robot.subsystems.DrivebaseSubsystem;
 public class GeofenceDriveCommand extends Command {
     private final DrivebaseSubsystem drivebase;
     private final Supplier<Double> rotationSupplier;
-    private final Supplier<Double> speedSupplier;
+    private Supplier<Double> speedSupplier;
     private final GeofenceObject[] geofenceObjects;
     private Rotation2d lastCommandedRot = new Rotation2d(0);
     private final double robotRadius = 0.8; // radius for geofencing

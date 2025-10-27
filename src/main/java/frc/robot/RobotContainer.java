@@ -11,6 +11,10 @@ import frc.robot.commands.*;
 import frc.robot.geofence.GeofenceObject;
 import frc.robot.geofence.AALine;
 import frc.robot.geofence.Point;
+
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -38,25 +42,33 @@ public class RobotContainer {
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.driverControllerPort);
     private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.operatorControllerPort);
-    
-    // create here cuz "Loop time of 0.02s overrun" if in autonomous init
-    // apparently creating the trajectory and LTVUnicycleController takes a while
-    // private final Command trajectoryCommand = createTestTrajectoryCommand();
-    
+    private final CommandXboxController dumberDriverController = new CommandXboxController(1);
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         // left trigger axis is definitely not the climber axis i just need a placeholder
         intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
-        // drivebase.setDefaultCommand(new FieldCentricDriveCommand(drivebase, () -> driverController.getRightTriggerAxis(), () -> driverController.getLeftTriggerAxis() * -1, () -> driverController.getLeftX(), () -> driverController.getLeftY() * -1, () -> driverController.rightBumper().getAsBoolean()));
         GeofenceObject[] objects = {
             new Point(13, 4, 1, 0.5),
             new AALine("top border", 8, 0.5, 0.5, true, false),
             new AALine("left border", 0, 0.5, 0.5, false, true),
         };
-        drivebase.setDefaultCommand(new GeofenceDriveCommand(drivebase, () -> {
-            return driverController.getLeftX() == 0 && driverController.getLeftY() == 0 ? 0.0 / 0 : Math.toDegrees(Math.atan2(driverController.getLeftX(), driverController.getLeftY()));
-        }, () -> driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis(), objects));
+
+        Supplier<Double> speedSupplier;
+        Supplier<Double> rotSupplier;
+        if (RobotBase.isSimulation()) {
+            speedSupplier = () -> driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis() + (dumberDriverController.getRawAxis(5) + 1) / 2 - (dumberDriverController.getRawAxis(2) + 1) / 2;
+            rotSupplier = () -> {
+                double leftX = driverController.getLeftX() + MathUtil.applyDeadband(dumberDriverController.getLeftX(), 0.25, 1);
+                double leftY = driverController.getLeftY() + MathUtil.applyDeadband(dumberDriverController.getLeftY(), 0.25, 1);
+                return MathUtil.isNear(leftX, 0, 0.01) && MathUtil.isNear(leftY, 0, 0.01) ? 0.0 / 0 : Math.toDegrees(Math.atan2(leftY, leftX));
+            };
+        } else {
+            speedSupplier = () -> driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis();
+            rotSupplier = () -> MathUtil.isNear(driverController.getLeftX(), 0, 0.01) && MathUtil.isNear(driverController.getLeftY(), 0, 0.01) ? 0.0 / 0 : Math.toDegrees(Math.atan2(driverController.getLeftY(), driverController.getLeftX()));
+        }
+        drivebase.setDefaultCommand(new GeofenceDriveCommand(drivebase, rotSupplier, speedSupplier, objects));
+
         outtake.setDefaultCommand(new OuttakePivotCommand(outtake, () -> operatorController.getRightY()));
         // Configure the trigger bindings
         configureBindings();
