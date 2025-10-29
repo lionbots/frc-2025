@@ -36,7 +36,7 @@ public final class Constants {
         // some values guessed, some values measured
         public static final int numMotors = 2;
         public static final double gearing = 8.46;
-        public static final int momentIntertia = 30; // calculated with sysid, looks suspicious tho
+        public static final int momentIntertia = 6; // calculated with sysid, looks suspicious tho
         public static final double massKg = 49.44;
         public static final double wheelRadiusMeters = 0.076;
         public static final double trackWidthMeters = 0.546;
@@ -62,9 +62,9 @@ public final class Constants {
 
         // feedbackward constants for simulated drivebase because the drivebase characteristics i used are probably all wrong
         public static class SimulatedPIDConstants {
-            public static final double kP = 0.1;
+            public static final double kP = 0.018;
             public static final double kI = 0;
-            public static final double kD = 0.05;
+            public static final double kD = 0.004;
             public static final double tolerance = PIDConstants.tolerance;
         }
     }

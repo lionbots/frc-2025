@@ -49,7 +49,7 @@ public class RobotContainer {
         // left trigger axis is definitely not the climber axis i just need a placeholder
         intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
         GeofenceObject[] objects = {
-            new Point(13, 4, 1, 0.5),
+            new Point(13, 4, 0.7, 0.3),
             new AALine("top border", 8, 0.5, 0.5, true, false),
             new AALine("left border", 0, 0.5, 0.5, false, true),
         };
