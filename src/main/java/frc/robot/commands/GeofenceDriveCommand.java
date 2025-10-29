@@ -70,6 +70,9 @@ public class GeofenceDriveCommand extends Command {
         if (!noMotion) {
             outputRotRate = drivebase.angleToRotation(inputMotion.getAngle().getDegrees(), suppliedSpeed < 0);
             this.lastCommandedRot = inputMotion.getAngle();
+            if (suppliedSpeed < 0) {
+                this.lastCommandedRot = this.lastCommandedRot.plus(Rotation2d.k180deg);
+            }
         }
         // if not moving
         if (noMotion && noSuppliedRot) {
