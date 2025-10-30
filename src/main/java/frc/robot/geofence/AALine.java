@@ -14,7 +14,6 @@ public class AALine implements GeofenceObject {
     double axis;
     double radius;
     double buffer;
-    String name;
     boolean horizontal;
     boolean robotPosGreater;
 
@@ -44,17 +43,17 @@ public class AALine implements GeofenceObject {
      * @param robotPosGreater Whether the robot's position on the axis is greater than the line's
      */
     public AALine(String name, double axis, double radius, double buffer, boolean horizontal, boolean robotPosGreater) {
-        this.name = name + "/";
         this.axis = axis;
         this.radius = radius;
         this.buffer = buffer;
         this.horizontal = horizontal;
         this.robotPosGreater = robotPosGreater;
-
+        
+        name += "/";
         NetworkTableInstance defaultInstance = NetworkTableInstance.getDefault();
-        this.distancePublisher = defaultInstance.getDoubleTopic("/geofence/" + this.name + "distance").publish();
-        this.dampedMotionPublisher = defaultInstance.getDoubleTopic("/geofence/" + this.name + "damped " + (this.horizontal ? "yMotion" : "xMotion")).publish();
-        this.modifiedMotionPublisher = defaultInstance.getDoubleTopic("/geofence/" + this.name + "final " + (this.horizontal ? "yMotion" : "xMotion")).publish();
+        this.distancePublisher = defaultInstance.getDoubleTopic("/geofence/" + name + "distance").publish();
+        this.dampedMotionPublisher = defaultInstance.getDoubleTopic("/geofence/" + name + "damped " + (this.horizontal ? "yMotion" : "xMotion")).publish();
+        this.modifiedMotionPublisher = defaultInstance.getDoubleTopic("/geofence/" + name + "final " + (this.horizontal ? "yMotion" : "xMotion")).publish();
     }
 
     @Override
