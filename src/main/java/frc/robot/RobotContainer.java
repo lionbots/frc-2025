@@ -10,7 +10,7 @@ import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import frc.robot.geofence.GeofenceObject;
 import frc.robot.geofence.AALine;
-import frc.robot.geofence.Point;
+import frc.robot.geofence.RegularPolygon;
 
 import java.util.function.Supplier;
 
@@ -49,7 +49,8 @@ public class RobotContainer {
         // left trigger axis is definitely not the climber axis i just need a placeholder
         intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
         GeofenceObject[] objects = {
-            new Point(13, 4, 0.7, 0.3),
+            new RegularPolygon("reef", 13.0, 4.0, 0.7, 6, Math.PI / 2, 0.2, 0.2),
+            // new Point(13, 4, 0.7, 0.3),
             new AALine("top border", 8, 0.5, 0.5, true, false),
             new AALine("left border", 0, 0.5, 0.5, false, true),
         };
