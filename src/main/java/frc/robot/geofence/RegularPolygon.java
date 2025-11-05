@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.geofence.Point.PointDampingPublishers;
 
 public class RegularPolygon implements GeofenceObject {
     private final LineSegment[] edges;
@@ -17,6 +17,7 @@ public class RegularPolygon implements GeofenceObject {
 
     BooleanPublisher inPolgyon = null;
     IntegerPublisher closestEdgeIdx = null;
+    PointDampingPublishers inPolygonDampingPublishers = null;
 
     /**
      * Construct a polygon geofencing object
@@ -61,9 +62,9 @@ public class RegularPolygon implements GeofenceObject {
         }
     
         NetworkTableInstance instance = NetworkTableInstance.getDefault();
-        this.inPolgyon = instance.getBooleanTopic("/geofence/" + name + "/inPolygon").publish();
+        this.inPolgyon = instance.getBooleanTopic("/geofence/" + name + "/inPolygon/inPolygon").publish();
         this.closestEdgeIdx = instance.getIntegerTopic("/geofence/" + name + "/closestEdgeIdx").publish();
-        
+        this.inPolygonDampingPublishers = new PointDampingPublishers("/geofence/" + name + "/inPolygon/");
     }
 
     @Override
@@ -74,7 +75,7 @@ public class RegularPolygon implements GeofenceObject {
                 this.inPolgyon.set(true);
                 this.closestEdgeIdx.set(-1);
             }
-            return Point.pointDamping(this.centerX, this.centerY, robotMotion, robotPos, robotRadius, this.polygonRadius, this.buffer);
+            return Point.pointDamping(this.centerX, this.centerY, robotMotion, robotPos, robotRadius, this.polygonRadius, this.buffer, this.inPolygonDampingPublishers);
         }
 
         // else push the robot away from the closest line
@@ -139,25 +140,16 @@ public class RegularPolygon implements GeofenceObject {
         // create lines from (x, y) to certain faraway points
         // if the point is inside the polygon and the polygon is "normal", there will be an odd number of intersections
         // may not be the most efficient because the game this is copied from had certain needs (ridiculous unit tests) that necessitated weird code\
-        SmartDashboard.putNumber("robotX", x);
-        SmartDashboard.putNumber("robotY", y);
         final double[][] multipliers = {{694, 694}, {694, -694}, {694, 420}};
         for (int i = 0; i < multipliers.length; i++) {
             double endX = (x == 0 ? 1 : x) * multipliers[i][0];
             double endY = (y == 0 ? 1 : y) * multipliers[i][1];
             int numIntersections = 0;
-            SmartDashboard.putNumber("endX" + i, endX);
-            SmartDashboard.putNumber("endY" + i, endY);
             for (int j = 0; j < polygonPoints.length; j++) {
-                // String key = i + " " + j + " (" + ((double) Math.round(x * 100) / 100) + ", " + ((double) Math.round(y * 100) / 100) + ")->(" + ((double) Math.round(endX * 100) / 100) + ", " + (Math.round(endY * 100) / 100) + ")x(" + ((double) Math.round(polygonPoints[j][0] * 100) / 100) + ", " + ((double) Math.round(polygonPoints[j][1] * 100) / 100) + ")->(" + ((double) Math.round(polygonPoints[(j + 1) % polygonPoints.length][0] * 100) / 100) + ", " + ((double) Math.round(polygonPoints[(j + 1) % polygonPoints.length][1] * 100) / 100) + ")";
                 if (segmentSegmentIntersect(x, y, endX, endY, polygonPoints[j][0], polygonPoints[j][1], polygonPoints[(j + 1) % polygonPoints.length][0], polygonPoints[(j + 1) % polygonPoints.length][1])) {
                     numIntersections++;
-                    // SmartDashboard.putBoolean(key, true);
-                } else {
-                    // SmartDashboard.putBoolean(key, false);
                 }
             }
-            SmartDashboard.putNumber("intersectionCount" + i, numIntersections);
             if (numIntersections % 2 != 0) {
                 return true;
             }

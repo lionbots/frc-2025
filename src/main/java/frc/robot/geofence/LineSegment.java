@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import frc.robot.geofence.Point.PointDampingPublishers;
 
 public class LineSegment implements GeofenceObject {
     final double aX;
@@ -18,6 +19,7 @@ public class LineSegment implements GeofenceObject {
 
     // DoublePublisher dotProductPublisher = null;
     StructPublisher<Translation2d> closestPointPublisher = null;
+    PointDampingPublishers pointDampingPublishers = null;
 
     /**
      * Constructs a geofence line segment
@@ -62,6 +64,7 @@ public class LineSegment implements GeofenceObject {
         this.closestPointPublisher = instance.getStructTopic("/geofence/" + name + "closestPoint", Translation2d.struct).publish();
         instance.getStructTopic("/geofence/" + name + "point one", Translation2d.struct).publish().set(new Translation2d(this.aX, this.aY));
         instance.getStructTopic("/geofence/" + name + "point two", Translation2d.struct).publish().set(new Translation2d(this.bX, this.bY));
+        this.pointDampingPublishers = new PointDampingPublishers("/geofence/" + name);
     }
 
     public Translation2d closestPoint(double x, double y) {
@@ -78,6 +81,6 @@ public class LineSegment implements GeofenceObject {
         if (this.closestPointPublisher != null) {
             this.closestPointPublisher.set(closestPoint);
         }
-        return Point.pointDamping(closestPoint.getX(), closestPoint.getY(), robotMotion, robotPos, robotRadius, this.radius, this.buffer);
+        return Point.pointDamping(closestPoint.getX(), closestPoint.getY(), robotMotion, robotPos, robotRadius, this.radius, this.buffer, this.pointDampingPublishers);
     }
 }
