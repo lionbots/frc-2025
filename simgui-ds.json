@@ -18,12 +18,12 @@
     {
       "axisConfig": [
         {
-          "decKey": 83,
-          "incKey": 87
-        },
-        {
           "decKey": 65,
           "incKey": 68
+        },
+        {
+          "decKey": 83,
+          "incKey": 87
         },
         {
           "decKey": 73,
@@ -34,7 +34,7 @@
           "incKey": 79
         }
       ],
-      "axisCount": 4,
+      "axisCount": 5,
       "buttonCount": 9,
       "buttonKeys": [
         -1,
@@ -128,7 +128,10 @@
       "guid": "Keyboard0",
       "name": "driver joystick"
     },
-    {},
+    {
+      "guid": "030000005e0400008e02000010010000",
+      "useGamepad": true
+    },
     {},
     {},
     {},
