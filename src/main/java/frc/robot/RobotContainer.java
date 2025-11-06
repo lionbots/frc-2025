@@ -40,11 +40,16 @@ public class RobotContainer {
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.driverControllerPort);
     private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.operatorControllerPort);
     private final CommandXboxController dumberDriverController = new CommandXboxController(1);
+    private final CommandXboxController dumberOperatorController = new CommandXboxController(2);
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         // left trigger axis is definitely not the climber axis i just need a placeholder
-        intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
+        if (RobotBase.isReal()) {
+            intake.setDefaultCommand(new IntakePivotCommand(intake, () -> operatorController.getLeftY() * -1));
+        } else {
+            intake.setDefaultCommand(new IntakePivotCommand(intake, () -> -operatorController.getLeftY() - dumberOperatorController.getLeftY()));
+        }
         Supplier<Double> speedSupplier;
         Supplier<Double> backwardSpeedSupplier;
         Supplier<Double> rotXSupplier;
@@ -99,16 +104,31 @@ public class RobotContainer {
     * joysticks}.
     */
     private void configureBindings() {
-        operatorController.leftTrigger(0.1).whileTrue((new IntakeCommand(intake, outtake, operatorController::getLeftTriggerAxis)));
-        operatorController.rightTrigger(0.1).whileTrue((new OuttakeCommand(outtake, intake, operatorController::getRightTriggerAxis)));
-        operatorController.rightBumper().whileTrue(new EjectCommand(intake));
-        operatorController.x().onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
         
+        Trigger intakeCmdTrigger, outtakeCmdTrigger, ejectCmdTrigger, magicPivotTrigger, disableMagicTrigger;
+        Supplier<Double> intakeSpeedSupplier, outtakeSpeedSupplier;
         if (RobotBase.isSimulation()) {
-            operatorController.a().onTrue(new InstantCommand(drivebase::resetSimPos));
+            intakeCmdTrigger = operatorController.leftTrigger(0.1).or(dumberOperatorController.leftTrigger(0.1));
+            outtakeCmdTrigger = operatorController.rightTrigger(0.1).or(dumberOperatorController.rightTrigger(0.1));
+            ejectCmdTrigger = operatorController.rightBumper().or(dumberOperatorController.rightBumper());
+            magicPivotTrigger = operatorController.x().or(dumberOperatorController.x());
+            disableMagicTrigger = operatorController.a().or(dumberDriverController.a());
+            intakeSpeedSupplier = () -> operatorController.getLeftTriggerAxis() + (dumberOperatorController.getLeftTriggerAxis() + 1) / 2;
+            outtakeSpeedSupplier = () -> operatorController.getRightTriggerAxis() + (dumberOperatorController.getRightTriggerAxis() + 1) / 2;
         } else {
-            operatorController.a().onTrue(new InstantCommand(() -> intake.setSetpoint(null), intake));
+            intakeCmdTrigger = operatorController.leftTrigger(0.1);
+            outtakeCmdTrigger = operatorController.rightTrigger(0.1);
+            ejectCmdTrigger = operatorController.rightBumper();
+            magicPivotTrigger = operatorController.x();
+            disableMagicTrigger = operatorController.a();
+            intakeSpeedSupplier = operatorController::getLeftTriggerAxis;
+            outtakeSpeedSupplier = operatorController::getRightTriggerAxis;
         }
+        intakeCmdTrigger.whileTrue((new IntakeCommand(intake, outtake, intakeSpeedSupplier)));
+        outtakeCmdTrigger.whileTrue((new OuttakeCommand(outtake, intake, outtakeSpeedSupplier)));
+        ejectCmdTrigger.whileTrue(new EjectCommand(intake));
+        magicPivotTrigger.onTrue(new MagicRotCommand(intake, "intake", 0, IntakeConstants.pivotSetpoint).enableContinuous(360.0));
+        disableMagicTrigger.onTrue(new InstantCommand(() -> intake.setSetpoint(null), intake));
     }
     
     /**
