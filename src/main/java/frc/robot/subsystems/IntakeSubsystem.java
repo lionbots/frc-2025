@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
@@ -42,6 +45,7 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     private final SparkMaxSim intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNEO(1));
     private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(DCMotor.getNEO(1), 100, SingleJointedArmSim.estimateMOI(0.2794, 5), 0.2794, 0, 2 * Math.PI, false, Math.toRadians(IntakeConstants.simPivotStartDeg));
     private final FlywheelSim intakeFlywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNeo550(1), 1, 4), DCMotor.getNeo550(1));
+    public Pose3d intakePose = new Pose3d();
     
     private MechanismLigament2d armLigament = null;
     private final PIDController pivotPid = new PIDController(0.005, 0, 0);
@@ -128,11 +132,14 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
     
     // Method to get position of pivot
     private double getRawPivotPosition() {
-        return RobotBase.isReal() ? this.pivotEncoder.get() : this.pivotMotorSim.getPosition();
+        return this.pivotEncoder.get();
     }
     
     // gets pivot position in degrees, compensating for gear ratio and encoder offset. can be <0 and >360
     private double getDiscontinuousPivotPosition() {
+        if (RobotBase.isSimulation()) {
+            return Math.toDegrees(this.pivotSim.getAngleRads()) - 90;
+        }
         // encoder rotation:intake pivot rotation = 3:1 so calculate accumulated rotation and divide by three
         double pivotPos = this.getRawPivotPosition() - this.encoderOffset.getThing();
         return (this.numRotations.getThing() * 360 + pivotPos) / IntakeConstants.pivotGearRatio;
@@ -165,18 +172,23 @@ public class IntakeSubsystem extends SubsystemBase implements IMagicRotSubsystem
             }
         }
         this.prevPivotPosition = rawPivotPosition;
-        
+        final double pivotPosition = this.getPivotPosition();
+
         if (this.setpoint != null) {
-            double calculation = this.pivotPid.calculate(this.getPivotPosition(), this.setpoint);
+            double calculation = this.pivotPid.calculate(pivotPosition, this.setpoint);
             this.setPivotSpeed(calculation);
         }
         
-    if (SmartDashboard.getBoolean(this.pivotLimEnabledName, false)) {
-        // if intake pivot motor is attempting to go past limits, stop it
-        if (!this.pivotWithinBounds(this.pivotMotor.get())) {
-            this.setPivotSpeed(0);
+        if (SmartDashboard.getBoolean(this.pivotLimEnabledName, false)) {
+            // if intake pivot motor is attempting to go past limits, stop it
+            if (!this.pivotWithinBounds(this.pivotMotor.get())) {
+                this.setPivotSpeed(0);
+            }
         }
-    }
+        SmartDashboard.putNumber("pivotPosition", pivotPosition);
+        SmartDashboard.putNumber("intakePos position", this.intakePose.getRotation().getY());
+        SmartDashboard.putNumber("rotation difference", this.intakePose.getRotation().getY() - Math.toRadians(pivotPosition));
+        this.intakePose = this.intakePose.rotateAround(new Translation3d(0, 0, 0.14), new Rotation3d(0, this.intakePose.getRotation().getY(), 0).minus(new Rotation3d(0, Math.toRadians(pivotPosition), 0)));
   }
     
     public void setSetpoint(Double pos) {
